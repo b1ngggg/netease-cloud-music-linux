@@ -1,0 +1,67 @@
+/*
+ * themesselector.css
+ * Copyright (C) 2022 gmg137
+ *
+ * Distributed under terms of the GPL-3.0-or-later license.
+ */
+
+themeselector > box {
+  min-height: 42px;
+  padding: 4px;
+  margin: 0 16px 6px;
+  border-radius: 999px;
+  border: 1px solid @borders;
+  background: @view_bg_color;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+}
+
+themeselector button.theme-mode-button {
+  min-width: 42px;
+  min-height: 34px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 999px;
+  color: @theme_fg_color;
+  background: transparent;
+  box-shadow: none;
+}
+
+themeselector button.theme-mode-button image {
+  margin: 0;
+  padding: 0;
+  opacity: 0.72;
+  color: inherit;
+  background: transparent;
+  transform: none;
+}
+
+themeselector button.theme-mode-button:hover {
+  background: alpha(@theme_fg_color, 0.08);
+}
+
+themeselector button.theme-mode-button:hover image {
+  opacity: 1;
+}
+
+themeselector button.theme-mode-button:checked {
+  color: @accent_fg_color;
+  background: @accent_bg_color;
+  box-shadow: 0 3px 12px alpha(@accent_bg_color, 0.42);
+}
+
+themeselector button.theme-mode-button:checked image {
+  opacity: 1;
+}
+
+themeselector button.system image {
+  opacity: 0.78;
+}
+
+themeselector button.light:checked {
+  color: #0f1712;
+}
+
+themeselector button.dark:checked {
+  color: #06150b;
+}

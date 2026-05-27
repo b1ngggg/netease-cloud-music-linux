@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <template class="PlayListLyricsPage" parent="AdwBin">
+    <style>
+      <class name="app-page"/>
+      <class name="lyrics-page"/>
+    </style>
+    <property name="child">
+      <object class="GtkOverlay" id="lyrics_overlay">
+        <child>
+          <object class="GtkScrolledWindow" id="lyrics_outer_scroll">
+            <property name="vexpand">true</property>
+            <property name="hexpand">true</property>
+            <style>
+              <class name="lyrics-page-scroll"/>
+            </style>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="vexpand">true</property>
+                <property name="hexpand">true</property>
+                <property name="margin-top">14</property>
+                <property name="margin-bottom">14</property>
+                <property name="margin-start">18</property>
+                <property name="margin-end">18</property>
+                <style>
+                  <class name="lyrics-stage"/>
+                </style>
+                <child>
+                  <object class="AdwClamp" id="lyrics_layout_clamp">
+                <property name="maximum-size">1120</property>
+                <property name="tightening-threshold">760</property>
+                <property name="hexpand">true</property>
+                <property name="vexpand">true</property>
+                <property name="halign">fill</property>
+                <property name="valign">fill</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="vexpand">true</property>
+                    <property name="hexpand">true</property>
+                    <property name="spacing">72</property>
+                    <style>
+                      <class name="lyrics-layout"/>
+                    </style>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="width-request">388</property>
+                        <property name="vexpand">true</property>
+                        <property name="valign">center</property>
+                        <property name="halign">center</property>
+                        <property name="spacing">0</property>
+                        <style>
+                          <class name="lyrics-record-panel"/>
+                        </style>
+                        <child>
+                          <object class="GtkOverlay">
+                            <property name="halign">center</property>
+                            <property name="valign">center</property>
+                            <style>
+                              <class name="lyrics-turntable"/>
+                            </style>
+                            <child>
+                              <object class="GtkOverlay" id="record_disc">
+                                <property name="width-request">330</property>
+                                <property name="height-request">330</property>
+                                <property name="halign">center</property>
+                                <property name="valign">center</property>
+                                <property name="margin-top">46</property>
+                                <property name="can-target">False</property>
+                                <property name="focusable">False</property>
+                                <style>
+                                  <class name="lyrics-vinyl-disc"/>
+                                </style>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="width-request">330</property>
+                                    <property name="height-request">330</property>
+                                  </object>
+                                </child>
+                                <child type="overlay">
+                                  <object class="AdwAvatar" id="record_cover_image">
+                                    <property name="size">172</property>
+                                    <property name="halign">center</property>
+                                    <property name="valign">center</property>
+                                    <property name="show-initials">False</property>
+                                    <property name="icon-name">image-missing-symbolic</property>
+                                    <property name="can-target">False</property>
+                                    <property name="focusable">False</property>
+                                    <style>
+                                      <class name="lyrics-record-cover"/>
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="overlay">
+                              <object class="GtkOverlay" id="record_tonearm">
+                                <property name="width-request">232</property>
+                                <property name="height-request">142</property>
+                                <property name="halign">end</property>
+                                <property name="valign">start</property>
+                                <property name="margin-top">0</property>
+                                <property name="margin-end">0</property>
+                                <style>
+                                  <class name="lyrics-tonearm"/>
+                                </style>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="width-request">232</property>
+                                    <property name="height-request">142</property>
+                                  </object>
+                                </child>
+                                <child type="overlay">
+                                  <object class="GtkBox">
+                                    <property name="width-request">30</property>
+                                    <property name="height-request">30</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="margin-start">18</property>
+                                    <property name="margin-top">8</property>
+                                    <style>
+                                      <class name="lyrics-tonearm-base"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child type="overlay">
+                                  <object class="GtkBox">
+                                    <property name="width-request">150</property>
+                                    <property name="height-request">9</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="margin-start">40</property>
+                                    <property name="margin-top">55</property>
+                                    <style>
+                                      <class name="lyrics-tonearm-arm"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child type="overlay">
+                                  <object class="GtkBox">
+                                    <property name="width-request">40</property>
+                                    <property name="height-request">20</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="margin-start">174</property>
+                                    <property name="margin-top">66</property>
+                                    <style>
+                                      <class name="lyrics-tonearm-head"/>
+                                    </style>
+                                  </object>
+                                </child>
+                                <child type="overlay">
+                                  <object class="GtkBox">
+                                    <property name="width-request">16</property>
+                                    <property name="height-request">5</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">start</property>
+                                    <property name="margin-start">166</property>
+                                    <property name="margin-top">64</property>
+                                    <style>
+                                      <class name="lyrics-tonearm-collar"/>
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="vexpand">true</property>
+                        <property name="hexpand">true</property>
+                        <property name="spacing">8</property>
+                        <style>
+                          <class name="lyrics-content-panel"/>
+                        </style>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">8</property>
+                            <style>
+                              <class name="lyrics-heading"/>
+                            </style>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">正在播放</property>
+                                <property name="halign">start</property>
+                                <style>
+                                  <class name="app-eyebrow"/>
+                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="lyrics_song_title_label">
+                                <property name="label" translatable="yes">歌词</property>
+                                <property name="halign">start</property>
+                                <property name="ellipsize">end</property>
+                                <property name="max-width-chars">56</property>
+                                <style>
+                                  <class name="lyrics-title"/>
+                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="lyrics_song_meta_label">
+                                <property name="label">专辑 · 歌手</property>
+                                <property name="halign">start</property>
+                                <property name="ellipsize">end</property>
+                                <property name="max-width-chars">72</property>
+                                <style>
+                                  <class name="app-muted-label"/>
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow" id="scroll_lyrics_win">
+                            <property name="vexpand">true</property>
+                            <property name="hexpand">true</property>
+                            <property name="min-content-width">280</property>
+                            <property name="min-content-height">360</property>
+                            <style>
+                              <class name="lyrics-scroll"/>
+                            </style>
+                            <child>
+                              <object class="GtkTextView" id="lyrics_text_view">
+                                <property name="hscroll-policy">natural</property>
+                                <property name="vscroll-policy">natural</property>
+                                <property name="wrap-mode">word-char</property>
+                                <property name="pixels-below-lines">10</property>
+                                <property name="editable">False</property>
+                                <property name="justification">left</property>
+                                <property name="left-margin">2</property>
+                                <property name="right-margin">16</property>
+                                <property name="top-margin">18</property>
+                                <property name="bottom_margin">28</property>
+                                <property name="cursor-visible">False</property>
+                                <property name="accepts-tab">False</property>
+                                <style>
+                                  <class name="lyrics-text-view"/>
+                                </style>
+                                <property name="buffer">
+                                  <object class="GtkTextBuffer" id="buffer">
+                                    <property name="tag_table">
+                                      <object class="GtkTextTagTable">
+                                        <child type="tag">
+                                          <object class="GtkTextTag" id="highlight_text_tag">
+                                            <property name="foreground">#1ed760</property>
+                                            <property name="weight">800</property>
+                                            <property name="size">18432</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </property>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="AdwClamp">
+                <property name="maximum-size">1120</property>
+                <property name="tightening-threshold">760</property>
+                <property name="hexpand">true</property>
+                <property name="margin-top">16</property>
+                <property name="margin-bottom">44</property>
+                <child>
+                  <object class="GtkBox" id="comments_section">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">14</property>
+                    <style>
+                      <class name="lyrics-comments-section"/>
+                    </style>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">12</property>
+                        <property name="valign">center</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">全部评论</property>
+                            <property name="halign">start</property>
+                            <style>
+                              <class name="lyrics-comments-title"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="comments_count_label">
+                            <property name="label" translatable="yes">加载中</property>
+                            <property name="halign">start</property>
+                            <property name="valign">baseline</property>
+                            <style>
+                              <class name="lyrics-comments-count"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSpinner" id="comments_spinner">
+                            <property name="spinning">False</property>
+                            <property name="visible">False</property>
+                            <property name="valign">center</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="comments_status_label">
+                        <property name="label" translatable="yes">暂无评论</property>
+                        <property name="halign">start</property>
+                        <property name="wrap">True</property>
+                        <style>
+                          <class name="lyrics-comments-status"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkListBox" id="comments_list_box">
+                        <property name="selection-mode">none</property>
+                        <style>
+                          <class name="lyrics-comments-list"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+        </child>
+        <child type="overlay">
+          <object class="GtkRevealer" id="queue_revealer">
+            <property name="halign">end</property>
+            <property name="valign">fill</property>
+            <property name="transition-type">slide-left</property>
+            <property name="transition-duration">280</property>
+            <property name="reveal-child">False</property>
+            <child>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="width-request">520</property>
+                <property name="vexpand">true</property>
+                <property name="margin-top">18</property>
+                <property name="margin-bottom">18</property>
+                <property name="margin-end">18</property>
+                <style>
+                  <class name="lyrics-queue-panel"/>
+                </style>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">12</property>
+                    <property name="margin-start">20</property>
+                    <property name="margin-end">14</property>
+                    <property name="margin-top">18</property>
+                    <property name="margin-bottom">10</property>
+                    <style>
+                      <class name="lyrics-queue-heading"/>
+                    </style>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="hexpand">true</property>
+                        <property name="spacing">4</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">播放队列</property>
+                            <property name="halign">start</property>
+                            <style>
+                              <class name="app-section-title"/>
+                            </style>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">当前列表与即将播放</property>
+                            <property name="halign">start</property>
+                            <style>
+                              <class name="app-muted-label"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="icon-name">window-close-symbolic</property>
+                        <property name="valign">start</property>
+                        <property name="tooltip-text">关闭队列</property>
+                        <signal name="clicked" handler="queue_close_cb" swapped="true"/>
+                        <style>
+                          <class name="flat"/>
+                          <class name="app-icon-button"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="SongListView" id="songs_list">
+                    <property name="vexpand">true</property>
+                    <property name="width-request">500</property>
+                    <property name="clamp-margin-top">8</property>
+                    <property name="clamp-margin-bottom">12</property>
+                    <property name="clamp-maximum-size">500</property>
+                    <property name="clamp-tightening-threshold">460</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>

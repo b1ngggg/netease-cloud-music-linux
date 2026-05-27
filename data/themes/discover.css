@@ -1,0 +1,1552 @@
+/*
+ * App-inspired application theme.
+ *
+ * Distributed under terms of the GPL-3.0-or-later license.
+ */
+
+@define-color app_bg #000000;
+@define-color app_panel #121212;
+@define-color app_panel_raised #181818;
+@define-color app_panel_hover #242424;
+@define-color app_pressed #2a2a2a;
+@define-color app_border rgba(255, 255, 255, 0.08);
+@define-color app_text #ffffff;
+@define-color app_text_muted #b3b3b3;
+@define-color app_green #1db954;
+@define-color app_green_hover #1ed760;
+@define-color app_input #242424;
+@define-color app_actionbar #181818;
+@define-color app_control_hover rgba(255, 255, 255, 0.08);
+@define-color app_overlay rgba(18, 18, 18, 0.96);
+@define-color app_scale_trough #4d4d4d;
+@define-color app_card_frame #242424;
+@define-color app_hero_start #2b2b2b;
+@define-color app_hero_mid #181818;
+@define-color app_hero_end #101010;
+@define-color app_lyrics_start #242424;
+@define-color app_lyrics_mid #181818;
+@define-color app_lyrics_end #121212;
+@define-color app_lyrics_text rgba(255, 255, 255, 0.60);
+@define-color app_shadow rgba(0, 0, 0, 0.38);
+
+.app-window,
+.app-root,
+.app-shell {
+  background: @app_bg;
+  color: @app_text;
+  /* Prefer Chinese-friendly fonts when the app runs inside Flatpak. */
+  font-family: "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", "WenQuanYi Micro Hei", "SimSun", sans-serif;
+}
+
+headerbar.app-header {
+  min-height: 46px;
+  padding: 4px 14px;
+  background: @app_bg;
+  color: @app_text;
+  box-shadow: none;
+  border: none;
+}
+
+.app-header button.app-icon-button,
+button.app-icon-button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 999px;
+  color: @app_text_muted;
+  background: transparent;
+}
+
+.app-header button.app-icon-button:hover,
+button.app-icon-button:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+.app-sidebar {
+  margin: 8px 0 8px 8px;
+  padding: 20px 12px;
+  border-radius: 8px;
+  background: @app_panel;
+  color: @app_text;
+}
+
+.app-logo {
+  color: @app_green;
+}
+
+.app-brand-icon {
+  color: @app_text;
+}
+
+.app-brand {
+  font-size: 20px;
+  font-weight: 800;
+  color: @app_text;
+}
+
+button.app-nav-item {
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 6px;
+  color: @app_text_muted;
+  background: transparent;
+  font-weight: 700;
+}
+
+button.app-nav-item image {
+  color: inherit;
+}
+
+button.app-nav-item label {
+  color: inherit;
+}
+
+button.app-nav-item:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+button.app-nav-item.active {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+button.app-nav-item.active image {
+  color: @app_green;
+}
+
+button.app-library-item {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 6px;
+  color: @app_text_muted;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+button.app-library-item image,
+button.app-library-item label {
+  color: inherit;
+}
+
+button.app-library-item:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+button.app-library-item.active {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+button.app-library-item.active image {
+  color: @app_green;
+}
+
+.app-sidebar separator {
+  background: @app_border;
+}
+
+.app-sidebar-caption {
+  margin-top: 2px;
+  color: @app_text;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.app-content {
+  margin: 8px;
+  margin-left: 8px;
+  border-radius: 8px;
+  background: @app_panel;
+  color: @app_text;
+}
+
+.app-page-stack {
+  background: transparent;
+}
+
+searchbar.app-search-bar,
+searchbar.app-search-bar > revealer,
+searchbar.app-search-bar > revealer > box {
+  padding: 13px 22px 12px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+searchbar.app-search-bar > revealer,
+searchbar.app-search-bar > revealer > box {
+  padding: 0;
+}
+
+.app-search-panel {
+  min-height: 46px;
+  padding: 0 6px 0 14px;
+  border-radius: 999px;
+  background: @app_input;
+  border: 1px solid @app_border;
+  box-shadow: 0 12px 32px @app_shadow;
+}
+
+.app-search-panel entry {
+  min-height: 38px;
+  padding: 0 4px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: @app_text;
+  box-shadow: none;
+}
+
+.app-search-panel entry:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+menubutton.app-search-menu {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+menubutton.app-search-menu > button,
+.app-search-menu button {
+  min-height: 38px;
+  min-width: 78px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: @app_text;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+menubutton.app-search-menu > button:hover,
+.app-search-menu button:hover {
+  background: @app_control_hover;
+}
+
+.app-search-popover contents {
+  padding: 6px;
+  border-radius: 10px;
+}
+
+.app-search-popover-box {
+  padding: 2px;
+}
+
+checkbutton.app-search-option {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: @app_text_muted;
+  background: transparent;
+}
+
+checkbutton.app-search-option:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+checkbutton.app-search-option:checked {
+  color: @app_green;
+  background: rgba(29, 185, 84, 0.14);
+}
+
+checkbutton.app-search-option label {
+  color: inherit;
+  font-weight: 650;
+}
+
+checkbutton.app-search-option check {
+  min-width: 13px;
+  min-height: 13px;
+  margin-right: 8px;
+  border-radius: 999px;
+  border: 1px solid @app_border;
+  background: transparent;
+  box-shadow: none;
+}
+
+checkbutton.app-search-option:checked check {
+  color: #000000;
+  border-color: @app_green;
+  background: @app_green;
+}
+
+.app-page {
+  background: transparent;
+  color: @app_text;
+}
+
+.app-page label {
+  color: @app_text;
+}
+
+.app-page .dim-label,
+.app-player .dim-label,
+.label-album-grid-artist {
+  color: @app_text_muted;
+  opacity: 1;
+}
+
+.discover-page {
+  padding-bottom: 20px;
+}
+
+.app-hero-carousel,
+carousel.card {
+  border-radius: 12px;
+  background: linear-gradient(135deg, @app_hero_start 0%, @app_hero_mid 55%, @app_hero_end 100%);
+  box-shadow: 0 8px 24px @app_shadow;
+}
+
+button.hover-button {
+  color: @app_text;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+button.hover-button:hover {
+  color: @app_text;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.app-section-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: @app_text;
+}
+
+button.app-more-button {
+  border-radius: 999px;
+  color: @app_text_muted;
+}
+
+button.app-more-button:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+separator {
+  background: @app_border;
+}
+
+flowbox {
+  background: transparent;
+}
+
+flowboxchild {
+  margin: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: @app_panel_raised;
+  color: @app_text;
+}
+
+flowboxchild:hover {
+  background: @app_panel_hover;
+}
+
+flowboxchild:active {
+  background: @app_pressed;
+}
+
+flowboxchild frame,
+gridview > child frame,
+.songlist-detail-page frame,
+.toplist-page frame {
+  border: none;
+  border-radius: 8px;
+  background: @app_card_frame;
+  box-shadow: none;
+}
+
+flowboxchild image,
+gridview > child image,
+.songlist-detail-page frame image,
+.toplist-page frame image {
+  border-radius: 8px;
+}
+
+.songlist_grid_page gridview {
+  padding: 24px;
+  background: transparent;
+}
+
+.songlist_grid_page gridview > child {
+  margin: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: @app_panel_raised;
+}
+
+.songlist_grid_page gridview > child:hover {
+  background: @app_panel_hover;
+}
+
+listbox.boxed-list {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+row.song_row {
+  min-height: 56px;
+  margin: 2px 0;
+  border-radius: 6px;
+  background: transparent;
+  color: @app_text_muted;
+}
+
+row.song_row label {
+  color: @app_text_muted;
+  opacity: 1;
+}
+
+row.song_row.activatable label {
+  color: @app_text;
+  opacity: 1;
+}
+
+row.song_row:hover,
+row.song_row:selected {
+  background: @app_panel_hover;
+}
+
+row.song_row:hover label,
+row.song_row:selected label {
+  color: @app_text;
+}
+
+row.song_row image {
+  color: @app_text_muted;
+}
+
+row.song_row:hover image,
+row.song_row:selected image {
+  color: @app_green;
+}
+
+button.circular {
+  border-radius: 999px;
+}
+
+button.circular {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+button.circular:hover {
+  background: @app_pressed;
+}
+
+button.app-play-button {
+  color: #000000;
+  background: @app_text;
+}
+
+button.app-play-button:hover {
+  color: #000000;
+  background: @app_green_hover;
+}
+
+button.suggested-action,
+switch:checked {
+  background: @app_green;
+  color: #000000;
+}
+
+.app-actionbar {
+  min-height: 82px;
+  padding: 0;
+  background: @app_actionbar;
+  border-top: 1px solid @app_border;
+  box-shadow: none;
+}
+
+revealer.app-player-revealer,
+revealer.app-player-revealer > contents,
+revealer.app-player-revealer > contents > actionbar,
+revealer.app-player-revealer > contents > actionbar > revealer,
+revealer.app-player-revealer > contents > actionbar > revealer > contents,
+revealer.app-player-revealer > contents > actionbar > revealer > contents > box {
+  min-height: 0;
+  background: @app_actionbar;
+}
+
+actionbar.app-actionbar,
+actionbar.app-actionbar > revealer,
+actionbar.app-actionbar > revealer > contents,
+actionbar.app-actionbar > revealer > contents > box,
+actionbar.app-actionbar > revealer > box,
+.app-actionbar > revealer,
+.app-actionbar > revealer > contents,
+.app-actionbar > revealer > contents > box,
+.app-actionbar > revealer > box {
+  background: @app_actionbar;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.app-player {
+  background: transparent;
+  color: @app_text;
+}
+
+.app-player-controls {
+  margin: 0;
+}
+
+.app-player-controls button,
+.app-player button.flat,
+.app-player menubutton button {
+  color: @app_text_muted;
+  background: transparent;
+  border-radius: 999px;
+}
+
+.app-player-controls button:hover,
+.app-player button.flat:hover,
+.app-player menubutton button:hover {
+  color: @app_text;
+  background: @app_control_hover;
+}
+
+.app-now-playing-cover {
+  border-radius: 6px;
+  background: @app_panel_hover;
+}
+
+.player-cover-button {
+  border-radius: 6px;
+  background: transparent;
+}
+
+.player-cover-button:hover .app-now-playing-cover {
+  opacity: 0.48;
+}
+
+.cover-queue-hint {
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 4px;
+  opacity: 0;
+  color: #000000;
+  background: @app_green;
+}
+
+.player-cover-button:hover .cover-queue-hint {
+  opacity: 1;
+}
+
+.app-track-info .heading {
+  font-weight: 700;
+  color: @app_text;
+}
+
+.app-track-info {
+  min-width: 120px;
+}
+
+.app-player label {
+  color: @app_text;
+}
+
+.app-player scale {
+  margin: 0 8px;
+}
+
+.player-volume-box {
+  min-height: 34px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.player-volume-box:hover {
+  background: @app_control_hover;
+}
+
+.player-volume-icon {
+  color: @app_text_muted;
+}
+
+.player-volume-box:hover .player-volume-icon {
+  color: @app_text;
+}
+
+.player-volume-box scale {
+  margin: 0;
+}
+
+.player-volume-box scale trough {
+  min-height: 3px;
+}
+
+button.player-repeat-button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  color: @app_text_muted;
+  background: transparent;
+  border-radius: 999px;
+}
+
+button.player-repeat-button:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+button.player-repeat-button.active {
+  color: @app_green;
+}
+
+button.player-repeat-button.active:hover {
+  color: @app_green_hover;
+  background: rgba(29, 185, 84, 0.12);
+}
+
+.repeat-popover-box {
+  min-width: 168px;
+  padding: 2px;
+}
+
+checkbutton.repeat-option {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: @app_text_muted;
+  background: transparent;
+}
+
+checkbutton.repeat-option label {
+  color: inherit;
+  font-weight: 650;
+}
+
+checkbutton.repeat-option check {
+  min-width: 13px;
+  min-height: 13px;
+  margin-right: 8px;
+  border-radius: 999px;
+  border: 1px solid @app_border;
+  background: transparent;
+  box-shadow: none;
+}
+
+checkbutton.repeat-option:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+checkbutton.repeat-option:checked {
+  color: @app_green;
+  background: rgba(29, 185, 84, 0.14);
+}
+
+checkbutton.repeat-option:checked check {
+  color: #000000;
+  border-color: @app_green;
+  background: @app_green;
+}
+
+scale trough {
+  min-height: 4px;
+  border-radius: 999px;
+  background: @app_scale_trough;
+}
+
+scale trough highlight {
+  border-radius: 999px;
+  background: @app_green;
+}
+
+scale slider {
+  min-width: 12px;
+  min-height: 12px;
+  border-radius: 999px;
+  background: @app_text;
+  box-shadow: none;
+}
+
+popover,
+popover contents {
+  border-radius: 8px;
+  background: @app_panel_raised;
+  color: @app_text;
+  border: 1px solid @app_border;
+}
+
+popover checkbutton {
+  min-height: 34px;
+  color: @app_text;
+}
+
+popover label,
+popover image {
+  color: inherit;
+}
+
+popover modelbutton,
+popover button,
+popover row {
+  color: @app_text;
+  background: transparent;
+  border-radius: 6px;
+}
+
+popover modelbutton:hover,
+popover button:hover,
+popover row:hover {
+  background: @app_panel_hover;
+}
+
+popover.menu contents,
+popover.context-menu contents,
+popover.background contents {
+  padding: 8px;
+  border-radius: 10px;
+  background: alpha(@app_panel_raised, 0.98);
+  border: 1px solid @app_border;
+  box-shadow: 0 18px 40px @app_shadow;
+}
+
+popover.menu modelbutton,
+popover.context-menu modelbutton,
+popover.background modelbutton {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 7px;
+  color: @app_text;
+}
+
+popover.menu modelbutton:hover,
+popover.context-menu modelbutton:hover,
+popover.background modelbutton:hover {
+  background: @app_panel_hover;
+}
+
+popover.app-entry-context-popover contents {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+label selection,
+textview text selection,
+entry selection {
+  background: alpha(@app_green, 0.35);
+  color: @app_text;
+}
+
+.app-menu-layer {
+  background: transparent;
+}
+
+.app-menu-card {
+  padding: 8px;
+  border-radius: 10px;
+  background: alpha(@app_panel_raised, 0.98);
+  border: 1px solid @app_border;
+  box-shadow: 0 18px 40px @app_shadow;
+  color: @app_text;
+}
+
+.app-menu-content {
+  padding: 2px;
+}
+
+.app-menu-row {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 7px;
+  color: @app_text;
+  background: transparent;
+}
+
+.app-menu-row:hover {
+  background: @app_panel_hover;
+}
+
+.app-menu-row:disabled {
+  color: @app_text_muted;
+  opacity: 0.48;
+}
+
+.app-menu-row.selected {
+  background: alpha(@app_green, 0.14);
+  color: @app_text;
+}
+
+.app-menu-row-icon {
+  color: @app_text;
+}
+
+.app-menu-check {
+  color: @app_text_muted;
+}
+
+.app-menu-row.selected .app-menu-check,
+.app-menu-row.selected .app-menu-row-icon {
+  color: @app_green;
+}
+
+.app-menu-separator {
+  margin: 4px 2px;
+  background: @app_border;
+}
+
+.app-user-menu-embedded {
+  padding: 2px;
+}
+
+preferencesdialog,
+preferencespage,
+.app-preferences {
+  background: @app_bg;
+  color: @app_text;
+}
+
+preferencesdialog headerbar {
+  background: @app_bg;
+  color: @app_text;
+  box-shadow: none;
+}
+
+preferencesgroup,
+preferencesgroup > box,
+.app-preferences preferencesgroup,
+.app-preferences preferencesgroup > box {
+  background: transparent;
+  color: @app_text;
+}
+
+preferencesgroup row,
+preferencesgroup comborow,
+preferencesgroup actionrow,
+.app-preferences row,
+.app-preferences comborow,
+.app-preferences actionrow {
+  color: @app_text;
+  background: @app_panel_raised;
+  border-radius: 8px;
+}
+
+preferencesgroup row:hover,
+preferencesgroup comborow:hover,
+preferencesgroup actionrow:hover,
+.app-preferences row:hover,
+.app-preferences comborow:hover,
+.app-preferences actionrow:hover {
+  background: @app_panel_hover;
+}
+
+preferencesgroup entry,
+preferencesgroup dropdown,
+preferencesgroup button,
+.app-preferences entry,
+.app-preferences dropdown,
+.app-preferences button {
+  color: @app_text;
+  background: @app_panel_hover;
+  border: 1px solid @app_border;
+  border-radius: 8px;
+}
+
+preferencesgroup switch:checked,
+.app-preferences switch:checked {
+  background: @app_green;
+}
+
+textview,
+textview text {
+  background: @app_panel;
+  color: @app_text;
+}
+
+.app-detail-hero,
+.app-search-results-hero {
+  padding: 24px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, @app_hero_start 0%, @app_hero_mid 44%, @app_hero_end 100%);
+  box-shadow: none;
+}
+
+.app-cover-frame {
+  border: none;
+  border-radius: 8px;
+  background: @app_card_frame;
+  box-shadow: 0 6px 18px @app_shadow;
+}
+
+.app-cover-frame image {
+  border-radius: 8px;
+}
+
+.app-eyebrow {
+  color: @app_text_muted;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.app-detail-title {
+  color: @app_text;
+  font-size: 38px;
+  font-weight: 900;
+}
+
+.app-muted-label {
+  color: @app_text_muted;
+  opacity: 1;
+}
+
+button.app-primary-play {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  color: #000000;
+  background: @app_green;
+}
+
+button.app-primary-play:hover {
+  color: #000000;
+  background: @app_green_hover;
+}
+
+button.app-secondary-action {
+  min-width: 44px;
+  min-height: 44px;
+  color: @app_text;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+button.app-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.app-song-list-view,
+.app-list-scroll,
+.app-list-scroll viewport {
+  background: transparent;
+}
+
+.app-song-table {
+  border-radius: 8px;
+  background: transparent;
+}
+
+.app-list-loading-card {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid @app_border;
+  border-radius: 999px;
+  background: @app_overlay;
+  box-shadow: 0 12px 30px @app_shadow;
+}
+
+.app-list-loading-card spinner {
+  color: @app_green;
+}
+
+.app-list-header {
+  color: @app_text_muted;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.app-list-header label,
+.app-list-header image {
+  color: @app_text_muted;
+}
+
+row.song_row {
+  padding: 0;
+}
+
+row.song_row .song-row-title {
+  color: @app_text;
+  font-weight: 600;
+}
+
+row.song_row .song-row-meta {
+  color: @app_text_muted;
+}
+
+row.song_row:hover .song-row-meta,
+row.song_row:selected .song-row-meta {
+  color: @app_text;
+}
+
+.song-row-play-icon {
+  color: @app_green;
+}
+
+button.app-row-action {
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 999px;
+  color: @app_text_muted;
+}
+
+button.app-row-action:hover {
+  color: @app_text;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.toplist-shell {
+  background: transparent;
+}
+
+.toplist-sidebar-panel,
+.toplist-sidebar-panel viewport {
+  border-radius: 8px;
+  background: @app_panel_raised;
+}
+
+listbox.toplist-sidebar {
+  padding: 10px;
+  background: transparent;
+}
+
+listbox.toplist-sidebar row {
+  min-height: 64px;
+  margin: 3px 0;
+  border-radius: 6px;
+  color: @app_text_muted;
+  background: transparent;
+}
+
+listbox.toplist-sidebar row.toplist-row {
+  padding: 6px 8px;
+}
+
+listbox.toplist-sidebar row:hover,
+listbox.toplist-sidebar row:selected {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+listbox.toplist-sidebar row image,
+.toplist-row-cover {
+  border-radius: 5px;
+}
+
+listbox.toplist-sidebar row.toplist-row label,
+row.toplist-row label {
+  color: @app_text_muted;
+  opacity: 1;
+}
+
+listbox.toplist-sidebar row.toplist-row .title,
+row.toplist-row .title {
+  color: @app_text;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+listbox.toplist-sidebar row.toplist-row .subtitle,
+row.toplist-row .subtitle {
+  color: @app_text_muted;
+  font-size: 12px;
+}
+
+listbox.toplist-sidebar row.toplist-row:selected .title,
+listbox.toplist-sidebar row.toplist-row:hover .title,
+row.toplist-row:selected .title,
+row.toplist-row:hover .title {
+  color: @app_text;
+}
+
+listbox.toplist-sidebar row.toplist-row:selected .subtitle,
+listbox.toplist-sidebar row.toplist-row:hover .subtitle,
+row.toplist-row:selected .subtitle,
+row.toplist-row:hover .subtitle {
+  color: #d6d6d6;
+}
+
+.toplist-content-panel {
+  background: transparent;
+}
+
+.my-page {
+  padding-bottom: 20px;
+}
+
+.my-action-grid {
+  padding: 0;
+  background: transparent;
+}
+
+.my-action-grid flowboxchild {
+  margin: 6px;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.my-action-grid flowboxchild:hover {
+  background: transparent;
+}
+
+.my-action-card {
+  min-height: 142px;
+  padding: 18px 12px;
+  border-radius: 8px;
+  background: @app_panel_raised;
+  color: @app_text;
+}
+
+.my-action-card:hover {
+  background: @app_panel_hover;
+}
+
+.my-action-card avatar {
+  color: @app_text;
+  background: #282828;
+}
+
+.my-action-label {
+  margin-top: 10px;
+  color: @app_text;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.my-recommend-section {
+  border-radius: 8px;
+  background: transparent;
+}
+
+.app-section-heading-row {
+  padding: 0 2px;
+}
+
+.app-grid-scroll,
+.app-grid-scroll viewport {
+  background: transparent;
+}
+
+.app-grid-card-content {
+  padding: 0;
+  color: @app_text;
+}
+
+.app-grid-title {
+  color: @app_text;
+  font-weight: 700;
+}
+
+.app-singer-card {
+  padding: 12px;
+  border-radius: 8px;
+  background: @app_panel_raised;
+}
+
+.app-singer-card:hover {
+  background: @app_panel_hover;
+}
+
+.lyrics-page {
+  background: transparent;
+}
+
+.lyrics-stage {
+  border-radius: 12px;
+  background: linear-gradient(180deg, @app_lyrics_start 0%, @app_lyrics_mid 42%, @app_lyrics_end 100%);
+  color: @app_text;
+}
+
+.lyrics-layout {
+  padding: 28px 40px 28px;
+  min-height: 650px;
+}
+
+.lyrics-record-panel {
+  padding: 0;
+}
+
+.lyrics-turntable {
+  padding: 12px 24px 16px;
+}
+
+.lyrics-vinyl-disc {
+  border-radius: 999px;
+  transform-origin: center;
+  background:
+    radial-gradient(circle, transparent 0%, transparent 25%, rgba(255, 255, 255, 0.05) 26%, transparent 27%),
+    repeating-radial-gradient(circle, #050505 0%, #050505 2px, #111111 3px, #111111 5px, #090909 6px, #090909 8px),
+    radial-gradient(circle, #303030 0%, #111111 21%, #050505 54%, #1d1d1d 58%, #040404 100%);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.48),
+    0 0 0 14px rgba(29, 185, 84, 0.08),
+    inset 0 0 0 64px rgba(0, 0, 0, 0.18);
+}
+
+.lyrics-record-cover {
+  border-radius: 999px;
+  transform-origin: center;
+  background: #181818;
+  box-shadow: 0 0 0 8px rgba(0, 0, 0, 0.28), 0 12px 28px rgba(0, 0, 0, 0.42);
+}
+
+.lyrics-tonearm {
+  color: rgba(245, 245, 245, 0.96);
+  transform-origin: 33px 23px;
+  transform: rotate(-10deg);
+  transition: transform 420ms ease;
+}
+
+.lyrics-tonearm.playing {
+  transform: rotate(10deg);
+}
+
+.lyrics-tonearm-base {
+  border-radius: 999px;
+  background: radial-gradient(circle, #ffffff 0%, #f1f1f1 34%, #cfcfcf 46%, rgba(255, 255, 255, 0.20) 48%, rgba(255, 255, 255, 0.05) 100%);
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.34), 0 0 0 4px rgba(255, 255, 255, 0.08);
+}
+
+.lyrics-tonearm-arm {
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.98), rgba(235, 235, 235, 0.94));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);
+  transform: rotate(20deg);
+}
+
+.lyrics-tonearm-collar {
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f6f6f6, #d8d8d8);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+  transform: rotate(8deg);
+}
+
+.lyrics-tonearm-head {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f7f7f7, #e2e2e2);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.34);
+  transform: rotate(4deg);
+}
+
+.lyrics-content-panel {
+  padding: 22px 0;
+}
+
+.lyrics-heading {
+  padding: 0 0 4px;
+}
+
+.lyrics-title {
+  color: @app_text;
+  font-family: "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", "WenQuanYi Micro Hei", "SimSun", sans-serif;
+  font-size: 27px;
+  font-weight: 900;
+}
+
+.lyrics-scroll,
+.lyrics-scroll viewport,
+.lyrics-page-scroll,
+.lyrics-page-scroll viewport {
+  border-radius: 0 0 12px 12px;
+  background: transparent;
+}
+
+.lyrics-flow {
+  background: transparent;
+}
+
+textview.lyrics-text-view,
+textview.lyrics-text-view text {
+  background: transparent;
+  color: @app_lyrics_text;
+  font-family: "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", "WenQuanYi Micro Hei", "SimSun", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.lyrics-comments-section {
+  padding: 28px 40px 38px;
+  border-radius: 12px;
+  border: 1px solid @app_border;
+  background: linear-gradient(180deg, alpha(@app_panel_raised, 0.96), alpha(@app_panel, 0.98));
+  color: @app_text;
+  font-family: "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", "WenQuanYi Micro Hei", "SimSun", sans-serif;
+  box-shadow: inset 0 1px alpha(@app_text, 0.04);
+}
+
+.lyrics-comments-title {
+  color: @app_text;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.lyrics-comments-count,
+.lyrics-comments-status {
+  color: @app_text_muted;
+  font-size: 13px;
+}
+
+.lyrics-comments-list {
+  background: transparent;
+}
+
+.lyrics-comments-list row {
+  margin: 0;
+  padding: 0;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.lyrics-comment-card {
+  margin: 0 -12px;
+  padding: 16px 12px;
+  border-radius: 8px;
+  border-bottom: 1px solid @app_border;
+  background: transparent;
+  color: @app_text;
+}
+
+.lyrics-comment-card:hover {
+  background: alpha(@app_panel_hover, 0.52);
+}
+
+.lyrics-comment-group-title {
+  padding: 18px 0 6px;
+  color: @app_text;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+image.lyrics-comment-avatar {
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 999px;
+  background: @app_panel_hover;
+  color: @app_text_muted;
+}
+
+.lyrics-comment-name {
+  color: @app_text;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.lyrics-comment-meta {
+  color: @app_text_muted;
+  font-size: 12px;
+}
+
+.lyrics-comment-content {
+  color: @app_text;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.lyrics-comment-reply {
+  padding: 10px 12px;
+  border-radius: 7px;
+  border: 1px solid @app_border;
+  color: @app_text_muted;
+  background: alpha(@app_input, 0.72);
+  font-size: 13px;
+}
+
+button.lyrics-comment-replies-button {
+  min-height: 24px;
+  margin-top: 2px;
+  padding: 0;
+  color: @app_text_muted;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+button.lyrics-comment-replies-button:hover {
+  color: @app_green_hover;
+  background: transparent;
+}
+
+.lyrics-comment-replies-drawer {
+  margin: 0 0 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid @app_border;
+  background: alpha(@app_panel_hover, 0.34);
+}
+
+.lyrics-comment-replies-list,
+.lyrics-comment-replies-list row {
+  background: transparent;
+}
+
+.lyrics-comment-reply-card {
+  padding: 12px 2px;
+  border-bottom: 1px solid alpha(@app_border, 0.42);
+  color: @app_text;
+  background: transparent;
+}
+
+.lyrics-comment-replies-list row:last-child .lyrics-comment-reply-card {
+  border-bottom: none;
+}
+
+image.lyrics-comment-reply-avatar {
+  min-width: 34px;
+  min-height: 34px;
+  border-radius: 999px;
+  background: @app_panel_hover;
+  color: @app_text_muted;
+}
+
+.lyrics-comment-reply-name {
+  color: @app_text;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.lyrics-comment-reply-content {
+  color: @app_text;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.lyrics-comment-reply-meta,
+.lyrics-comment-replies-empty {
+  color: @app_text_dim;
+  font-size: 12px;
+}
+
+.lyrics-comment-actions {
+  margin-top: 2px;
+  color: #8a8a92;
+}
+
+button.lyrics-comment-action-button {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 2px;
+  border-radius: 999px;
+  color: @app_text_muted;
+  background: transparent;
+}
+
+button.lyrics-comment-action-button:hover {
+  color: @app_green_hover;
+  background: @app_control_hover;
+}
+
+button.lyrics-comment-action-button.liked,
+.lyrics-comment-like-count.liked {
+  color: @app_green_hover;
+}
+
+.lyrics-comment-like-count {
+  min-width: 20px;
+  color: @app_text_muted;
+  font-size: 12px;
+}
+
+.lyrics-comment-input-drawer {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid @app_border;
+  background: alpha(@app_panel_hover, 0.58);
+}
+
+entry.lyrics-comment-entry {
+  color: @app_text;
+  background: @app_input;
+  border-color: @app_border;
+}
+
+button.lyrics-comment-send-button {
+  min-height: 34px;
+  padding: 0 16px;
+  border-radius: 4px;
+}
+
+.lyrics-comment-context-card {
+  padding: 6px;
+}
+
+button.lyrics-comment-context-delete {
+  min-height: 30px;
+  padding: 0 14px;
+  border-radius: 6px;
+  color: #ff6b6b;
+  background: transparent;
+  font-weight: 800;
+}
+
+button.lyrics-comment-context-delete:hover {
+  background: alpha(#ff6b6b, 0.14);
+}
+
+.lyrics-queue-panel {
+  border-radius: 14px;
+  background: @app_overlay;
+  color: @app_text;
+  box-shadow: -18px 0 42px @app_shadow;
+}
+
+.global-queue-panel {
+  margin-left: 18px;
+  border: 1px solid @app_border;
+}
+
+.lyrics-queue-panel .app-song-table {
+  padding: 0 4px 10px;
+}
+
+.lyrics-queue-heading {
+  padding-bottom: 10px;
+}
+
+.lyrics-queue-panel .app-list-header {
+  font-size: 11px;
+  min-height: 28px;
+}
+
+.lyrics-queue-panel row.song_row {
+  min-height: 50px;
+}
+
+.lyrics-queue-panel row.song_row .song-row-meta {
+  font-size: 12px;
+}
+
+button.player-album-button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 999px;
+  color: @app_text_muted;
+  background: transparent;
+}
+
+button.player-album-button:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}
+
+button.player-queue-button {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border-radius: 999px;
+  color: @app_text_muted;
+  background: transparent;
+}
+
+button.player-queue-button:hover {
+  color: @app_text;
+  background: @app_panel_hover;
+}

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0" />
+    <template class="SonglistRow" parent="GtkListBoxRow">
+        <property name="focusable">False</property>
+        <property name="selectable">False</property>
+        <property name="height-request">59</property>
+        <style>
+            <class name="song_row" />
+        </style>
+        <child>
+            <object class="GtkBox">
+                <property name="focusable">False</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="spacing">0</property>
+                <child>
+                    <object class="GtkBox">
+                        <property name="width-request">46</property>
+                        <property name="focusable">False</property>
+                        <child>
+                            <object class="GtkImage" id="play_icon">
+                                <property name="halign">center</property>
+                                <property name="visible">False</property>
+                                <property name="icon-name">media-playback-start-symbolic</property>
+                                <style>
+                                    <class name="song-row-play-icon" />
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox" id="_title_box">
+                        <property name="focusable">False</property>
+                        <property name="hexpand">True</property>
+                        <child>
+                            <object class="GtkLabel" id="title_label">
+                                <property name="focusable">False</property>
+                                <property name="xalign">0</property>
+                                <property name="halign">fill</property>
+                                <property name="hexpand">True</property>
+                                <property name="ellipsize">end</property>
+                                <property name="single_line_mode">True</property>
+                                <property name="max_width_chars">90</property>
+                                <property name="justify">fill</property>
+                                <property name="margin-start">0</property>
+                                <style>
+                                    <class name="song-row-title" />
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox" id="_artist_box">
+                        <property name="focusable">False</property>
+                        <property name="hexpand">True</property>
+                        <child>
+                            <object class="GtkLabel" id="artist_label">
+                                <property name="focusable">False</property>
+                                <property name="xalign">0</property>
+                                <property name="halign">fill</property>
+                                <property name="hexpand">True</property>
+                                <property name="ellipsize">end</property>
+                                <property name="single_line_mode">True</property>
+                                <property name="max_width_chars">90</property>
+                                <property name="justify">fill</property>
+                                <style>
+                                    <class name="song-row-meta" />
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox" id="_album_duration_box">
+                        <property name="focusable">False</property>
+                        <property name="hexpand">True</property>
+                        <child>
+                            <object class="GtkLabel" id="album_label">
+                                <property name="focusable">False</property>
+                                <property name="xalign">0</property>
+                                <property name="halign">fill</property>
+                                <property name="hexpand">True</property>
+                                <property name="ellipsize">end</property>
+                                <property name="single_line_mode">True</property>
+                                <property name="max_width_chars">90</property>
+                                <property name="justify">fill</property>
+                                <style>
+                                    <class name="song-row-meta" />
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="duration_label">
+                        <property name="focusable">False</property>
+                        <property name="width-request">62</property>
+                        <property name="halign">end</property>
+                        <property name="xalign">1</property>
+                        <property name="single_line_mode">True</property>
+                        <attributes>
+                            <attribute name="font-features" value="tnum=1" />
+                        </attributes>
+                        <style>
+                            <class name="song-row-meta" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <property name="width-request">92</property>
+                        <property name="halign">end</property>
+                        <property name="spacing">2</property>
+                        <child>
+                            <object class="GtkButton" id="like_button">
+                                <property name="halign">end</property>
+                                <property name="valign">center</property>
+                                <property name="icon-name">non-starred-symbolic</property>
+                                <property name="tooltip-text">喜欢歌曲</property>
+                                <signal name="clicked" handler="like_button_clicked_cb" swapped="true" />
+                                <style>
+                                    <class name="flat" />
+                                    <class name="app-row-action" />
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkButton" id="album_button">
+                                <property name="halign">end</property>
+                                <property name="valign">center</property>
+                                <property name="icon-name">media-optical-cd-audio-symbolic</property>
+                                <property name="tooltip-text">查看专辑</property>
+                                <signal name="clicked" handler="album_button_clicked_cb" swapped="true" />
+                                <style>
+                                    <class name="flat" />
+                                    <class name="app-row-action" />
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkButton" id="remove_button">
+                                <property name="halign">end</property>
+                                <property name="valign">center</property>
+                                <property name="icon-name">user-trash-symbolic</property>
+                                <property name="tooltip-text">移除歌曲</property>
+                                <signal name="clicked" handler="remove_button_clicked_cb" swapped="true" />
+                                <style>
+                                    <class name="flat" />
+                                    <class name="app-row-action" />
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkGestureClick">
+                <signal name="released" handler="on_click" swapped="yes" />
+            </object>
+        </child>
+    </template>
+    <object class="GtkSizeGroup" id="_size_group">
+        <property name="mode">horizontal</property>
+        <widgets>
+            <widget name="_title_box" />
+            <widget name="_artist_box" />
+            <widget name="_album_duration_box" />
+        </widgets>
+    </object>
+</interface>

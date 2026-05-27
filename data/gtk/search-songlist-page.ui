@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0" />
+    <template class="SearchSongListPage" parent="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+            <object class="GtkScrolledWindow">
+                <signal name="edge-overshot" handler="scrolled_edge_cb" swapped="true" />
+                <style>
+                    <class name="app-grid-scroll" />
+                </style>
+                <child>
+                    <object class="GtkGridView" id="songlist_grid">
+                        <signal name="activate" handler="grid_activate_cb" swapped="true" />
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
+                        <property name="single-click-activate">True</property>
+                    </object>
+                </child>
+             </object>
+        </child>
+        <style>
+            <class name="app-page" />
+            <class name="songlist_grid_page" />
+        </style>
+    </template>
+</interface>

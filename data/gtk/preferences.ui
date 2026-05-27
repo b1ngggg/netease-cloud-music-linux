@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0" />
+    <template class="NeteaseCloudMusicLinuxPreferences" parent="AdwPreferencesDialog">
+        <style>
+            <class name="app-preferences" />
+        </style>
+        <property name="title" translatable="yes">首选项</property>
+        <child>
+            <object class="AdwPreferencesPage">
+                <child>
+                    <object class="AdwPreferencesGroup">
+                        <property name="title" translatable="yes">通用</property>
+                        <child>
+                            <object class="AdwActionRow">
+                                <property name="title" translatable="yes">关闭时退到后台</property>
+                                <property name="subtitle" translatable="yes">设置主窗口关闭按钮的行为</property>
+                                <property name="use_underline">True</property>
+                                <property name="activatable-widget">exit_switch</property>
+                                <child>
+                                    <object class="GtkSwitch" id="exit_switch">
+                                        <property name="valign">center</property>
+                                        <property name="active">False</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwActionRow">
+                                <property name="title" translatable="yes">启动时静音</property>
+                                <property name="subtitle" translatable="yes">应用启动后将音量设为 0</property>
+                                <property name="use_underline">True</property>
+                                <property name="activatable-widget">mute_start_switch</property>
+                                <child>
+                                    <object class="GtkSwitch" id="mute_start_switch">
+                                        <property name="valign">center</property>
+                                        <property name="active">False</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwActionRow">
+                                <property name="title" translatable="yes">不忽略灰色歌曲</property>
+                                <property name="subtitle" translatable="yes">始终尝试播放灰色歌曲</property>
+                                <property name="use_underline">True</property>
+                                <property name="activatable-widget">not_ignore_grey_switch</property>
+                                <child>
+                                    <object class="GtkSwitch" id="not_ignore_grey_switch">
+                                        <property name="valign">center</property>
+                                        <property name="active">False</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwActionRow">
+                                <property name="title" translatable="yes">网络代理</property>
+                                <property name="subtitle" translatable="yes">http/https/socks4/socks4a/socks5/socks5h</property>
+                                <property name="use_underline">True</property>
+                                <child>
+                                    <object class="GtkEntry" id="proxy_entry">
+                                        <property name="valign">center</property>
+                                        <property name="halign">fill</property>
+                                        <property name="hexpand">true</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwComboRow" id="cache_clear">
+                                <property name="title" translatable="yes">缓存清理</property>
+                                <property name="model">
+                                    <object class="GtkStringList">
+                                        <items>
+                                            <item translatable="yes">从不</item>
+                                            <item translatable="yes">每天</item>
+                                            <item translatable="yes">每周</item>
+                                            <item translatable="yes">每月</item>
+                                        </items>
+                                    </object>
+                                </property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwPreferencesGroup">
+                        <property name="title" translatable="yes">音乐</property>
+                        <child>
+                            <object class="AdwComboRow" id="switch_rate">
+                                <property name="title" translatable="yes">音质</property>
+                                <property name="model">
+                                    <object class="GtkStringList">
+                                        <items>
+                                            <item>128k</item>
+                                            <item>192k</item>
+                                            <item>320k</item>
+                                            <item>SQ</item>
+                                            <item>HR</item>
+                                        </items>
+                                    </object>
+                                </property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwActionRow">
+                                <property name="title" translatable="yes">桌面歌词</property>
+                                <property name="subtitle" translatable="yes">需要 desktop-lyrics 或 osdlyrics</property>
+                                <property name="use_underline">True</property>
+                                <property name="activatable-widget">desktop_lyrics</property>
+                                <child>
+                                    <object class="GtkSwitch" id="desktop_lyrics">
+                                        <property name="valign">center</property>
+                                        <property name="active">False</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

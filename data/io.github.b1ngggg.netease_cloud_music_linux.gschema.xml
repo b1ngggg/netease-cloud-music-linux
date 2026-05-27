@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="netease-cloud-music-linux">
+    <schema id="io.github.b1ngggg.netease_cloud_music_linux" path="/io/github/b1ngggg/netease_cloud_music_linux/">
+        <key name="style-variant" type="s">
+            <choices>
+                <choice value='system' />
+                <choice value='light' />
+                <choice value='dark' />
+            </choices>
+            <default>'system'</default>
+            <summary>Settings theme</summary>
+        </key>
+        <key name="repeat-variant" type="s">
+            <choices>
+                <choice value='none' />
+                <choice value='one' />
+                <choice value='loop' />
+                <choice value='shuffle' />
+            </choices>
+            <default>'none'</default>
+            <summary>Settings player loop</summary>
+        </key>
+        <key name="exit-switch" type="b">
+            <default>false</default>
+            <summary>Set exit key behavior</summary>
+        </key>
+        <key name="mute-start" type="b">
+            <default>false</default>
+            <summary>Mute when startup</summary>
+        </key>
+        <key name="proxy-address" type="s">
+            <default>''</default>
+            <summary>Settings proxy address</summary>
+        </key>
+        <key name="music-rate" type="u">
+            <default>0</default>
+            <summary>Settings music rate</summary>
+        </key>
+        <key name="cache-clear" type="u">
+            <default>0</default>
+            <summary>Settings cache clear rules, 0: Never, 1: Daily, 2: Weekly, 3: Monthly</summary>
+        </key>
+        <key name="cache-clear-flag" type="b">
+            <default>false</default>
+            <summary>Cache clear flag</summary>
+        </key>
+        <key name="volume" type="d">
+            <default>1.0</default>
+            <summary>Volume</summary>
+        </key>
+        <key name="not-ignore-grey" type="b">
+            <default>false</default>
+            <summary>Always try to play grey song</summary>
+        </key>
+        <key name="desktop-lyrics" type="b">
+            <default>false</default>
+            <summary>Desktop Lyrics</summary>
+        </key>
+    </schema>
+</schemalist>

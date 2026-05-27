@@ -1,0 +1,43 @@
+app-id: io.github.b1ngggg.netease_cloud_music_linux
+runtime: org.gnome.Platform
+runtime-version: "50"
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: netease-cloud-music-linux
+separate-locales: false
+
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --device=dri
+  - --own-name=org.mpris.MediaPlayer2.NeteaseCloudMusicLinux
+  - --talk-name=org.freedesktop.Notifications
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/netease-cloud-music-linux/cargo
+    CARGO_NET_OFFLINE: "true"
+    CARGO_TARGET_DIR: /run/build/netease-cloud-music-linux/target
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/doc
+  - /share/man
+  - /share/pkgconfig
+
+modules:
+  - name: netease-cloud-music-linux
+    buildsystem: meson
+    config-opts:
+      - --buildtype=release
+    sources:
+      - type: git
+        url: https://github.com/b1ngggg/netease-cloud-music-linux.git
+        tag: v1.0.0
+      - cargo-sources.json

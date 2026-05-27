@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0" />
+    <template class="SongListView" parent="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="vexpand">true</property>
+        <style>
+            <class name="app-song-list-view" />
+        </style>
+        <child>
+            <object class="GtkOverlay">
+                <property name="vexpand">true</property>
+                <child>
+                    <object class="AdwClamp" id="adw_clamp">
+                        <property name="vexpand">true</property>
+                        <property name="hexpand">true</property>
+                        <property name="maximum-size">1000</property>
+                        <property name="tightening-threshold">730</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="margin-start">20</property>
+                        <property name="margin-end">20</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">4</property>
+                                <property name="vexpand">true</property>
+                                <style>
+                                    <class name="app-song-table" />
+                                </style>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="orientation">horizontal</property>
+                                        <property name="height-request">34</property>
+                                        <property name="margin-start">8</property>
+                                        <property name="margin-end">8</property>
+                                        <style>
+                                            <class name="app-list-header" />
+                                        </style>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="width-request">46</property>
+                                                <property name="label">#</property>
+                                                <property name="xalign">0.5</property>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="label">标题</property>
+                                                <property name="xalign">0</property>
+                                                <property name="hexpand">true</property>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="label">歌手</property>
+                                                <property name="xalign">0</property>
+                                                <property name="hexpand">true</property>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="label">专辑</property>
+                                                <property name="xalign">0</property>
+                                                <property name="hexpand">true</property>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="label">时长</property>
+                                                <property name="width-request">62</property>
+                                                <property name="halign">end</property>
+                                                <property name="xalign">1</property>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkLabel">
+                                                <property name="width-request">92</property>
+                                                <property name="label"></property>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkSeparator" />
+                                </child>
+                                <child>
+                                    <object class="GtkScrolledWindow" id="scroll_win">
+                                        <property name="vexpand">true</property>
+                                        <property name="hscrollbar-policy">never</property>
+                                        <style>
+                                            <class name="app-list-scroll" />
+                                        </style>
+                                        <child>
+                                            <object class="GtkListView" id="list_view">
+                                                <property name="valign">start</property>
+                                                <property name="vexpand">true</property>
+                                                <property name="single-click-activate">false</property>
+                                                <style>
+                                                    <class name="boxed-list" />
+                                                    <class name="app-song-virtual-list" />
+                                                </style>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child type="overlay">
+                    <object class="GtkRevealer" id="loading_revealer">
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="transition-type">crossfade</property>
+                        <property name="transition-duration">180</property>
+                        <property name="reveal-child">False</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="spacing">10</property>
+                                <property name="halign">center</property>
+                                <property name="valign">center</property>
+                                <style>
+                                    <class name="app-list-loading-card" />
+                                </style>
+                                <child>
+                                    <object class="GtkSpinner" id="loading_spinner">
+                                        <property name="spinning">False</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label">正在加载</property>
+                                        <style>
+                                            <class name="app-muted-label" />
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

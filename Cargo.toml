@@ -1,0 +1,92 @@
+[package]
+name = "netease-cloud-music-linux"
+version = "1.0.0"
+edition = "2024"
+description = "A Rust GTK4/libadwaita desktop client based on NetEase Cloud Music Gtk"
+homepage = "https://github.com/b1ngggg/netease-cloud-music-linux"
+repository = "https://github.com/b1ngggg/netease-cloud-music-linux"
+license = "GPL-3.0-or-later"
+
+[dependencies]
+gettext-rs = { version = "~0.7", features = ["gettext-system"] }
+gtk = { version = "~0.10", package = "gtk4" }
+once_cell = "~1.21"
+qrcode-generator = "~5.0"
+ncm-api = { git = "https://gitee.com/gmg137/netease-cloud-music-api.git", tag = "1.5.2", package = "netease-cloud-music-api" }
+anyhow = "~1.0"
+base64 = "~0.22"
+gstreamer = "~0.24"
+gstreamer-play = "~0.24"
+fastrand = "~2.3"
+mpris-server = "~0.9"
+regex = "~1.12"
+log = "~0.4"
+env_logger = "~0.11"
+cookie_store = "~0.22"
+chrono = "~0.4"
+async-channel = "~2.5"
+isahc = "~1.8"
+hex = "~0.4"
+openssl = "~0.10"
+serde_json = "~1.0"
+urlqstring = "~0.3"
+
+[dependencies.adw]
+package = "libadwaita"
+version = "~0.8"
+features = ["v1_5"]
+
+# cargo deb 打包配置
+# 打包前执行 scripts/build-deb.sh，确保 _build 里有 Meson 生成的资源文件。
+[package.metadata.deb]
+maintainer = "b1ngggg <b1ngggg@users.noreply.github.com>"
+copyright = "2024, gmg137 <gmg137@live.com>; 2026, b1ngggg"
+license-file = ["LICENSE", "0"]
+extended-description = """\
+NetEase Cloud Music Linux 是基于 NetEase Cloud Music Gtk 二开优化的网易云音乐 Linux 桌面客户端，\
+包含界面重构、歌词详情页、评论区和大列表性能优化。"""
+depends = "$auto, libglib2.0-bin, hicolor-icon-theme, desktop-file-utils, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav"
+section = "sound"
+maintainer-scripts = "packaging/debian"
+assets = [
+    [
+        "_build/src/netease-cloud-music-linux",
+        "usr/bin/",
+        "755",
+    ],
+    [
+        "_build/data/io.github.b1ngggg.netease_cloud_music_linux.desktop",
+        "usr/share/applications/",
+        "644",
+    ],
+    [
+        "_build/data/netease-cloud-music-linux.gresource",
+        "usr/share/netease-cloud-music-linux/",
+        "644",
+    ],
+    [
+        "data/icons/hicolor/scalable/apps/io.github.b1ngggg.netease_cloud_music_linux.svg",
+        "usr/share/icons/hicolor/scalable/apps/",
+        "644",
+    ],
+    [
+        "data/icons/hicolor/symbolic/apps/io.github.b1ngggg.netease_cloud_music_linux-symbolic.svg",
+        "usr/share/icons/hicolor/symbolic/apps/",
+        "644",
+    ],
+    [
+        "_build/po/zh_CN/LC_MESSAGES/netease-cloud-music-linux.mo",
+        "usr/share/locale/zh_CN/LC_MESSAGES/",
+        "644",
+    ],
+    [
+        "data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml",
+        "usr/share/glib-2.0/schemas/",
+        "644",
+    ],
+    [
+        "_build/data/io.github.b1ngggg.netease_cloud_music_linux.metainfo.xml",
+        "usr/share/metainfo/",
+        "644",
+    ],
+]

@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0" />
+    <template class="PlayerControls" parent="GtkBox">
+        <property name="valign">fill</property>
+        <property name="halign">fill</property>
+        <property name="orientation">horizontal</property>
+        <property name="margin-start">20</property>
+        <property name="margin-end">20</property>
+        <property name="margin-top">8</property>
+        <property name="margin-bottom">8</property>
+        <property name="spacing">10</property>
+        <style>
+            <class name="app-player" />
+        </style>
+        <child>
+            <object class="GtkOverlay" id="cover_queue_button">
+                <property name="halign">fill</property>
+                <property name="valign">center</property>
+                <property name="tooltip-text">打开歌词和队列</property>
+                <style>
+                    <class name="player-cover-button" />
+                </style>
+                <child>
+                    <object class="GtkImage" id="cover_image">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="icon-name">image-missing-symbolic</property>
+                        <property name="pixel-size">52</property>
+                        <style>
+                            <class name="app-now-playing-cover" />
+                        </style>
+                    </object>
+                </child>
+                <child type="overlay">
+                    <object class="GtkImage" id="cover_queue_hint">
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="icon-name">pan-up-symbolic</property>
+                        <style>
+                            <class name="cover-queue-hint" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkGestureClick">
+                        <signal name="pressed" handler="playlist_lyrics_cb" swapped="true" />
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkBox">
+                <property name="valign">center</property>
+                <property name="orientation">vertical</property>
+                <property name="width-request">138</property>
+                <style>
+                    <class name="app-track-info" />
+                </style>
+                <child>
+                    <object class="GtkLabel" id="title_label">
+                        <property name="halign">start</property>
+                        <property name="valign">fill</property>
+                        <property name="label">歌曲名</property>
+                        <property name="max-width-chars">18</property>
+                        <property name="ellipsize">middle</property>
+                        <child>
+                            <object class="GtkGestureClick">
+                                <signal name="pressed" handler="title_clicked_cb" swapped="true" />
+                            </object>
+                        </child>
+                        <style>
+                            <class name="heading" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="artist_label">
+                        <property name="halign">start</property>
+                        <property name="valign">fill</property>
+                        <property name="label">歌手名</property>
+                        <property name="max-width-chars">18</property>
+                        <property name="ellipsize">middle</property>
+                        <style>
+                            <class name="dim-label" />
+                        </style>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkBox">
+                <property name="halign">start</property>
+                <property name="valign">center</property>
+                <property name="orientation">horizontal</property>
+                <property name="spacing">4</property>
+                <style>
+                    <class name="app-player-controls" />
+                </style>
+                <child>
+                    <object class="GtkButton" id="prev_button">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="icon-name">media-skip-backward-symbolic</property>
+                        <signal name="clicked" handler="prev_button_clicked_cb" swapped="true" />
+                        <style>
+                            <class name="circular" />
+                            <class name="flat" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkButton" id="play_button">
+                        <property name="width-request">42</property>
+                        <property name="height-request">42</property>
+                        <property name="halign">fill</property>
+                        <property name="valign">fill</property>
+                        <property name="icon-name">media-playback-start-symbolic</property>
+                        <signal name="clicked" handler="play_button_clicked_cb" swapped="true" />
+                        <style>
+                            <class name="circular" />
+                            <class name="flat" />
+                            <class name="large-icons" />
+                            <class name="app-play-button" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkButton" id="next_button">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="icon-name">media-skip-forward-symbolic</property>
+                        <signal name="clicked" handler="next_button_clicked_cb" swapped="true" />
+                        <style>
+                            <class name="circular" />
+                            <class name="flat" />
+                        </style>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkScale" id="seek_scale">
+                <property name="can_focus">False</property>
+                <property name="valign">center</property>
+                <property name="hexpand">true</property>
+                <property name="adjustment">seek_adjustment</property>
+                <signal name="change-value" handler="seek_scale_cb" swapped="true" />
+            </object>
+        </child>
+        <child>
+            <object class="GtkBox">
+                <property name="valign">center</property>
+                <property name="orientation">horizontal</property>
+                <property name="spacing">3</property>
+                <child>
+                    <object class="GtkLabel" id="progress_time_label">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="label">0.0</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkLabel">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="label">/</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkLabel" id="duration_label">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="label">0.0</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkBox">
+                <property name="valign">center</property>
+                <property name="halign">end</property>
+                <property name="orientation">horizontal</property>
+                <property name="spacing">3</property>
+                <child>
+                    <object class="GtkButton" id="queue_drawer_button">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="tooltip-text">播放队列</property>
+                        <property name="icon-name">view-list-symbolic</property>
+                        <signal name="clicked" handler="queue_drawer_cb" swapped="true" />
+                        <style>
+                            <class name="flat" />
+                            <class name="player-queue-button" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkButton" id="like_button">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="tooltip-text">喜欢</property>
+                        <property name="icon-name">starred-symbolic</property>
+                        <signal name="clicked" handler="like_button_cb" swapped="true" />
+                        <style>
+                            <class name="flat" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <style>
+                            <class name="player-volume-box" />
+                        </style>
+                        <child>
+                            <object class="GtkImage">
+                                <property name="icon-name">audio-volume-high-symbolic</property>
+                                <property name="valign">center</property>
+                                <style>
+                                    <class name="player-volume-icon" />
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkScale" id="volume_scale">
+                                <property name="can_focus">False</property>
+                                <property name="valign">center</property>
+                                <property name="width-request">86</property>
+                                <property name="draw-value">False</property>
+                                <property name="adjustment">volume_adjustment</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkMenuButton" id="repeat_menu_button">
+                        <property name="focusable">False</property>
+                        <property name="receives_default">true</property>
+                        <property name="popover">repeat_popover</property>
+                        <property name="tooltip-text">播放模式</property>
+                        <child>
+                            <object class="GtkBox" id="replayBox">
+                                <property name="focusable">False</property>
+                                <child>
+                                    <object class="GtkImage" id="repeat_image">
+                                        <property name="focusable">False</property>
+                                        <property name="icon_name">media-playlist-consecutive-symbolic</property>
+                                        <property name="icon_size">1</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <style>
+                            <class name="flat" />
+                            <class name="player-repeat-button" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkButton">
+                        <property name="halign">fill</property>
+                        <property name="valign">center</property>
+                        <property name="tooltip-text">查看专辑</property>
+                        <property name="icon_name">media-optical-cd-audio-symbolic</property>
+                        <signal name="clicked" handler="cover_clicked_cb" swapped="true" />
+                        <style>
+                            <class name="flat" />
+                            <class name="player-album-button" />
+                        </style>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+    <object class="GtkAdjustment" id="seek_adjustment">
+        <property name="upper">10</property>
+        <property name="value">0</property>
+        <property name="step-increment">0.1</property>
+        <property name="page-increment">1</property>
+    </object>
+    <object class="GtkAdjustment" id="volume_adjustment">
+        <property name="upper">1</property>
+        <property name="value">0</property>
+        <property name="step-increment">0.05</property>
+        <property name="page-increment">0.2</property>
+        <signal name="value-changed" handler="volume_cb" swapped="true" />
+    </object>
+    <object class="GtkPopover" id="repeat_popover">
+        <property name="autohide">True</property>
+        <property name="cascade-popdown">True</property>
+        <child>
+            <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">4</property>
+                <property name="margin-top">8</property>
+                <property name="margin-bottom">8</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <style>
+                    <class name="repeat-popover-box" />
+                </style>
+                <child>
+                    <object class="GtkCheckButton" id="none">
+                        <property name="label">顺序播放</property>
+                        <property name="active">true</property>
+                        <signal name="toggled" handler="repeat_none_cb" swapped="true" />
+                        <style>
+                            <class name="repeat-option" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkCheckButton" id="one">
+                        <property name="label">单曲循环</property>
+                        <property name="group">none</property>
+                        <signal name="toggled" handler="repeat_one_cb" swapped="true" />
+                        <style>
+                            <class name="repeat-option" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkCheckButton" id="loop">
+                        <property name="label">列表循环</property>
+                        <property name="group">none</property>
+                        <signal name="toggled" handler="repeat_loop_cb" swapped="true" />
+                        <style>
+                            <class name="repeat-option" />
+                        </style>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkCheckButton" id="shuffle">
+                        <property name="label">随机播放</property>
+                        <property name="group">none</property>
+                        <signal name="toggled" handler="repeat_shuffle_cb" swapped="true" />
+                        <style>
+                            <class name="repeat-option" />
+                        </style>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </object>
+</interface>

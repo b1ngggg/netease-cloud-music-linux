@@ -1,0 +1,15 @@
+data/io.github.b1ngggg.netease_cloud_music_linux.desktop.in
+data/io.github.b1ngggg.netease_cloud_music_linux.metainfo.xml.in
+data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml
+data/gtk/window.ui
+data/gtk/preferences.ui
+data/gtk/theme-selector.ui
+data/gtk/discover.ui
+data/gtk/user-menus.ui
+data/gtk/help-overlay.ui
+data/gtk/player-controls.ui
+data/gtk/songlist-page.ui
+data/gtk/songlist-row.ui
+data/gtk/toplist.ui
+data/gtk/my-page.ui
+data/gtk/playlist-lyrics-page.ui

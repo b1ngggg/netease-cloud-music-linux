@@ -1,0 +1,301 @@
+//
+// songlist_page.rs
+// Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Distributed under terms of the GPL-3.0-or-later license.
+//
+use async_channel::Sender;
+use chrono::{TimeZone, Utc};
+use gettextrs::gettext;
+use glib::{ParamSpec, ParamSpecBoolean, Value};
+pub(crate) use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
+use ncm_api::{SongInfo, SongList};
+use once_cell::sync::{Lazy, OnceCell};
+
+use crate::{
+    application::Action,
+    gui::songlist_view::SongListView,
+    model::{DiscoverSubPage, ImageDownloadImpl, SongListDetail},
+    path::CACHE,
+    utils::*,
+};
+use std::{
+    cell::{Cell, RefCell},
+    rc::Rc,
+    sync::Arc,
+};
+
+glib::wrapper! {
+    pub struct SonglistPage(ObjectSubclass<imp::SonglistPage>)
+        @extends gtk::Widget, gtk::Box,
+        @implements gtk::Accessible, gtk::Buildable,gtk::ConstraintTarget, gtk::Orientable;
+}
+
+impl SonglistPage {
+    pub fn new() -> Self {
+        let songlist_page: SonglistPage = glib::Object::new();
+        songlist_page
+    }
+
+    pub fn set_sender(&self, sender: Sender<Action>) {
+        self.imp().sender.set(sender).unwrap();
+    }
+
+    pub fn init_songlist_info(&self, songlist: &SongList, is_album: bool, is_logined: bool) {
+        let imp = self.imp();
+        let sender = imp.sender.get().unwrap();
+        imp.songlist.replace(Some(songlist.to_owned()));
+
+        if is_album {
+            imp.time_label.set_visible(true);
+        }
+
+        // 判断是否显示收藏按钮
+        let like_button = imp.like_button.get();
+        if is_logined {
+            like_button.set_visible(true);
+            imp.songs_list.set_property("no-act-like", false);
+        } else {
+            like_button.set_visible(false);
+            imp.songs_list.set_property("no-act-like", true);
+        }
+
+        // 设置专辑图
+        let cover_image = imp.cover_image.get();
+        let mut path = CACHE.clone();
+        path.push(format!("{}-songlist.jpg", songlist.id));
+        if !path.exists() {
+            cover_image.set_icon_name(Some("image-missing-symbolic"));
+            cover_image.set_from_net(songlist.cover_img_url.to_owned(), path, (140, 140), sender);
+        } else {
+            cover_image.set_from_file(Some(&path));
+        }
+
+        // 设置标题
+        let title = imp.title_label.get();
+        title.set_label(&songlist.name);
+
+        imp.num_label
+            .get()
+            .set_label(&gettext_f("{num} songs", &[("num", "0")]));
+        self.set_property("like", false);
+
+        imp.playlist.borrow_mut().clear();
+        imp.songs_list.clear_list();
+        imp.songs_list.set_loading(true);
+    }
+
+    pub fn init_songlist(&self, detail: &SongListDetail, likes: &[bool]) {
+        let imp = self.imp();
+        let songs_list = imp.songs_list.get();
+
+        let sis = &mut detail.sis().clone();
+
+        match detail {
+            SongListDetail::Album(detail, dy) => {
+                self.set_property("like", dy.is_sub);
+                imp.songs_list.set_property("no-act-album", true);
+                imp.songs_list.set_property("no-act-remove", true);
+                imp.page_type.replace(Some(DiscoverSubPage::Album));
+                let dt = Utc
+                    .timestamp_millis_opt(detail.publish_time as i64)
+                    .unwrap();
+                let dt = dt.format("%Y-%m-%d");
+                imp.time_label.set_label(&format!("{}", dt,));
+
+                imp.num_label.set_label(&format!(
+                    "{}, {}",
+                    gettext_f("{num} songs", &[("num", &sis.len().to_string())]),
+                    gettext_f("{num} favs", &[("num", &dy.sub_count.to_string())])
+                ));
+            }
+            SongListDetail::PlayList(_detail, dy) => {
+                self.set_property("like", dy.subscribed);
+                imp.songs_list.set_property("no-act-album", false);
+                imp.songs_list.set_property("no-act-remove", true);
+                imp.page_type.replace(Some(DiscoverSubPage::SongList));
+                imp.num_label.set_label(&format!(
+                    "{}, {}",
+                    gettext_f("{num} songs", &[("num", &sis.len().to_string())]),
+                    gettext_f("{num} favs", &[("num", &dy.booked_count.to_string())])
+                ));
+            }
+            SongListDetail::Radio(detail) => {
+                imp.songs_list.set_property("no-act-album", true);
+                imp.songs_list.set_property("no-act-like", true);
+                imp.songs_list.set_property("no-act-remove", true);
+                imp.page_type.replace(Some(DiscoverSubPage::Radio));
+                imp.num_label.set_label(&gettext_f(
+                    "Total {num} issues",
+                    &[("num", &detail.len().to_string())],
+                ));
+                for si in sis.iter_mut() {
+                    if let Ok(date) = si.album.parse()
+                        && let Some(dt) = Utc.timestamp_millis_opt(date).single()
+                    {
+                        let dt = dt.format("%Y-%m-%d");
+                        si.album = dt.to_string();
+                    } else {
+                        si.album = "未知".to_string();
+                    }
+                }
+            }
+        }
+
+        let sender = imp.sender.get().unwrap();
+        songs_list.set_sender(sender.clone());
+        imp.playlist.replace(sis.clone());
+        songs_list.init_new_list(sis, likes);
+    }
+
+    pub fn set_loading(&self, loading: bool) {
+        self.imp().songs_list.get().set_loading(loading);
+    }
+}
+
+impl Default for SonglistPage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+mod imp {
+
+    use super::*;
+
+    #[derive(Debug, Default, CompositeTemplate)]
+    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/songlist-page.ui")]
+    pub struct SonglistPage {
+        #[template_child(id = "cover_image")]
+        pub cover_image: TemplateChild<Image>,
+        #[template_child(id = "title_label")]
+        pub title_label: TemplateChild<Label>,
+        #[template_child(id = "time_label")]
+        pub time_label: TemplateChild<Label>,
+        #[template_child(id = "num_label")]
+        pub num_label: TemplateChild<Label>,
+        #[template_child(id = "play_button")]
+        pub play_button: TemplateChild<Button>,
+        #[template_child(id = "like_button")]
+        pub like_button: TemplateChild<Button>,
+
+        #[template_child(id = "songs_list")]
+        pub songs_list: TemplateChild<SongListView>,
+
+        pub songlist: Rc<RefCell<Option<SongList>>>,
+        pub page_type: Rc<RefCell<Option<DiscoverSubPage>>>,
+        pub playlist: Rc<RefCell<Vec<SongInfo>>>,
+
+        pub sender: OnceCell<Sender<Action>>,
+
+        like: Cell<bool>,
+    }
+
+    #[glib::object_subclass]
+    impl ObjectSubclass for SonglistPage {
+        const NAME: &'static str = "SonglistPage";
+        type Type = super::SonglistPage;
+        type ParentType = gtk::Box;
+
+        fn class_init(klass: &mut Self::Class) {
+            klass.bind_template();
+            klass.bind_template_callbacks();
+        }
+
+        fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
+            obj.init_template();
+        }
+    }
+
+    #[gtk::template_callbacks]
+    impl SonglistPage {
+        #[template_callback]
+        fn play_button_clicked_cb(&self) {
+            let sender = self.sender.get().unwrap();
+            let playlist = self.playlist.borrow().clone();
+            if !playlist.is_empty() {
+                sender
+                    .send_blocking(Action::AddPlayList(playlist, true))
+                    .unwrap();
+            } else {
+                sender
+                    .send_blocking(Action::AddToast(gettext("This is an empty song list！")))
+                    .unwrap();
+            }
+        }
+
+        #[template_callback]
+        fn like_button_clicked_cb(&self) {
+            let page_type = &*self.page_type.borrow();
+            if let Some(pt) = page_type {
+                let sender = self.sender.get().unwrap();
+                if let Some(songlist) = &*self.songlist.borrow() {
+                    let s = glib::SendWeakRef::from(self.obj().downgrade());
+                    let like = self.like.get();
+                    let cb = Arc::new(move |_| {
+                        if let Some(s) = s.upgrade() {
+                            s.set_property("like", !like);
+                        }
+                    });
+                    match pt {
+                        DiscoverSubPage::SongList => sender
+                            .send_blocking(Action::LikeSongList(songlist.id, !like, Some(cb)))
+                            .unwrap(),
+                        DiscoverSubPage::Album => sender
+                            .send_blocking(Action::LikeAlbum(songlist.id, !like, Some(cb)))
+                            .unwrap(),
+                        DiscoverSubPage::Radio => sender
+                            .send_blocking(Action::AddToast(gettext(
+                                "Favorite radio stations are not supported!",
+                            )))
+                            .unwrap(),
+                    }
+                }
+            }
+        }
+    }
+
+    impl ObjectImpl for SonglistPage {
+        fn constructed(&self) {
+            self.parent_constructed();
+            let obj = self.obj();
+
+            obj.bind_property("like", &self.like_button.get(), "icon_name")
+                .transform_to(|_, v: bool| {
+                    Some(
+                        (if v {
+                            "starred-symbolic"
+                        } else {
+                            "non-starred-symbolic"
+                        })
+                        .to_string(),
+                    )
+                })
+                .build();
+        }
+
+        fn properties() -> &'static [ParamSpec] {
+            static PROPERTIES: Lazy<Vec<ParamSpec>> =
+                Lazy::new(|| vec![ParamSpecBoolean::builder("like").readwrite().build()]);
+            PROPERTIES.as_ref()
+        }
+
+        fn set_property(&self, _id: usize, value: &Value, pspec: &ParamSpec) {
+            match pspec.name() {
+                "like" => {
+                    let like = value.get().expect("The value needs to be of type `bool`.");
+                    self.like.replace(like);
+                }
+                _ => unimplemented!(),
+            }
+        }
+
+        fn property(&self, _id: usize, pspec: &ParamSpec) -> Value {
+            match pspec.name() {
+                "like" => self.like.get().to_value(),
+                _ => unimplemented!(),
+            }
+        }
+    }
+    impl WidgetImpl for SonglistPage {}
+    impl BoxImpl for SonglistPage {}
+}
