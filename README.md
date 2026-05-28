@@ -30,7 +30,7 @@ ninja -C _build install
 ```
 ## 界面展示
 
-![发现页](screenshots/discover.jpg)
+![发现页](screenshots/discover.png)
 
 ![每日推荐](screenshots/daily-recommendation.png)
 
