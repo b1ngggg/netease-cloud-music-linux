@@ -25,13 +25,6 @@ build-options:
   build-args:
     - --share=network
 
-cleanup:
-  - /include
-  - /lib/pkgconfig
-  - /share/doc
-  - /share/man
-  - /share/pkgconfig
-
 modules:
   - name: netease-cloud-music-linux
     buildsystem: meson

@@ -22,13 +22,6 @@ build-options:
     CARGO_NET_OFFLINE: "true"
     CARGO_TARGET_DIR: /run/build/netease-cloud-music-linux/target
 
-cleanup:
-  - /include
-  - /lib/pkgconfig
-  - /share/doc
-  - /share/man
-  - /share/pkgconfig
-
 modules:
   - name: netease-cloud-music-linux
     buildsystem: meson
