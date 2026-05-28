@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_ID="io.github.b1ngggg.netease-cloud-music-linux"
+APP_ID="io.github.b1ngggg.netease_cloud_music_linux.cloudplayer"
 APP_BRANCH="stable"
 MANIFEST="$ROOT_DIR/packaging/flatpak/$APP_ID.local.yml"
 BUILD_DIR="$ROOT_DIR/_build/flatpak-build"

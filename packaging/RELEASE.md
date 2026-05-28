@@ -5,11 +5,11 @@
 Publish these files on GitHub Releases:
 
 - `netease-cloud-music-linux.flatpak`
-- `netease-cloud-music-linux_1.0.0-1_amd64.deb`
+- `netease-cloud-music-linux_1.0.1-1_amd64.deb`
 
 Git tag:
 
-- `v1.0.0`
+- `v1.0.1`
 
 ## Compatibility
 
@@ -29,19 +29,19 @@ Flatpak:
 
 ```bash
 flatpak install --user --bundle ./netease-cloud-music-linux.flatpak
-flatpak run io.github.b1ngggg.netease-cloud-music-linux
+flatpak run io.github.b1ngggg.netease_cloud_music_linux.cloudplayer
 ```
 
 deb:
 
 ```bash
-sudo apt install ./netease-cloud-music-linux_1.0.0-1_amd64.deb
+sudo apt install ./netease-cloud-music-linux_1.0.1-1_amd64.deb
 ```
 
 ## Release Notes Template
 
 ```text
-NetEase Cloud Music Linux v1.0.0
+Cloud Player v1.0.1
 
 Recommended install:
 flatpak install --user --bundle ./netease-cloud-music-linux.flatpak
@@ -49,5 +49,5 @@ flatpak install --user --bundle ./netease-cloud-music-linux.flatpak
 deb package:
 Only for Ubuntu 24.04+ / newer Debian amd64.
 Install with:
-sudo apt install ./netease-cloud-music-linux_1.0.0-1_amd64.deb
+sudo apt install ./netease-cloud-music-linux_1.0.1-1_amd64.deb
 ```

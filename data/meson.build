@@ -9,8 +9,8 @@ gnome.compile_resources('netease-cloud-music-linux',
 )
 
 desktop_file = i18n.merge_file(
-  input: 'io.github.b1ngggg.netease-cloud-music-linux.desktop.in',
-  output: 'io.github.b1ngggg.netease-cloud-music-linux.desktop',
+  input: 'io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.desktop.in',
+  output: 'io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.desktop',
   type: 'desktop',
   po_dir: '../po',
   install: true,
@@ -25,8 +25,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-  input: 'io.github.b1ngggg.netease-cloud-music-linux.metainfo.xml.in',
-  output: 'io.github.b1ngggg.netease-cloud-music-linux.metainfo.xml',
+  input: 'io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.metainfo.xml.in',
+  output: 'io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.metainfo.xml',
   po_dir: '../po',
   install: true,
   install_dir: join_paths(get_option('datadir'), 'metainfo')
@@ -36,7 +36,7 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
      args: ['validate', '--no-net', '--explain', appstream_file])
 
-install_data('io.github.b1ngggg.netease-cloud-music-linux.gschema.xml',
+install_data('io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas')
 )
 

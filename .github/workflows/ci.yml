@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-build-test:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            appstream \
+            desktop-file-utils \
+            gettext \
+            libadwaita-1-dev \
+            libdbus-1-dev \
+            libglib2.0-dev \
+            libgstreamer-plugins-bad1.0-dev \
+            libgstreamer-plugins-base1.0-dev \
+            libgstreamer1.0-dev \
+            libgtk-4-dev \
+            libssl-dev \
+            meson \
+            ninja-build \
+            pkg-config
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Check Rust formatting
+        run: rustfmt --edition 2024 --config skip_children=true --check $(git ls-files 'src/*.rs' 'src/**/*.rs')
+
+      - name: Configure
+        run: meson setup _build --prefix="$PWD/_run"
+
+      - name: Build
+        run: meson compile -C _build
+
+      - name: Clippy
+        run: cargo clippy --manifest-path Cargo.toml --release --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --manifest-path Cargo.toml --release
+

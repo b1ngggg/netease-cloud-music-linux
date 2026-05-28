@@ -1,6 +1,6 @@
 [package]
 name = "netease-cloud-music-linux"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 description = "A Rust GTK4/libadwaita desktop client based on NetEase Cloud Music Gtk"
 homepage = "https://github.com/b1ngggg/netease-cloud-music-linux"
@@ -43,7 +43,7 @@ maintainer = "b1ngggg <b1ngggg@users.noreply.github.com>"
 copyright = "2024, gmg137 <gmg137@live.com>; 2026, b1ngggg"
 license-file = ["LICENSE", "0"]
 extended-description = """\
-NetEase Cloud Music Linux 是基于 NetEase Cloud Music Gtk 二开优化的网易云音乐 Linux 桌面客户端，\
+Cloud Player 是基于 NetEase Cloud Music Gtk 二开优化的网易云音乐 Linux 桌面客户端，\
 包含界面重构、歌词详情页、评论区和大列表性能优化。"""
 depends = "$auto, libglib2.0-bin, hicolor-icon-theme, desktop-file-utils, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly, gstreamer1.0-libav"
 section = "sound"
@@ -55,7 +55,7 @@ assets = [
         "755",
     ],
     [
-        "_build/data/io.github.b1ngggg.netease-cloud-music-linux.desktop",
+        "_build/data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.desktop",
         "usr/share/applications/",
         "644",
     ],
@@ -65,12 +65,12 @@ assets = [
         "644",
     ],
     [
-        "data/icons/hicolor/scalable/apps/io.github.b1ngggg.netease-cloud-music-linux.svg",
+        "data/icons/hicolor/scalable/apps/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.svg",
         "usr/share/icons/hicolor/scalable/apps/",
         "644",
     ],
     [
-        "data/icons/hicolor/symbolic/apps/io.github.b1ngggg.netease-cloud-music-linux-symbolic.svg",
+        "data/icons/hicolor/symbolic/apps/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer-symbolic.svg",
         "usr/share/icons/hicolor/symbolic/apps/",
         "644",
     ],
@@ -80,12 +80,12 @@ assets = [
         "644",
     ],
     [
-        "data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml",
+        "data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml",
         "usr/share/glib-2.0/schemas/",
         "644",
     ],
     [
-        "_build/data/io.github.b1ngggg.netease-cloud-music-linux.metainfo.xml",
+        "_build/data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.metainfo.xml",
         "usr/share/metainfo/",
         "644",
     ],

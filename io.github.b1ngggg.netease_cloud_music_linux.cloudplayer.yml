@@ -1,4 +1,4 @@
-app-id: io.github.b1ngggg.netease-cloud-music-linux
+app-id: io.github.b1ngggg.netease_cloud_music_linux.cloudplayer
 runtime: org.gnome.Platform
 runtime-version: "50"
 sdk: org.gnome.Sdk
@@ -14,8 +14,6 @@ finish-args:
   - --socket=fallback-x11
   - --socket=pulseaudio
   - --device=dri
-  - --own-name=org.mpris.MediaPlayer2.NeteaseCloudMusicLinux
-  - --talk-name=org.freedesktop.Notifications
 
 build-options:
   append-path: /usr/lib/sdk/rust-stable/bin
@@ -39,6 +37,5 @@ modules:
     sources:
       - type: git
         url: https://github.com/b1ngggg/netease-cloud-music-linux.git
-        tag: v1.0.0
-        commit: d9821eba2cb702a093b951f5afddc45cddc16ea0
+        tag: v1.0.1
       - cargo-sources.json
