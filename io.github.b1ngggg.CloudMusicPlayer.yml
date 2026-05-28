@@ -31,4 +31,5 @@ modules:
       - type: git
         url: https://github.com/b1ngggg/CloudMusicPlayer.git
         tag: v1.0.3
+        commit: 716a242d8dbc54b92f5e39e45ec35b404e1ef292
       - cargo-sources.json
