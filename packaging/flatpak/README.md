@@ -28,10 +28,10 @@ _build/flatpak/netease-cloud-music-linux.flatpak
 
 ```bash
 flatpak install --user --bundle _build/flatpak/netease-cloud-music-linux.flatpak
-flatpak run io.github.b1ngggg.netease_cloud_music_linux.cloudplayer
+flatpak run io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer
 ```
 
 The local helper manifest in this directory uses the working tree as its source
 and allows network access during the build. The top-level
-`io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.yml` manifest is the Flathub-oriented
+`io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.yml` manifest is the Flathub-oriented
 manifest and uses `cargo-sources.json` for offline Rust dependencies.

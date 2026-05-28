@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=Cloud Player
-Comment=Unofficial Linux desktop client for NetEase Cloud Music
+Name=Cloud Music Player
+Comment=Linux music player for NetEase Cloud Music
 Exec=netease-cloud-music-linux
-Icon=io.github.b1ngggg.netease_cloud_music_linux.cloudplayer
+Icon=io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer
 StartupWMClass=netease-cloud-music-linux
 Terminal=false
 Type=Application

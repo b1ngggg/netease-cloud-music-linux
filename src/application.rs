@@ -1725,7 +1725,7 @@ impl NeteaseCloudMusicLinuxApplication {
             .version(VERSION)
             .developer_name("b1ngggg")
             .comments(
-                "Unofficial Linux desktop client based on NetEase Cloud Music Gtk.\n\n\
+                "Cloud Music Player is a Linux music player for NetEase Cloud Music.\n\n\
                  Redesigned UI with comments, lyric view, queue, player bar, and large-list performance optimizations.",
             )
             .build();

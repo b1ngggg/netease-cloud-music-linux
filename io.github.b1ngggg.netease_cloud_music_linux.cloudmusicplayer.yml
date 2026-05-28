@@ -1,5 +1,4 @@
-app-id: io.github.b1ngggg.netease_cloud_music_linux.cloudplayer
-branch: stable
+app-id: io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer
 runtime: org.gnome.Platform
 runtime-version: "50"
 sdk: org.gnome.Sdk
@@ -20,10 +19,8 @@ build-options:
   append-path: /usr/lib/sdk/rust-stable/bin
   env:
     CARGO_HOME: /run/build/netease-cloud-music-linux/cargo
-    CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+    CARGO_NET_OFFLINE: "true"
     CARGO_TARGET_DIR: /run/build/netease-cloud-music-linux/target
-  build-args:
-    - --share=network
 
 modules:
   - name: netease-cloud-music-linux
@@ -31,11 +28,7 @@ modules:
     config-opts:
       - --buildtype=release
     sources:
-      - type: dir
-        path: ../..
-        skip:
-          - .flatpak-builder
-          - .git
-          - _build
-          - flatpak-build
-          - target
+      - type: git
+        url: https://github.com/b1ngggg/netease-cloud-music-linux.git
+        tag: v1.0.2
+      - cargo-sources.json

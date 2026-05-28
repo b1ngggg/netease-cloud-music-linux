@@ -17,73 +17,68 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.desktop.in:3
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.metainfo.xml.in:12
-msgid "Cloud Player"
-msgstr "Cloud Player"
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.desktop.in:3
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.metainfo.xml.in:12
+msgid "Cloud Music Player"
+msgstr "Cloud Music Player"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.desktop.in:12
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.desktop.in:12
 msgid "Player;Audio;Song;MP3;Playlist;Radio;Multimedia;"
 msgstr "Player;Audio;Song;MP3;Playlist;Radio;Multimedia;播放器;音频;歌曲;音乐;播放列表;电台;多媒体;"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.metainfo.xml.in:5
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.metainfo.xml.in:5
 msgid "b1ngggg"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:11
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:11
 msgid "Settings theme"
 msgstr "设置皮肤"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:21
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:21
 msgid "Settings player loop"
 msgstr "设置播放循环"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:25
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:25
 msgid "Set exit key behavior"
 msgstr "设置退出键行为"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:29
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:29
 msgid "Mute when startup"
 msgstr "启动时静音"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:33
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:33
 msgid "Settings proxy address"
 msgstr "设置代理地址"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:37
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:37
 msgid "Settings music rate"
 msgstr "设置音乐音质"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:41
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:41
 msgid "Settings cache clear rules, 0: Never, 1: Daily, 2: Weekly, 3: Monthly"
 msgstr "设置缓存清理，0:从不, 1:每天, 2:每周, 3:每月"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:45
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:45
 msgid "Cache clear flag"
 msgstr "清理缓存标记"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:49
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:49
 msgid "Volume"
 msgstr "音量"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:53
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:53
 msgid "Always try to play grey song"
 msgstr "总是尝试播放灰色歌曲"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudplayer.gschema.xml:57
+#: data/io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.gschema.xml:57
 msgid "Desktop Lyrics"
 msgstr "桌面歌词"
 
-msgid "Unofficial Linux desktop client for NetEase Cloud Music"
-msgstr "网易云音乐 Linux 非官方桌面客户端"
+msgid "Linux music player for NetEase Cloud Music"
+msgstr "网易云音乐 Linux 音乐播放器"
 
-msgid ""
-"Cloud Player is an unofficial Linux desktop client based on "
-"NetEase Cloud Music Gtk, with a redesigned UI, comments, and performance "
-"optimizations."
-msgstr ""
-"Cloud Player 是基于 NetEase Cloud Music Gtk 二次开发的网易云音乐 "
-"Linux 非官方桌面客户端，重构界面 UI，新增评论区，并包含性能优化。"
+msgid "Cloud Music Player is a Linux music player for NetEase Cloud Music. It provides desktop playback, playlists, synced lyrics, comments, and optimizations for large music libraries."
+msgstr "Cloud Music Player 是面向网易云音乐的 Linux 音乐播放器，提供桌面播放、歌单、同步歌词、评论和大曲库性能优化。"
 
 msgid "The original upstream project is NetEase Cloud Music Gtk."
 msgstr "原始上游项目是 NetEase Cloud Music Gtk。"

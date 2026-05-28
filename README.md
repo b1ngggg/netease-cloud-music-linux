@@ -1,4 +1,4 @@
-# Cloud Player
+# Cloud Music Player
 
 基于 Rust、GTK4 和 libadwaita 的网易云音乐 Linux 桌面客户端。
 
@@ -19,7 +19,7 @@ https://github.com/gmg137/netease-cloud-music-gtk
 使用 Flatpak 安装
 
 ```bash
-flatpak install flathub io.github.b1ngggg.netease_cloud_music_linux.cloudplayer
+flatpak install flathub io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer
 ```
 
 ## 本地构建
@@ -42,7 +42,7 @@ ninja -C _build install
 
 ## 项目说明
 
-Cloud Player 是基于 NetEase Cloud Music Gtk 二开优化的网易云音乐 Linux 桌面客户端，重构了界面 UI，新增评论区，并包含播放队列、歌词页和大列表性能优化等改动。
+Cloud Music Player 是面向网易云音乐的 Linux 音乐播放器，基于 NetEase Cloud Music Gtk 二开优化，重构了界面 UI，新增评论区，并包含播放队列、歌词页和大列表性能优化等改动。
 
 本项目是非官方客户端，不隶属于网易云音乐。
 

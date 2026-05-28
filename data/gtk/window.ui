@@ -458,7 +458,7 @@
                                                                     <object class="AdwViewStackPage">
                                                                         <property name="name">discover</property>
                                                                         <property name="title" translatable="yes">Discover</property>
-                                                                        <property name="icon-name">cloudplayer-current</property>
+                                                                        <property name="icon-name">cloudmusicplayer-current</property>
                                                                         <property name="child">
                                                                             <object class="GtkScrolledWindow">
                                                                                 <child>

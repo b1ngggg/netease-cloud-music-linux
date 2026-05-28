@@ -21,9 +21,9 @@ use gtk::prelude::*;
 use env_logger::Env;
 use once_cell::sync::Lazy;
 
-const APP_ID: &str = "io.github.b1ngggg.netease_cloud_music_linux.cloudplayer";
-const APP_ICON: &str = "cloudplayer-current";
-const APP_NAME: &str = "Cloud Player";
+const APP_ID: &str = "io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer";
+const APP_ICON: &str = "cloudmusicplayer-current";
+const APP_NAME: &str = "Cloud Music Player";
 const MPRIS_NAME: &str = APP_ID;
 
 pub static MAINCONTEXT: Lazy<glib::MainContext> = Lazy::new(glib::MainContext::default);

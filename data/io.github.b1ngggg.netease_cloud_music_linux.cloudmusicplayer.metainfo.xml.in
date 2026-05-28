@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer</id>
+    <developer id="io.github.b1ngggg">
+        <name>b1ngggg</name>
+    </developer>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>GPL-3.0-or-later</project_license>
+    <releases>
+        <release version="1.0.2" date="2026-05-28" type="stable" />
+    </releases>
+    <name>Cloud Music Player</name>
+    <summary>Linux music player for NetEase Cloud Music</summary>
+    <url type="homepage">https://github.com/b1ngggg/netease-cloud-music-linux</url>
+    <url type="vcs-browser">https://github.com/b1ngggg/netease-cloud-music-linux</url>
+    <recommends>
+        <control>pointing</control>
+        <control>keyboard</control>
+    </recommends>
+    <description>
+        <p>Cloud Music Player is a Linux music player for NetEase Cloud Music. It provides desktop playback, playlists, synced lyrics, comments, and optimizations for large music libraries.</p>
+        <p>The original upstream project is NetEase Cloud Music Gtk.</p>
+        <p>This project is not affiliated with NetEase Cloud Music.</p>
+    </description>
+    <screenshots>
+        <screenshot type="default">
+            <image>https://raw.githubusercontent.com/b1ngggg/netease-cloud-music-linux/v1.0.2/screenshots/discover.jpg</image>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/b1ngggg/netease-cloud-music-linux/v1.0.2/screenshots/lyrics.png</image>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/b1ngggg/netease-cloud-music-linux/v1.0.2/screenshots/queue.png</image>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/b1ngggg/netease-cloud-music-linux/v1.0.2/screenshots/comments.png</image>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/b1ngggg/netease-cloud-music-linux/v1.0.2/screenshots/daily-recommendation.png</image>
+        </screenshot>
+    </screenshots>
+    <content_rating type="oars-1.1" />
+    <launchable type="desktop-id">io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer.desktop</launchable>
+</component>
