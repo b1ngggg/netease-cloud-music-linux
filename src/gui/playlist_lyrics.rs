@@ -1998,9 +1998,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(
-        resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/playlist-lyrics-page.ui"
-    )]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/playlist-lyrics-page.ui")]
     pub struct PlayListLyricsPage {
         #[template_child]
         pub lyrics_overlay: TemplateChild<Overlay>,

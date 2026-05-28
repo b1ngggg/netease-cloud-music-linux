@@ -44,9 +44,8 @@ pub struct UserMenus {
 
 impl UserMenus {
     pub fn new(send: Sender<Action>) -> Self {
-        let builder = gtk::Builder::from_resource(
-            "/io/github/b1ngggg/netease_cloud_music_linux/gtk/user-menus.ui",
-        );
+        let builder =
+            gtk::Builder::from_resource("/io/github/b1ngggg/CloudMusicPlayer/gtk/user-menus.ui");
         let qrbox: Box = builder.object("qrbox").unwrap();
         let qrimage: Image = builder.object("qrimage").unwrap();
         let refresh_button: Button = builder.object("refresh_button").unwrap();

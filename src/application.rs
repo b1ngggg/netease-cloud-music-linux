@@ -20,8 +20,8 @@ use std::{
 };
 
 use crate::{
-    MAINCONTEXT, NeteaseCloudMusicLinuxWindow, audio::MprisController, config::VERSION,
-    gui::NeteaseCloudMusicLinuxPreferences, model::*, ncmapi::*, path::CACHE, utils::*,
+    CloudMusicPlayerWindow, MAINCONTEXT, audio::MprisController, config::VERSION,
+    gui::CloudMusicPlayerPreferences, model::*, ncmapi::*, path::CACHE, utils::*,
 };
 
 // implements Debug for Fn(Targ) using "blanket implementations"
@@ -116,7 +116,7 @@ fn missing_comment_reply_count_ids(comments: &SongComments) -> Vec<u64> {
 
 async fn update_comment_reply_counts_after_render(
     ncmapi: NcmClient,
-    window: NeteaseCloudMusicLinuxWindow,
+    window: CloudMusicPlayerWindow,
     song_id: u64,
     comment_ids: Vec<u64>,
 ) {
@@ -266,8 +266,8 @@ mod imp {
 
     use super::*;
 
-    pub struct NeteaseCloudMusicLinuxApplication {
-        pub window: OnceCell<WeakRef<NeteaseCloudMusicLinuxWindow>>,
+    pub struct CloudMusicPlayerApplication {
+        pub window: OnceCell<WeakRef<CloudMusicPlayerWindow>>,
         pub sender: Sender<Action>,
         pub receiver: RefCell<Option<Receiver<Action>>>,
         pub unikey: Arc<RwLock<String>>,
@@ -275,9 +275,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for NeteaseCloudMusicLinuxApplication {
-        const NAME: &'static str = "NeteaseCloudMusicLinuxApplication";
-        type Type = super::NeteaseCloudMusicLinuxApplication;
+    impl ObjectSubclass for CloudMusicPlayerApplication {
+        const NAME: &'static str = "CloudMusicPlayerApplication";
+        type Type = super::CloudMusicPlayerApplication;
         type ParentType = adw::Application;
         fn new() -> Self {
             let (sender, r) = unbounded();
@@ -296,7 +296,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for NeteaseCloudMusicLinuxApplication {
+    impl ObjectImpl for CloudMusicPlayerApplication {
         fn constructed(&self) {
             let obj = self.obj();
             self.parent_constructed();
@@ -309,7 +309,7 @@ mod imp {
         }
     }
 
-    impl ApplicationImpl for NeteaseCloudMusicLinuxApplication {
+    impl ApplicationImpl for CloudMusicPlayerApplication {
         // We connect to the activate callback to create a window when the application
         // has been launched. Additionally, this callback notifies us when the user
         // tries to launch a "second instance" of the application. When they try
@@ -317,7 +317,7 @@ mod imp {
         fn activate(&self) {
             let obj = self.obj();
             let app = obj
-                .downcast_ref::<super::NeteaseCloudMusicLinuxApplication>()
+                .downcast_ref::<super::CloudMusicPlayerApplication>()
                 .unwrap();
 
             if let Some(weak_window) = self.window.get() {
@@ -348,17 +348,17 @@ mod imp {
         }
     }
 
-    impl GtkApplicationImpl for NeteaseCloudMusicLinuxApplication {}
-    impl AdwApplicationImpl for NeteaseCloudMusicLinuxApplication {}
+    impl GtkApplicationImpl for CloudMusicPlayerApplication {}
+    impl AdwApplicationImpl for CloudMusicPlayerApplication {}
 }
 
 glib::wrapper! {
-    pub struct NeteaseCloudMusicLinuxApplication(ObjectSubclass<imp::NeteaseCloudMusicLinuxApplication>)
+    pub struct CloudMusicPlayerApplication(ObjectSubclass<imp::CloudMusicPlayerApplication>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap;
 }
 
-impl NeteaseCloudMusicLinuxApplication {
+impl CloudMusicPlayerApplication {
     pub fn new(application_id: &str, flags: &gio::ApplicationFlags) -> Self {
         glib::Object::builder()
             .property("application-id", application_id)
@@ -366,14 +366,14 @@ impl NeteaseCloudMusicLinuxApplication {
             .build()
     }
 
-    fn create_window(&self) -> NeteaseCloudMusicLinuxWindow {
+    fn create_window(&self) -> CloudMusicPlayerWindow {
         let imp = self.imp();
         if let Some(display) = gtk::gdk::Display::default() {
             gtk::IconTheme::for_display(&display)
-                .add_resource_path("/io/github/b1ngggg/netease_cloud_music_linux/icons");
+                .add_resource_path("/io/github/b1ngggg/CloudMusicPlayer/icons");
         }
         gtk::Window::set_default_icon_name(crate::APP_ICON);
-        let window = NeteaseCloudMusicLinuxWindow::new(&self.clone(), imp.sender.clone());
+        let window = CloudMusicPlayerWindow::new(&self.clone(), imp.sender.clone());
         window.set_icon_name(Some(crate::APP_ICON));
 
         window.present();
@@ -1709,7 +1709,7 @@ impl NeteaseCloudMusicLinuxApplication {
 
     fn show_prefrerences(&self) {
         let window = self.active_window().unwrap();
-        let preferences = NeteaseCloudMusicLinuxPreferences::new();
+        let preferences = CloudMusicPlayerPreferences::new();
 
         let (size, unit) = crate::path::get_cache_size();
         preferences.set_cache_size_label(size, unit);
@@ -1725,13 +1725,13 @@ impl NeteaseCloudMusicLinuxApplication {
             .version(VERSION)
             .developer_name("b1ngggg")
             .comments(
-                "Cloud Music Player is a Linux music player for NetEase Cloud Music.\n\n\
+                "CloudMusicPlayer is a Linux music player for NetEase Cloud Music.\n\n\
                  Redesigned UI with comments, lyric view, queue, player bar, and large-list performance optimizations.",
             )
             .build();
         dialog.add_link(
             &gettext("Project Homepage"),
-            "https://github.com/b1ngggg/netease-cloud-music-linux",
+            "https://github.com/b1ngggg/CloudMusicPlayer",
         );
         dialog.add_link(
             &gettext("Original Project"),
@@ -1824,7 +1824,7 @@ impl NeteaseCloudMusicLinuxApplication {
     }
 }
 
-impl Default for NeteaseCloudMusicLinuxApplication {
+impl Default for CloudMusicPlayerApplication {
     fn default() -> Self {
         gio::Application::default()
             .expect("Could not get default GApplication")

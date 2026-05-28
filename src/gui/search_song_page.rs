@@ -106,7 +106,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/search-song-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/search-song-page.ui")]
     pub struct SearchSongPage {
         #[template_child]
         pub title_clamp: TemplateChild<adw::Clamp>,

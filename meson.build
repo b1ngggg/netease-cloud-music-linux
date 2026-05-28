@@ -1,5 +1,5 @@
-project('netease-cloud-music-linux', 'rust',
-          version: '1.0.2',
+project('cloudmusicplayer', 'rust',
+          version: '1.0.3',
     meson_version: '>= 0.59.0',
   default_options: [ 'warning_level=2',
                      'werror=false',

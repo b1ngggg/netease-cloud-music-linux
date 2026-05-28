@@ -164,7 +164,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/songlist-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/songlist-page.ui")]
     pub struct SonglistPage {
         #[template_child(id = "cover_image")]
         pub cover_image: TemplateChild<Image>,

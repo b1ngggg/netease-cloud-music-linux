@@ -107,7 +107,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/toplist.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/toplist.ui")]
     pub struct TopListView {
         #[template_child]
         pub sidebar: TemplateChild<ListBox>,

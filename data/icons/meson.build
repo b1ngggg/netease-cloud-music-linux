@@ -1,5 +1,5 @@
-application_id = 'io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer'
-runtime_icon_id = 'cloudmusicplayer-current'
+application_id = 'io.github.b1ngggg.CloudMusicPlayer'
+runtime_icon_id = 'CloudMusicPlayer-current'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(

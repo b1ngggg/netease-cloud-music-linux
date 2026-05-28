@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
     <requires lib="gtk" version="4.0" />
-    <template class="NeteaseCloudMusicLinuxPreferences" parent="AdwPreferencesDialog">
+    <template class="CloudMusicPlayerPreferences" parent="AdwPreferencesDialog">
         <style>
             <class name="app-preferences" />
         </style>

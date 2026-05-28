@@ -358,6 +358,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "cloudmusicplayer"
+version = "1.0.3"
+dependencies = [
+ "anyhow",
+ "async-channel",
+ "base64",
+ "chrono",
+ "cookie_store",
+ "env_logger",
+ "fastrand",
+ "gettext-rs",
+ "gstreamer",
+ "gstreamer-play",
+ "gtk4",
+ "hex",
+ "isahc",
+ "libadwaita",
+ "log",
+ "mpris-server",
+ "netease-cloud-music-api",
+ "once_cell",
+ "openssl",
+ "qrcode-generator",
+ "regex",
+ "serde_json",
+ "urlqstring",
+]
+
+[[package]]
 name = "colorchoice"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1652,35 +1681,6 @@ dependencies = [
  "rand",
  "regex",
  "serde",
- "serde_json",
- "urlqstring",
-]
-
-[[package]]
-name = "netease-cloud-music-linux"
-version = "1.0.2"
-dependencies = [
- "anyhow",
- "async-channel",
- "base64",
- "chrono",
- "cookie_store",
- "env_logger",
- "fastrand",
- "gettext-rs",
- "gstreamer",
- "gstreamer-play",
- "gtk4",
- "hex",
- "isahc",
- "libadwaita",
- "log",
- "mpris-server",
- "netease-cloud-music-api",
- "once_cell",
- "openssl",
- "qrcode-generator",
- "regex",
  "serde_json",
  "urlqstring",
 ]

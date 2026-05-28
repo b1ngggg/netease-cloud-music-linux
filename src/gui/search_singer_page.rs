@@ -116,7 +116,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/search-singer-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/search-singer-page.ui")]
     pub struct SearchSingerPage {
         #[template_child]
         pub singer_grid: TemplateChild<Grid>,

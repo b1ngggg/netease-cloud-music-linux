@@ -2,13 +2,13 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP_ID="io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer"
+APP_ID="io.github.b1ngggg.CloudMusicPlayer"
 APP_BRANCH="stable"
 MANIFEST="$ROOT_DIR/packaging/flatpak/$APP_ID.local.yml"
 BUILD_DIR="$ROOT_DIR/_build/flatpak-build"
 REPO_DIR="$ROOT_DIR/_build/flatpak-repo"
 BUNDLE_DIR="$ROOT_DIR/_build/flatpak"
-BUNDLE="$BUNDLE_DIR/netease-cloud-music-linux.flatpak"
+BUNDLE="$BUNDLE_DIR/CloudMusicPlayer.flatpak"
 CARGO_CACHE_DIR="$ROOT_DIR/_build/flatpak-cargo-cache"
 CACHED_MANIFEST="$BUNDLE_DIR/$APP_ID.cached.yml"
 

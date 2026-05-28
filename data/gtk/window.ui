@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
     <requires lib="gtk" version="4.0" />
-    <template class="NeteaseCloudMusicLinuxWindow" parent="GtkApplicationWindow">
+    <template class="CloudMusicPlayerWindow" parent="GtkApplicationWindow">
         <property name="default-width">1280</property>
         <property name="default-height">820</property>
         <property name="width-request">920</property>
@@ -125,7 +125,7 @@
                                                                 <property name="margin-bottom">12</property>
                                                                 <child>
                                                                     <object class="GtkImage">
-                                                                        <property name="resource">/io/github/b1ngggg/netease_cloud_music_linux/icons/scalable/apps/logo.svg</property>
+                                                                        <property name="resource">/io/github/b1ngggg/CloudMusicPlayer/icons/scalable/apps/logo.svg</property>
                                                                         <property name="pixel-size">32</property>
                                                                         <property name="valign">center</property>
                                                                         <style>
@@ -458,7 +458,7 @@
                                                                     <object class="AdwViewStackPage">
                                                                         <property name="name">discover</property>
                                                                         <property name="title" translatable="yes">Discover</property>
-                                                                        <property name="icon-name">cloudmusicplayer-current</property>
+                                                                        <property name="icon-name">CloudMusicPlayer-current</property>
                                                                         <property name="child">
                                                                             <object class="GtkScrolledWindow">
                                                                                 <child>

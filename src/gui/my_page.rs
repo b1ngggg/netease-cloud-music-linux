@@ -62,7 +62,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/my-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/my-page.ui")]
     pub struct MyPage {
         #[template_child]
         pub rec_grid: TemplateChild<gtk::FlowBox>,

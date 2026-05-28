@@ -72,9 +72,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(
-        resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/search-songlist-page.ui"
-    )]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/search-songlist-page.ui")]
     pub struct SearchSongListPage {
         #[template_child(id = "songlist_grid")]
         pub songlist_grid: TemplateChild<gtk::GridView>,

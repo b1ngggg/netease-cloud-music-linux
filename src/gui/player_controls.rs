@@ -841,7 +841,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/player-controls.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/player-controls.ui")]
     pub struct PlayerControls {
         #[template_child]
         pub prev_button: TemplateChild<Button>,

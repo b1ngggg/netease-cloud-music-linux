@@ -124,7 +124,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/discover.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/discover.ui")]
     pub struct Discover {
         #[template_child]
         pub carousel: TemplateChild<adw::Carousel>,
@@ -286,7 +286,7 @@ mod imp {
 fn load_css() {
     // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
-    provider.load_from_resource("/io/github/b1ngggg/netease_cloud_music_linux/themes/discover.css");
+    provider.load_from_resource("/io/github/b1ngggg/CloudMusicPlayer/themes/discover.css");
 
     // Add the provider to the default screen
     style_context_add_provider_for_display(

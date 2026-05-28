@@ -1,9 +1,9 @@
 [Desktop Entry]
-Name=Cloud Music Player
+Name=CloudMusicPlayer
 Comment=Linux music player for NetEase Cloud Music
-Exec=netease-cloud-music-linux
-Icon=io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer
-StartupWMClass=netease-cloud-music-linux
+Exec=cloudmusicplayer
+Icon=io.github.b1ngggg.CloudMusicPlayer
+StartupWMClass=cloudmusicplayer
 Terminal=false
 Type=Application
 Categories=GNOME;GTK;AudioVideo;Player;Audio;

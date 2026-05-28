@@ -1,1 +1,1 @@
-i18n.gettext('netease-cloud-music-linux', preset: 'glib')
+i18n.gettext('cloudmusicplayer', preset: 'glib')

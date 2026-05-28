@@ -14,7 +14,7 @@ use ncm_api::SongInfo;
 use std::rc::Rc;
 
 use crate::gui::PlayerControls;
-use crate::window::NeteaseCloudMusicLinuxWindow;
+use crate::window::CloudMusicPlayerWindow;
 
 use super::LoopsState;
 
@@ -62,11 +62,7 @@ impl MprisController {
         metadata.set_album(Some(si.album.clone()));
         metadata.set_length(Some(Time::from_micros(si.duration as i64 * 1000)));
         metadata.set_trackid(
-            TrackId::try_from(format!(
-                "/io/github/b1ngggg/netease_cloud_music_linux/{}",
-                si.id
-            ))
-            .ok(),
+            TrackId::try_from(format!("/io/github/b1ngggg/CloudMusicPlayer/{}", si.id)).ok(),
         );
         // 取消从缓存获取专辑封面
         //let mut path_cover = crate::path::CACHE.clone();
@@ -141,13 +137,13 @@ impl MprisController {
     pub fn setup_signals(&self, player_controls: &PlayerControls) {
         // mpris raise
         self.mpris_player.connect_raise(move |_| {
-            let window = NeteaseCloudMusicLinuxWindow::default();
+            let window = CloudMusicPlayerWindow::default();
             window.present();
         });
 
         // mpris quit
         self.mpris_player.connect_quit(move |_| {
-            let window = NeteaseCloudMusicLinuxWindow::default();
+            let window = CloudMusicPlayerWindow::default();
             window.destroy();
         });
 

@@ -14,7 +14,7 @@ use once_cell::sync::OnceCell;
 use crate::gui::app_menu;
 
 glib::wrapper! {
-    pub struct NeteaseCloudMusicLinuxPreferences(ObjectSubclass<imp::NeteaseCloudMusicLinuxPreferences>)
+    pub struct CloudMusicPlayerPreferences(ObjectSubclass<imp::CloudMusicPlayerPreferences>)
         @extends adw::PreferencesDialog, adw::Dialog, Widget,
         @implements Accessible, Buildable, ConstraintTarget, Native, Root, ShortcutManager;
 }
@@ -26,7 +26,7 @@ fn entry_selected_text(entry: &Entry) -> Option<String> {
         .map(|(start, end)| entry.chars(start, end).to_string())
 }
 
-impl NeteaseCloudMusicLinuxPreferences {
+impl CloudMusicPlayerPreferences {
     pub fn new() -> Self {
         glib::Object::new()
     }
@@ -202,7 +202,7 @@ impl NeteaseCloudMusicLinuxPreferences {
     }
 }
 
-impl Default for NeteaseCloudMusicLinuxPreferences {
+impl Default for CloudMusicPlayerPreferences {
     fn default() -> Self {
         Self::new()
     }
@@ -215,8 +215,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/preferences.ui")]
-    pub struct NeteaseCloudMusicLinuxPreferences {
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/preferences.ui")]
+    pub struct CloudMusicPlayerPreferences {
         pub settings: OnceCell<Settings>,
         #[template_child]
         pub exit_switch: TemplateChild<Switch>,
@@ -235,9 +235,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for NeteaseCloudMusicLinuxPreferences {
-        const NAME: &'static str = "NeteaseCloudMusicLinuxPreferences";
-        type Type = super::NeteaseCloudMusicLinuxPreferences;
+    impl ObjectSubclass for CloudMusicPlayerPreferences {
+        const NAME: &'static str = "CloudMusicPlayerPreferences";
+        type Type = super::CloudMusicPlayerPreferences;
         type ParentType = adw::PreferencesDialog;
 
         fn class_init(klass: &mut Self::Class) {
@@ -249,7 +249,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for NeteaseCloudMusicLinuxPreferences {
+    impl ObjectImpl for CloudMusicPlayerPreferences {
         fn constructed(&self) {
             let obj = self.obj();
             self.parent_constructed();
@@ -259,7 +259,7 @@ mod imp {
             obj.setup_entry_context_menu();
         }
     }
-    impl WidgetImpl for NeteaseCloudMusicLinuxPreferences {}
-    impl AdwDialogImpl for NeteaseCloudMusicLinuxPreferences {}
-    impl PreferencesDialogImpl for NeteaseCloudMusicLinuxPreferences {}
+    impl WidgetImpl for CloudMusicPlayerPreferences {}
+    impl AdwDialogImpl for CloudMusicPlayerPreferences {}
+    impl PreferencesDialogImpl for CloudMusicPlayerPreferences {}
 }

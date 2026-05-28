@@ -1,10 +1,10 @@
-app-id: io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer
+app-id: io.github.b1ngggg.CloudMusicPlayer
 runtime: org.gnome.Platform
 runtime-version: "50"
 sdk: org.gnome.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.rust-stable
-command: netease-cloud-music-linux
+command: cloudmusicplayer
 separate-locales: false
 
 finish-args:
@@ -18,18 +18,17 @@ finish-args:
 build-options:
   append-path: /usr/lib/sdk/rust-stable/bin
   env:
-    CARGO_HOME: /run/build/netease-cloud-music-linux/cargo
+    CARGO_HOME: /run/build/cloudmusicplayer/cargo
     CARGO_NET_OFFLINE: "true"
-    CARGO_TARGET_DIR: /run/build/netease-cloud-music-linux/target
+    CARGO_TARGET_DIR: /run/build/cloudmusicplayer/target
 
 modules:
-  - name: netease-cloud-music-linux
+  - name: cloudmusicplayer
     buildsystem: meson
     config-opts:
       - --buildtype=release
     sources:
       - type: git
-        url: https://github.com/b1ngggg/netease-cloud-music-linux.git
-        tag: v1.0.2
-        commit: 207c887c54869a23249b45c3ed46585e7221a094
+        url: https://github.com/b1ngggg/CloudMusicPlayer.git
+        tag: v1.0.3
       - cargo-sources.json

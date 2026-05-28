@@ -9,8 +9,8 @@ mod path;
 mod utils;
 mod window;
 
-use self::application::NeteaseCloudMusicLinuxApplication;
-use self::window::NeteaseCloudMusicLinuxWindow;
+use self::application::CloudMusicPlayerApplication;
+use self::window::CloudMusicPlayerWindow;
 
 use config::{GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
 use gettextrs::{LocaleCategory, bind_textdomain_codeset, bindtextdomain, setlocale, textdomain};
@@ -21,9 +21,9 @@ use gtk::prelude::*;
 use env_logger::Env;
 use once_cell::sync::Lazy;
 
-const APP_ID: &str = "io.github.b1ngggg.netease_cloud_music_linux.cloudmusicplayer";
-const APP_ICON: &str = "cloudmusicplayer-current";
-const APP_NAME: &str = "Cloud Music Player";
+const APP_ID: &str = "io.github.b1ngggg.CloudMusicPlayer";
+const APP_ICON: &str = "CloudMusicPlayer-current";
+const APP_NAME: &str = "CloudMusicPlayer";
 const MPRIS_NAME: &str = APP_ID;
 
 pub static MAINCONTEXT: Lazy<glib::MainContext> = Lazy::new(glib::MainContext::default);
@@ -45,16 +45,15 @@ fn main() {
     textdomain(GETTEXT_PACKAGE).expect("Unable to switch to the text domain");
 
     // Load resources
-    let resources =
-        gio::Resource::load(PKGDATADIR.to_owned() + "/netease-cloud-music-linux.gresource")
-            .expect("Could not load resources");
+    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/cloudmusicplayer.gresource")
+        .expect("Could not load resources");
     gio::resources_register(&resources);
 
     glib::set_application_name(&gettextrs::gettext(APP_NAME));
     // Create a new GtkApplication. The application manages our main loop,
     // application windows, integration with the window manager/compositor, and
     // desktop features such as file opening and single-instance applications.
-    let app = NeteaseCloudMusicLinuxApplication::new(APP_ID, &gio::ApplicationFlags::empty());
+    let app = CloudMusicPlayerApplication::new(APP_ID, &gio::ApplicationFlags::empty());
 
     let _guard = MAINCONTEXT.acquire().unwrap();
 

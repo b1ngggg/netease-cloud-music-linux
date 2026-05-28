@@ -31,7 +31,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/theme-selector.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/theme-selector.ui")]
     pub struct ThemeSelector {
         #[template_child(id = "box")]
         pub gbox: TemplateChild<gtk::Box>,
@@ -72,9 +72,7 @@ mod imp {
 fn load_css() {
     // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
-    provider.load_from_resource(
-        "/io/github/b1ngggg/netease_cloud_music_linux/themes/themesselector.css",
-    );
+    provider.load_from_resource("/io/github/b1ngggg/CloudMusicPlayer/themes/themesselector.css");
 
     // Add the provider to the default screen
     style_context_add_provider_for_display(

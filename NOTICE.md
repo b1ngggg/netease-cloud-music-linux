@@ -1,6 +1,6 @@
 # Notice
 
-Cloud Music Player is a fork of NetEase Cloud Music Gtk:
+CloudMusicPlayer is a fork of NetEase Cloud Music Gtk:
 
 https://github.com/gmg137/netease-cloud-music-gtk
 

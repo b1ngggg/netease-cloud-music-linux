@@ -465,7 +465,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/songlist-view.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/songlist-view.ui")]
     pub struct SongListView {
         #[template_child]
         pub scroll_win: TemplateChild<ScrolledWindow>,

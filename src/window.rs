@@ -1,5 +1,5 @@
 use crate::{
-    application::{Action, NeteaseCloudMusicLinuxApplication},
+    application::{Action, CloudMusicPlayerApplication},
     audio::{LoopsState, MprisController},
     gui::*,
     model::*,
@@ -53,8 +53,8 @@ mod imp {
     use super::*;
 
     #[derive(Default, CompositeTemplate)]
-    #[template(resource = "/io/github/b1ngggg/netease_cloud_music_linux/gtk/window.ui")]
-    pub struct NeteaseCloudMusicLinuxWindow {
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/window.ui")]
+    pub struct CloudMusicPlayerWindow {
         #[template_child]
         pub header_bar: TemplateChild<adw::HeaderBar>,
         #[template_child]
@@ -141,7 +141,7 @@ mod imp {
         user_info: RefCell<UserInfo>,
     }
 
-    impl NeteaseCloudMusicLinuxWindow {
+    impl CloudMusicPlayerWindow {
         pub fn user_like_song_contains(&self, id: &u64) -> bool {
             self.user_info.borrow().like_songs.contains(id)
         }
@@ -166,9 +166,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for NeteaseCloudMusicLinuxWindow {
-        const NAME: &'static str = "NeteaseCloudMusicLinuxWindow";
-        type Type = super::NeteaseCloudMusicLinuxWindow;
+    impl ObjectSubclass for CloudMusicPlayerWindow {
+        const NAME: &'static str = "CloudMusicPlayerWindow";
+        type Type = super::CloudMusicPlayerWindow;
         type ParentType = ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
@@ -181,7 +181,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for NeteaseCloudMusicLinuxWindow {
+    impl ObjectImpl for CloudMusicPlayerWindow {
         fn constructed(&self) {
             let obj = self.obj();
             self.parent_constructed();
@@ -249,23 +249,23 @@ mod imp {
             }
         }
     }
-    impl WidgetImpl for NeteaseCloudMusicLinuxWindow {}
-    impl WindowImpl for NeteaseCloudMusicLinuxWindow {}
-    impl ApplicationWindowImpl for NeteaseCloudMusicLinuxWindow {}
+    impl WidgetImpl for CloudMusicPlayerWindow {}
+    impl WindowImpl for CloudMusicPlayerWindow {}
+    impl ApplicationWindowImpl for CloudMusicPlayerWindow {}
 }
 
 glib::wrapper! {
-    pub struct NeteaseCloudMusicLinuxWindow(ObjectSubclass<imp::NeteaseCloudMusicLinuxWindow>)
+    pub struct CloudMusicPlayerWindow(ObjectSubclass<imp::CloudMusicPlayerWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow,
         @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
-impl NeteaseCloudMusicLinuxWindow {
+impl CloudMusicPlayerWindow {
     pub fn new<P: glib::object::IsA<gtk::Application>>(
         application: &P,
         sender: Sender<Action>,
     ) -> Self {
-        let window: NeteaseCloudMusicLinuxWindow = glib::Object::builder()
+        let window: CloudMusicPlayerWindow = glib::Object::builder()
             .property("application", application)
             .build();
 
@@ -413,7 +413,7 @@ impl NeteaseCloudMusicLinuxWindow {
         let imp = self.imp();
         let display = gdk::Display::default().expect("Could not connect to a display.");
         gtk::IconTheme::for_display(&display)
-            .add_resource_path("/io/github/b1ngggg/netease_cloud_music_linux/icons");
+            .add_resource_path("/io/github/b1ngggg/CloudMusicPlayer/icons");
 
         let sender = imp.sender.get().unwrap();
         let user_menus = UserMenus::new(sender.clone());
@@ -1884,7 +1884,7 @@ impl NeteaseCloudMusicLinuxWindow {
 }
 
 #[gtk::template_callbacks]
-impl NeteaseCloudMusicLinuxWindow {
+impl CloudMusicPlayerWindow {
     #[template_callback]
     fn global_queue_close_cb(&self) {
         self.set_global_queue_revealed(false);
@@ -2050,9 +2050,9 @@ impl NeteaseCloudMusicLinuxWindow {
     }
 }
 
-impl Default for NeteaseCloudMusicLinuxWindow {
+impl Default for CloudMusicPlayerWindow {
     fn default() -> Self {
-        NeteaseCloudMusicLinuxApplication::default()
+        CloudMusicPlayerApplication::default()
             .active_window()
             .unwrap()
             .downcast()
