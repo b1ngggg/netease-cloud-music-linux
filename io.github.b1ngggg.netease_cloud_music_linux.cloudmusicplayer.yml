@@ -31,4 +31,5 @@ modules:
       - type: git
         url: https://github.com/b1ngggg/netease-cloud-music-linux.git
         tag: v1.0.2
+        commit: 207c887c54869a23249b45c3ed46585e7221a094
       - cargo-sources.json
