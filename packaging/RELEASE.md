@@ -29,7 +29,7 @@ Flatpak:
 
 ```bash
 flatpak install --user --bundle ./netease-cloud-music-linux.flatpak
-flatpak run io.github.b1ngggg.netease_cloud_music_linux
+flatpak run io.github.b1ngggg.netease-cloud-music-linux
 ```
 
 deb:

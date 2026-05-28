@@ -37,7 +37,7 @@
                                 <property name="spacing">10</property>
                                 <child>
                                     <object class="GtkLabel">
-                                        <property name="label">搜索结果</property>
+                                        <property name="label" translatable="yes">Search Results</property>
                                         <property name="halign">start</property>
                                         <style>
                                             <class name="app-eyebrow" />
@@ -46,7 +46,7 @@
                                 </child>
                                 <child>
                                     <object class="GtkLabel" id="title_label">
-                                        <property name="label">标题</property>
+                                        <property name="label" translatable="yes">Title</property>
                                         <property name="halign">start</property>
                                         <property name="valign">end</property>
                                         <property name="max-width-chars">27</property>
@@ -64,7 +64,7 @@
                                         <property name="orientation">horizontal</property>
                                         <child>
                                             <object class="GtkLabel" id="num_label">
-                                                <property name="label">0 首歌曲</property>
+                                                <property name="label" translatable="yes">0 songs</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">end</property>
                                                 <style>
@@ -79,7 +79,7 @@
                                                 <property name="hexpand">true</property>
                                                 <property name="icon-name">media-playback-start-symbolic</property>
                                                 <signal name="clicked" handler="play_button_clicked_cb" swapped="true" />
-                                                <property name="tooltip-text">播放列表</property>
+                                                <property name="tooltip-text" translatable="yes">Play list</property>
                                                 <style>
                                                     <class name="circular" />
                                                     <class name="app-primary-play" />

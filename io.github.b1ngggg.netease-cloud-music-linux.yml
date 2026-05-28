@@ -1,4 +1,4 @@
-app-id: io.github.b1ngggg.netease_cloud_music_linux
+app-id: io.github.b1ngggg.netease-cloud-music-linux
 runtime: org.gnome.Platform
 runtime-version: "50"
 sdk: org.gnome.Sdk

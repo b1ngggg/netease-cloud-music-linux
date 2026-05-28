@@ -35,7 +35,7 @@
                         <property name="halign">start</property>
                         <property name="valign">center</property>
                         <property name="margin-start">9</property>
-                        <property name="label">推荐歌单</property>
+                        <property name="label" translatable="yes">Recommended Playlists</property>
                         <style>
                             <class name="app-section-title" />
                         </style>

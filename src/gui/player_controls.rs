@@ -692,10 +692,10 @@ impl PlayerControls {
     fn update_repeat_presentation(&self, state: LoopsState) {
         let imp = self.imp();
         let (icon, tooltip) = match state {
-            LoopsState::Shuffle => ("media-playlist-shuffle-symbolic", gettext("随机播放")),
-            LoopsState::None => ("media-playlist-consecutive-symbolic", gettext("顺序播放")),
-            LoopsState::Track => ("media-playlist-repeat-song-symbolic", gettext("单曲循环")),
-            LoopsState::Playlist => ("media-playlist-repeat-symbolic", gettext("列表循环")),
+            LoopsState::Shuffle => ("media-playlist-shuffle-symbolic", gettext("Shuffle")),
+            LoopsState::None => ("media-playlist-consecutive-symbolic", gettext("Sequential")),
+            LoopsState::Track => ("media-playlist-repeat-song-symbolic", gettext("Repeat One")),
+            LoopsState::Playlist => ("media-playlist-repeat-symbolic", gettext("Repeat All")),
         };
 
         imp.repeat_image.set_icon_name(Some(icon));

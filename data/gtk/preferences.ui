@@ -5,16 +5,16 @@
         <style>
             <class name="app-preferences" />
         </style>
-        <property name="title" translatable="yes">首选项</property>
+        <property name="title" translatable="yes">Preferences</property>
         <child>
             <object class="AdwPreferencesPage">
                 <child>
                     <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">通用</property>
+                        <property name="title" translatable="yes">General</property>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">关闭时退到后台</property>
-                                <property name="subtitle" translatable="yes">设置主窗口关闭按钮的行为</property>
+                                <property name="title" translatable="yes">Minimize to tray on close</property>
+                                <property name="subtitle" translatable="yes">Set the main window close button behavior</property>
                                 <property name="use_underline">True</property>
                                 <property name="activatable-widget">exit_switch</property>
                                 <child>
@@ -27,8 +27,8 @@
                         </child>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">启动时静音</property>
-                                <property name="subtitle" translatable="yes">应用启动后将音量设为 0</property>
+                                <property name="title" translatable="yes">Mute on startup</property>
+                                <property name="subtitle" translatable="yes">Set volume to 0 after startup</property>
                                 <property name="use_underline">True</property>
                                 <property name="activatable-widget">mute_start_switch</property>
                                 <child>
@@ -41,8 +41,8 @@
                         </child>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">不忽略灰色歌曲</property>
-                                <property name="subtitle" translatable="yes">始终尝试播放灰色歌曲</property>
+                                <property name="title" translatable="yes">Do not skip grey songs</property>
+                                <property name="subtitle" translatable="yes">Always try to play grey songs</property>
                                 <property name="use_underline">True</property>
                                 <property name="activatable-widget">not_ignore_grey_switch</property>
                                 <child>
@@ -55,7 +55,7 @@
                         </child>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">网络代理</property>
+                                <property name="title" translatable="yes">Network Proxy</property>
                                 <property name="subtitle" translatable="yes">http/https/socks4/socks4a/socks5/socks5h</property>
                                 <property name="use_underline">True</property>
                                 <child>
@@ -69,14 +69,14 @@
                         </child>
                         <child>
                             <object class="AdwComboRow" id="cache_clear">
-                                <property name="title" translatable="yes">缓存清理</property>
+                                <property name="title" translatable="yes">Cache Cleanup</property>
                                 <property name="model">
                                     <object class="GtkStringList">
                                         <items>
-                                            <item translatable="yes">从不</item>
-                                            <item translatable="yes">每天</item>
-                                            <item translatable="yes">每周</item>
-                                            <item translatable="yes">每月</item>
+                                            <item translatable="yes">Never</item>
+                                            <item translatable="yes">Daily</item>
+                                            <item translatable="yes">Weekly</item>
+                                            <item translatable="yes">Monthly</item>
                                         </items>
                                     </object>
                                 </property>
@@ -86,10 +86,10 @@
                 </child>
                 <child>
                     <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">音乐</property>
+                        <property name="title" translatable="yes">Music</property>
                         <child>
                             <object class="AdwComboRow" id="switch_rate">
-                                <property name="title" translatable="yes">音质</property>
+                                <property name="title" translatable="yes">Audio Quality</property>
                                 <property name="model">
                                     <object class="GtkStringList">
                                         <items>
@@ -105,8 +105,8 @@
                         </child>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">桌面歌词</property>
-                                <property name="subtitle" translatable="yes">需要 desktop-lyrics 或 osdlyrics</property>
+                                <property name="title" translatable="yes">Desktop Lyrics</property>
+                                <property name="subtitle" translatable="yes">Requires desktop-lyrics or osdlyrics</property>
                                 <property name="use_underline">True</property>
                                 <property name="activatable-widget">desktop_lyrics</property>
                                 <child>

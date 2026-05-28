@@ -17,71 +17,71 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.desktop.in:3
-#: data/io.github.b1ngggg.netease_cloud_music_linux.metainfo.xml.in:12
+#: data/io.github.b1ngggg.netease-cloud-music-linux.desktop.in:3
+#: data/io.github.b1ngggg.netease-cloud-music-linux.metainfo.xml.in:12
 msgid "NetEase Cloud Music Linux"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.desktop.in:4
-#: data/io.github.b1ngggg.netease_cloud_music_linux.metainfo.xml.in:13
+#: data/io.github.b1ngggg.netease-cloud-music-linux.desktop.in:4
+#: data/io.github.b1ngggg.netease-cloud-music-linux.metainfo.xml.in:13
 msgid "Linux desktop client based on NetEase Cloud Music Gtk"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.desktop.in:12
+#: data/io.github.b1ngggg.netease-cloud-music-linux.desktop.in:12
 msgid "Player;Audio;Song;MP3;Playlist;Radio;Multimedia;"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.metainfo.xml.in:5
+#: data/io.github.b1ngggg.netease-cloud-music-linux.metainfo.xml.in:5
 msgid "b1ngggg"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.metainfo.xml.in:21
+#: data/io.github.b1ngggg.netease-cloud-music-linux.metainfo.xml.in:21
 msgid ""
 "NetEase Cloud Music Linux is a Linux desktop client based on NetEase Cloud "
 "Music Gtk, with a redesigned UI, comments, and performance optimizations."
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:11
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:11
 msgid "Settings theme"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:21
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:21
 msgid "Settings player loop"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:25
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:25
 msgid "Set exit key behavior"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:29
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:29
 msgid "Mute when startup"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:33
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:33
 msgid "Settings proxy address"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:37
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:37
 msgid "Settings music rate"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:41
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:41
 msgid "Settings cache clear rules, 0: Never, 1: Daily, 2: Weekly, 3: Monthly"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:45
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:45
 msgid "Cache clear flag"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:49
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:49
 msgid "Volume"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:53
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:53
 msgid "Always try to play grey song"
 msgstr ""
 
-#: data/io.github.b1ngggg.netease_cloud_music_linux.gschema.xml:57
+#: data/io.github.b1ngggg.netease-cloud-music-linux.gschema.xml:57
 msgid "Desktop Lyrics"
 msgstr ""
 

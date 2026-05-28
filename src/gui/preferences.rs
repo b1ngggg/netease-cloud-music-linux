@@ -4,6 +4,7 @@
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 
+use gettextrs::gettext;
 use gio::Settings;
 use gtk::gio::SettingsBindFlags;
 use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
@@ -123,10 +124,10 @@ impl NeteaseCloudMusicLinuxPreferences {
         card.set_width_request(118);
         card.add_css_class("app-menu-card");
 
-        let cut_button = app_menu::text_row("剪切");
-        let copy_button = app_menu::text_row("复制");
-        let paste_button = app_menu::text_row("粘贴");
-        let select_all_button = app_menu::text_row("全选");
+        let cut_button = app_menu::text_row(&gettext("Cut"));
+        let copy_button = app_menu::text_row(&gettext("Copy"));
+        let paste_button = app_menu::text_row(&gettext("Paste"));
+        let select_all_button = app_menu::text_row(&gettext("Select All"));
         let has_selection = entry_selected_text(entry).is_some();
         let has_text = !entry.text().is_empty();
         let is_editable = entry.is_editable();

@@ -21,7 +21,7 @@ use gtk::prelude::*;
 use env_logger::Env;
 use once_cell::sync::Lazy;
 
-const APP_ID: &str = "io.github.b1ngggg.netease_cloud_music_linux";
+const APP_ID: &str = "io.github.b1ngggg.netease-cloud-music-linux";
 const APP_ICON: &str = "netease-cloud-music-linux-current";
 const APP_NAME: &str = "NetEase Cloud Music Linux";
 const MPRIS_NAME: &str = "NeteaseCloudMusicLinux";

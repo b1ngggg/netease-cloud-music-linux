@@ -119,7 +119,7 @@
                                 <property name="halign">end</property>
                                 <property name="valign">center</property>
                                 <property name="icon-name">non-starred-symbolic</property>
-                                <property name="tooltip-text">喜欢歌曲</property>
+                                <property name="tooltip-text" translatable="yes">Like song</property>
                                 <signal name="clicked" handler="like_button_clicked_cb" swapped="true" />
                                 <style>
                                     <class name="flat" />
@@ -132,7 +132,7 @@
                                 <property name="halign">end</property>
                                 <property name="valign">center</property>
                                 <property name="icon-name">media-optical-cd-audio-symbolic</property>
-                                <property name="tooltip-text">查看专辑</property>
+                                <property name="tooltip-text" translatable="yes">View album</property>
                                 <signal name="clicked" handler="album_button_clicked_cb" swapped="true" />
                                 <style>
                                     <class name="flat" />
@@ -145,7 +145,7 @@
                                 <property name="halign">end</property>
                                 <property name="valign">center</property>
                                 <property name="icon-name">user-trash-symbolic</property>
-                                <property name="tooltip-text">移除歌曲</property>
+                                <property name="tooltip-text" translatable="yes">Remove song</property>
                                 <signal name="clicked" handler="remove_button_clicked_cb" swapped="true" />
                                 <style>
                                     <class name="flat" />

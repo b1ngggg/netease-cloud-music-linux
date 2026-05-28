@@ -58,7 +58,7 @@
                                         <property name="spacing">8</property>
                                         <child>
                                             <object class="GtkLabel">
-                                                <property name="label">歌单</property>
+                                                <property name="label" translatable="yes">Playlists</property>
                                                 <property name="halign">start</property>
                                                 <style>
                                                     <class name="app-eyebrow" />
@@ -67,7 +67,7 @@
                                         </child>
                                         <child>
                                             <object class="GtkLabel" id="title_label">
-                                                <property name="label">标题</property>
+                                                <property name="label" translatable="yes">Title</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">end</property>
                                                 <property name="max-width-chars">36</property>
@@ -90,7 +90,7 @@
                                         </child>
                                         <child>
                                             <object class="GtkLabel" id="num_label">
-                                                <property name="label">0 首歌曲</property>
+                                                <property name="label" translatable="yes">0 songs</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">end</property>
                                                 <style>
@@ -113,7 +113,7 @@
                                                 <property name="hexpand">true</property>
                                                 <property name="icon-name">media-playback-start-symbolic</property>
                                                 <signal name="clicked" handler="play_button_clicked_cb" swapped="true" />
-                                                <property name="tooltip-text">播放歌单</property>
+                                                <property name="tooltip-text" translatable="yes">Play playlist</property>
                                                 <style>
                                                     <class name="circular" />
                                                     <class name="app-primary-play" />
@@ -126,7 +126,7 @@
                                                 <property name="valign">center</property>
                                                 <property name="icon-name">non-starred-symbolic</property>
                                                 <signal name="clicked" handler="like_button_clicked_cb" swapped="true" />
-                                                <property name="tooltip-text">收藏歌单</property>
+                                                <property name="tooltip-text" translatable="yes">Saved Playlists</property>
                                                 <style>
                                                     <class name="circular" />
                                                     <class name="app-secondary-action" />

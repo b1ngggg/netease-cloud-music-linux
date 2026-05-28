@@ -135,7 +135,7 @@ impl SonglistPage {
                         let dt = dt.format("%Y-%m-%d");
                         si.album = dt.to_string();
                     } else {
-                        si.album = "未知".to_string();
+                        si.album = gettext("Unknown");
                     }
                 }
             }

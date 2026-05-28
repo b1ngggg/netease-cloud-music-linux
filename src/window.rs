@@ -572,10 +572,10 @@ impl NeteaseCloudMusicLinuxWindow {
         let imp = self.imp();
         let overlay = imp.main_overlay.get();
         let menu = Box::new(Orientation::Vertical, 0);
-        let cut_button = app_menu::text_row("剪切");
-        let copy_button = app_menu::text_row("复制");
-        let paste_button = app_menu::text_row("粘贴");
-        let select_all_button = app_menu::text_row("全选");
+        let cut_button = app_menu::text_row(&gettext("Cut"));
+        let copy_button = app_menu::text_row(&gettext("Copy"));
+        let paste_button = app_menu::text_row(&gettext("Paste"));
+        let select_all_button = app_menu::text_row(&gettext("Select All"));
         let has_selection = editable_selected_text(editable).is_some();
         let has_text = !editable.text().is_empty();
         let is_editable = editable.is_editable();
@@ -705,7 +705,7 @@ impl NeteaseCloudMusicLinuxWindow {
         menu.append(&app_menu::separator());
         menu.append(&app_menu::action_row(
             "emblem-system-symbolic",
-            "首选项",
+            &gettext("Preferences"),
             {
                 let obj = self.downgrade();
                 move || {
@@ -719,7 +719,7 @@ impl NeteaseCloudMusicLinuxWindow {
         ));
         menu.append(&app_menu::action_row(
             "preferences-desktop-keyboard-symbolic",
-            "快捷键",
+            &gettext("Keyboard Shortcuts"),
             {
                 let obj = self.downgrade();
                 move || {
@@ -734,15 +734,19 @@ impl NeteaseCloudMusicLinuxWindow {
                 }
             },
         ));
-        menu.append(&app_menu::action_row("help-about-symbolic", "关于", {
-            let obj = self.downgrade();
-            move || {
-                if let Some(obj) = obj.upgrade() {
-                    obj.dismiss_app_menus();
-                    let _ = gtk::prelude::WidgetExt::activate_action(&obj, "app.about", None);
+        menu.append(&app_menu::action_row(
+            "help-about-symbolic",
+            &gettext("About"),
+            {
+                let obj = self.downgrade();
+                move || {
+                    if let Some(obj) = obj.upgrade() {
+                        obj.dismiss_app_menus();
+                        let _ = gtk::prelude::WidgetExt::activate_action(&obj, "app.about", None);
+                    }
                 }
-            }
-        }));
+            },
+        ));
 
         self.show_app_menu_at_anchor(anchor, &menu, 286, 260, false, 18);
     }
@@ -765,17 +769,18 @@ impl NeteaseCloudMusicLinuxWindow {
         menu.add_css_class("app-menu-content");
         let current = self.property::<SearchType>("search-type");
         for (label, search_type) in [
-            ("歌曲", SearchType::Song),
-            ("歌手", SearchType::Singer),
-            ("专辑", SearchType::Album),
-            ("歌词", SearchType::Lyrics),
-            ("歌单", SearchType::SongList),
+            ("Songs", SearchType::Song),
+            ("Artists", SearchType::Singer),
+            ("Albums", SearchType::Album),
+            ("Lyrics", SearchType::Lyrics),
+            ("Playlists", SearchType::SongList),
         ] {
-            let row = app_menu::choice_row(label, current == search_type);
+            let translated_label = gettext(label);
+            let row = app_menu::choice_row(&translated_label, current == search_type);
             let obj = self.downgrade();
             row.connect_clicked(move |_| {
                 if let Some(obj) = obj.upgrade() {
-                    obj.imp().search_menu.set_label(label);
+                    obj.imp().search_menu.set_label(&gettext(label));
                     obj.set_property("search-type", search_type);
                     obj.dismiss_app_menus();
                 }
@@ -793,27 +798,28 @@ impl NeteaseCloudMusicLinuxWindow {
         let current = player_controls.property::<LoopsState>("loops");
         for (label, icon, state) in [
             (
-                "顺序播放",
+                "Sequential",
                 "media-playlist-consecutive-symbolic",
                 LoopsState::None,
             ),
             (
-                "单曲循环",
+                "Repeat One",
                 "media-playlist-repeat-song-symbolic",
                 LoopsState::Track,
             ),
             (
-                "列表循环",
+                "Repeat All",
                 "media-playlist-repeat-symbolic",
                 LoopsState::Playlist,
             ),
             (
-                "随机播放",
+                "Shuffle",
                 "media-playlist-shuffle-symbolic",
                 LoopsState::Shuffle,
             ),
         ] {
-            let row = app_menu::icon_choice_row(icon, label, current == state);
+            let translated_label = gettext(label);
+            let row = app_menu::icon_choice_row(icon, &translated_label, current == state);
             let obj = self.downgrade();
             row.connect_clicked(move |_| {
                 if let Some(obj) = obj.upgrade() {
@@ -1450,7 +1456,7 @@ impl NeteaseCloudMusicLinuxWindow {
         let sender = imp.sender.get().unwrap().clone();
         let page = SearchSongListPage::new();
         page.set_sender(sender);
-        page.init_page("全部歌单", SearchType::TopPicks);
+        page.init_page(&gettext("All Playlists"), SearchType::TopPicks);
         page
     }
 
@@ -1459,7 +1465,7 @@ impl NeteaseCloudMusicLinuxWindow {
         let sender = imp.sender.get().unwrap().clone();
         let page = SearchSongListPage::new();
         page.set_sender(sender);
-        page.init_page("全部新碟", SearchType::AllAlbums);
+        page.init_page(&gettext("All Albums"), SearchType::AllAlbums);
         page
     }
 
@@ -1537,7 +1543,7 @@ impl NeteaseCloudMusicLinuxWindow {
         })?;
 
         self.set_global_queue_revealed(false);
-        self.fullscreen_page_new(page, "正在播放", "Lyrics & Queue");
+        self.fullscreen_page_new(page, &gettext("Now Playing"), "Lyrics & Queue");
         Some((si, should_update_lyrics))
     }
 
@@ -1602,13 +1608,13 @@ impl NeteaseCloudMusicLinuxWindow {
     pub fn begin_lyrics_update(&self, song_id: u64) -> bool {
         let imp = self.imp();
         let page = imp.playlist_lyrics_page.get().unwrap();
-        page.begin_lyrics_update(song_id, "正在加载歌词...")
+        page.begin_lyrics_update(song_id, &gettext("Loading lyrics..."))
     }
 
     pub fn lyrics_update_failed(&self, song_id: u64) {
         let imp = self.imp();
         let page = imp.playlist_lyrics_page.get().unwrap();
-        page.lyrics_update_failed(song_id, "歌词暂不可用")
+        page.lyrics_update_failed(song_id, &gettext("Lyrics unavailable"))
     }
 
     pub fn begin_comments_update(&self, song_id: u64, offset: u32) -> bool {

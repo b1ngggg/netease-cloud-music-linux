@@ -135,7 +135,7 @@
                                                                 </child>
                                                                 <child>
                                                                     <object class="GtkLabel">
-                                                                        <property name="label">网易云音乐</property>
+                                                                        <property name="label" translatable="yes">NetEase Cloud Music</property>
                                                                         <property name="halign">start</property>
                                                                         <property name="valign">center</property>
                                                                         <style>
@@ -158,7 +158,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">发现</property>
+                                                                <property name="label" translatable="yes">Discover</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -184,7 +184,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">榜单</property>
+                                                                <property name="label" translatable="yes">Charts</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -209,7 +209,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">推荐歌单</property>
+                                                                <property name="label" translatable="yes">Recommended Playlists</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -229,7 +229,7 @@
                                         </child>
                                         <child>
                                             <object class="GtkLabel">
-                                                <property name="label">我的音乐</property>
+                                                <property name="label" translatable="yes">My Music</property>
                                                 <property name="halign">start</property>
                                                 <property name="margin-start">12</property>
                                                 <style>
@@ -250,7 +250,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">每日推荐</property>
+                                                                <property name="label" translatable="yes">Daily Recommendations</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -275,7 +275,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">收藏单曲</property>
+                                                                <property name="label" translatable="yes">Liked Songs</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -300,7 +300,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">我的电台</property>
+                                                                <property name="label" translatable="yes">My Radio</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -325,7 +325,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">云盘音乐</property>
+                                                                <property name="label" translatable="yes">Cloud Music</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -350,7 +350,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">收藏专辑</property>
+                                                                <property name="label" translatable="yes">Saved Albums</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -375,7 +375,7 @@
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel">
-                                                                <property name="label">收藏歌单</property>
+                                                                <property name="label" translatable="yes">Saved Playlists</property>
                                                                 <property name="xalign">0</property>
                                                             </object>
                                                         </child>
@@ -416,13 +416,13 @@
                                                                 <property name="focusable">True</property>
                                                                 <property name="hexpand">true</property>
                                                                 <property name="valign">center</property>
-                                                                <property name="placeholder-text">搜索歌曲、歌手、专辑或歌单</property>
+                                                                <property name="placeholder-text" translatable="yes">Search songs, artists, albums, or playlists</property>
                                                                 <signal name="activate" handler="search_entry_cb" swapped="true" />
                                                             </object>
                                                         </child>
                                                         <child>
                                                             <object class="GtkMenuButton" id="search_menu">
-                                                                <property name="label">歌曲</property>
+                                                                <property name="label" translatable="yes">Songs</property>
                                                                 <property name="popover">search_popover</property>
                                                                 <property name="valign">center</property>
                                                                 <property name="width-request">78</property>
@@ -457,7 +457,7 @@
                                                                 <child>
                                                                     <object class="AdwViewStackPage">
                                                                         <property name="name">discover</property>
-                                                                        <property name="title">发现</property>
+                                                                        <property name="title" translatable="yes">Discover</property>
                                                                         <property name="icon-name">netease-cloud-music-linux-current</property>
                                                                         <property name="child">
                                                                             <object class="GtkScrolledWindow">
@@ -476,7 +476,7 @@
                                                                 <child>
                                                                     <object class="AdwViewStackPage">
                                                                         <property name="name">toplist</property>
-                                                                        <property name="title">榜单</property>
+                                                                        <property name="title" translatable="yes">Charts</property>
                                                                         <property name="icon-name">view-sort-ascending-symbolic</property>
                                                                         <property name="child">
                                                                             <object class="TopListView" id="toplist" />
@@ -486,7 +486,7 @@
                                                                 <child>
                                                                     <object class="AdwViewStackPage">
                                                                         <property name="name">my</property>
-                                                                        <property name="title">我的</property>
+                                                                        <property name="title" translatable="yes">My Library</property>
                                                                         <property name="icon-name">folder-music-symbolic</property>
                                                                         <property name="child">
                                                                             <object class="AdwViewStack" id="my_stack">
@@ -518,7 +518,7 @@
                                                                                                                 <property name="can_focus">False</property>
                                                                                                                 <property name="opacity">0.37</property>
                                                                                                                 <property name="halign">center</property>
-                                                                                                                <property name="label">尚未登录</property>
+                                                                                                                <property name="label" translatable="yes">Not Signed In</property>
                                                                                                                 <attributes>
                                                                                                                     <attribute name="size" value="17000" />
                                                                                                                 </attributes>
@@ -530,7 +530,7 @@
                                                                                                                 <property name="can_focus">False</property>
                                                                                                                 <property name="opacity">0.37</property>
                                                                                                                 <property name="halign">center</property>
-                                                                                                                <property name="label">登录后可查看和管理你的私人音乐收藏</property>
+                                                                                                                <property name="label" translatable="yes">Sign in to view and manage your personal music library</property>
                                                                                                                 <attributes>
                                                                                                                     <attribute name="size" value="12000" />
                                                                                                                 </attributes>
@@ -560,7 +560,7 @@
                                                                         <property name="visible">false</property>
                                                                         <property name="child">
                                                                             <object class="AdwStatusPage">
-                                                                                <property name="title">搜索</property>
+                                                                                <property name="title" translatable="yes">Search</property>
                                                                             </object>
                                                                         </property>
                                                                     </object>
@@ -616,7 +616,7 @@
                                                                 <property name="spacing">4</property>
                                                                 <child>
                                                                     <object class="GtkLabel">
-                                                                        <property name="label">播放队列</property>
+                                                                        <property name="label" translatable="yes">Queue</property>
                                                                         <property name="halign">start</property>
                                                                         <style>
                                                                             <class name="app-section-title" />
@@ -625,7 +625,7 @@
                                                                 </child>
                                                                 <child>
                                                                     <object class="GtkLabel">
-                                                                        <property name="label">当前列表与即将播放</property>
+                                                                        <property name="label" translatable="yes">Current list and upcoming songs</property>
                                                                         <property name="halign">start</property>
                                                                         <style>
                                                                             <class name="app-muted-label" />
@@ -638,7 +638,7 @@
                                                             <object class="GtkButton">
                                                                 <property name="icon-name">window-close-symbolic</property>
                                                                 <property name="valign">start</property>
-                                                                <property name="tooltip-text">关闭播放队列</property>
+                                                                <property name="tooltip-text" translatable="yes">Close queue</property>
                                                                 <signal name="clicked" handler="global_queue_close_cb" swapped="true" />
                                                                 <style>
                                                                     <class name="flat" />
@@ -700,15 +700,15 @@
 
         <section>
             <item>
-                <attribute name="label" translatable="yes">首选项</attribute>
+                <attribute name="label" translatable="yes">Preferences</attribute>
                 <attribute name="action">app.preferences</attribute>
             </item>
             <item>
-                <attribute name="label" translatable="yes">快捷键</attribute>
+                <attribute name="label" translatable="yes">Keyboard Shortcuts</attribute>
                 <attribute name="action">win.show-help-overlay</attribute>
             </item>
             <item>
-                <attribute name="label" translatable="yes">关于</attribute>
+                <attribute name="label" translatable="yes">About</attribute>
                 <attribute name="action">app.about</attribute>
             </item>
         </section>
@@ -723,12 +723,12 @@
         <!-- <section> -->
         <!--     <attribute name="display-hint">horizontal-buttons</attribute> -->
         <!--     <item> -->
-        <!--         <attribute name="label">签到</attribute> -->
+        <!--         <attribute name="label" translatable="yes">Check in</attribute> -->
         <!--         <attribute name="action">app.copy</attribute> -->
         <!--         <attribute name="verb-icon">emblem-ok-symbolic</attribute> -->
         <!--     </item> -->
         <!--     <item> -->
-        <!--         <attribute name="label">退出</attribute> -->
+        <!--         <attribute name="label" translatable="yes">Quit</attribute> -->
         <!--         <attribute name="verb-icon">system-log-out-symbolic</attribute> -->
         <!--     </item> -->
         <!-- </section> -->
@@ -747,7 +747,7 @@
                 </style>
                 <child>
                     <object class="GtkCheckButton" id="song">
-                        <property name="label">歌曲</property>
+                        <property name="label" translatable="yes">Songs</property>
                         <property name="active">true</property>
                         <style>
                             <class name="app-search-option" />
@@ -757,7 +757,7 @@
                 </child>
                 <child>
                     <object class="GtkCheckButton" id="singer">
-                        <property name="label">歌手</property>
+                        <property name="label" translatable="yes">Artists</property>
                         <property name="group">song</property>
                         <style>
                             <class name="app-search-option" />
@@ -767,7 +767,7 @@
                 </child>
                 <child>
                     <object class="GtkCheckButton" id="album">
-                        <property name="label">专辑</property>
+                        <property name="label" translatable="yes">Albums</property>
                         <property name="group">song</property>
                         <style>
                             <class name="app-search-option" />
@@ -777,7 +777,7 @@
                 </child>
                 <child>
                     <object class="GtkCheckButton" id="lyrics">
-                        <property name="label">歌词</property>
+                        <property name="label" translatable="yes">Lyrics</property>
                         <property name="group">song</property>
                         <style>
                             <class name="app-search-option" />
@@ -787,7 +787,7 @@
                 </child>
                 <child>
                     <object class="GtkCheckButton" id="songlist">
-                        <property name="label">歌单</property>
+                        <property name="label" translatable="yes">Playlists</property>
                         <property name="group">song</property>
                         <style>
                             <class name="app-search-option" />

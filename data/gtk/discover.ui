@@ -128,7 +128,7 @@
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="margin-start">9</property>
-                                        <property name="label">热门推荐</property>
+                                        <property name="label" translatable="yes">Popular Recommendations</property>
                                         <attributes>
                                             <attribute name="size" value="15000" />
                                         </attributes>
@@ -143,7 +143,7 @@
                                         <property name="valign">end</property>
                                         <property name="hexpand">true</property>
                                         <property name="icon-name">view-more-symbolic</property>
-                                        <property name="tooltip-text">查看更多</property>
+                                        <property name="tooltip-text" translatable="yes">View More</property>
                                         <signal name="clicked" handler="top_picks_cb" swapped="true" />
                                         <style>
                                             <class name="flat" />
@@ -199,7 +199,7 @@
                                         <property name="halign">start</property>
                                         <property name="valign">center</property>
                                         <property name="margin-start">9</property>
-                                        <property name="label">新碟上架</property>
+                                        <property name="label" translatable="yes">New Albums</property>
                                         <attributes>
                                             <attribute name="size" value="15000" />
                                         </attributes>
@@ -214,7 +214,7 @@
                                         <property name="valign">end</property>
                                         <property name="hexpand">true</property>
                                         <property name="icon-name">view-more-symbolic</property>
-                                        <property name="tooltip-text">查看更多</property>
+                                        <property name="tooltip-text" translatable="yes">View More</property>
                                         <signal name="clicked" handler="new_albums_cb" swapped="true" />
                                         <style>
                                             <class name="flat" />

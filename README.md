@@ -18,7 +18,7 @@
 使用 Flatpak 安装
 
 ```bash
-flatpak install flathub io.github.b1ngggg.netease_cloud_music_linux
+flatpak install flathub io.github.b1ngggg.netease-cloud-music-linux
 ```
 
 ## 本地构建

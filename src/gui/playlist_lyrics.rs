@@ -5,6 +5,7 @@
 //
 use adw::subclass::prelude::BinImpl;
 use async_channel::Sender;
+use gettextrs::gettext;
 use glib::{ParamSpec, Value, closure_local};
 use gtk::{CompositeTemplate, gdk, gdk_pixbuf, glib, prelude::*, subclass::prelude::*, *};
 use ncm_api::SongInfo;
@@ -127,9 +128,10 @@ impl PlayListLyricsPage {
         imp.comments_hot_header_added.set(false);
         imp.comments_spinner.set_visible(false);
         imp.comments_spinner.set_spinning(false);
-        imp.comments_count_label.set_label("未加载");
+        imp.comments_count_label.set_label(&gettext("Not loaded"));
         imp.comments_status_label.set_visible(true);
-        imp.comments_status_label.set_label("向下滚动查看评论");
+        imp.comments_status_label
+            .set_label(&gettext("Scroll down to view comments"));
         self.clear_comments();
 
         self.queue_comments_visibility_check();
@@ -158,10 +160,12 @@ impl PlayListLyricsPage {
         imp.comments_spinner.set_spinning(true);
         imp.comments_status_label.set_visible(true);
         if offset == 0 {
-            imp.comments_count_label.set_label("加载中");
-            imp.comments_status_label.set_label("正在加载评论...");
+            imp.comments_count_label.set_label(&gettext("Loading..."));
+            imp.comments_status_label
+                .set_label(&gettext("Loading comments..."));
         } else {
-            imp.comments_status_label.set_label("正在加载更多评论...");
+            imp.comments_status_label
+                .set_label(&gettext("Loading more comments..."));
         }
         true
     }
@@ -178,11 +182,13 @@ impl PlayListLyricsPage {
         imp.comments_spinner.set_visible(false);
         imp.comments_status_label.set_visible(true);
         if offset == 0 {
-            imp.comments_count_label.set_label("暂不可用");
-            imp.comments_status_label.set_label("评论加载失败");
-        } else {
+            imp.comments_count_label.set_label(&gettext("Unavailable"));
             imp.comments_status_label
-                .set_label("加载更多评论失败，继续下滑可重试");
+                .set_label(&gettext("Failed to load comments"));
+        } else {
+            imp.comments_status_label.set_label(&gettext(
+                "Failed to load more comments. Scroll down to retry",
+            ));
         }
     }
 
@@ -209,7 +215,7 @@ impl PlayListLyricsPage {
         let has_hot = !comments.hot_comments.is_empty();
         let has_latest = !comments.comments.is_empty();
         if offset == 0 && has_hot && !imp.comments_hot_header_added.replace(true) {
-            self.append_comment_header("热门评论");
+            self.append_comment_header(&gettext("Hot Comments"));
             for comment in comments.hot_comments.iter().take(8) {
                 if self.register_visible_comment(comment.comment_id) {
                     self.append_comment(comment);
@@ -218,7 +224,7 @@ impl PlayListLyricsPage {
         }
         if has_latest {
             if !imp.comments_latest_header_added.replace(true) {
-                self.append_comment_header("最新评论");
+                self.append_comment_header(&gettext("Latest Comments"));
             }
             for comment in comments.comments.iter() {
                 if self.register_visible_comment(comment.comment_id) {
@@ -238,7 +244,7 @@ impl PlayListLyricsPage {
         let has_comments = !imp.comments_seen_ids.borrow().is_empty();
         imp.comments_status_label.set_visible(!has_comments);
         if !has_comments {
-            imp.comments_status_label.set_label("暂无评论");
+            imp.comments_status_label.set_label(&gettext("No comments"));
         }
     }
 
@@ -1074,12 +1080,16 @@ impl PlayListLyricsPage {
 
         let entry = Entry::new();
         entry.set_hexpand(true);
-        entry.set_placeholder_text(Some(&format!("回复 @{}", comment.nickname)));
+        entry.set_placeholder_text(Some(&format!(
+            "{} @{}",
+            gettext("Reply to"),
+            comment.nickname
+        )));
         entry.add_css_class("lyrics-comment-entry");
         self.attach_entry_context_menu(&entry);
         input_box.append(&entry);
 
-        let send_button = Button::with_label("发送");
+        let send_button = Button::with_label(&gettext("Send"));
         send_button.add_css_class("suggested-action");
         send_button.add_css_class("lyrics-comment-send-button");
         input_box.append(&send_button);
@@ -1091,7 +1101,7 @@ impl PlayListLyricsPage {
 
         let like_group = Box::new(Orientation::Horizontal, 3);
         like_group.set_valign(Align::Center);
-        let like_button = comment_icon_button("emblem-favorite-symbolic", "点赞");
+        let like_button = comment_icon_button("emblem-favorite-symbolic", &gettext("Like"));
         let like_count = Label::new(Some(&format_short_count(comment.liked_count)));
         like_count.add_css_class("lyrics-comment-like-count");
         if comment.liked {
@@ -1102,7 +1112,7 @@ impl PlayListLyricsPage {
         like_group.append(&like_count);
         actions_box.append(&like_group);
 
-        let comment_button = comment_icon_button("document-edit-symbolic", "评论");
+        let comment_button = comment_icon_button("document-edit-symbolic", &gettext("Comment"));
         actions_box.append(&comment_button);
         card.append(&actions_box);
 
@@ -1219,7 +1229,7 @@ impl PlayListLyricsPage {
                 return;
             }
 
-            button.set_label("正在加载回复...");
+            button.set_label(&gettext("Loading replies..."));
             button.set_sensitive(false);
             if let Some(sender) = sender_for_replies.as_ref() {
                 let sender = sender.clone();
@@ -1378,7 +1388,7 @@ impl PlayListLyricsPage {
 
         let like_group = Box::new(Orientation::Horizontal, 3);
         like_group.set_valign(Align::Center);
-        let like_button = comment_icon_button("emblem-favorite-symbolic", "点赞");
+        let like_button = comment_icon_button("emblem-favorite-symbolic", &gettext("Like"));
         let like_count = Label::new(Some(&format_short_count(reply.liked_count)));
         like_count.add_css_class("lyrics-comment-like-count");
         if reply.liked {
@@ -1460,7 +1470,7 @@ impl PlayListLyricsPage {
             if nickname.is_empty() {
                 let current_user_nickname = self.imp().current_user_nickname.borrow().clone();
                 if current_user_nickname.is_empty() {
-                    "我".to_owned()
+                    gettext("Me")
                 } else {
                     current_user_nickname
                 }
@@ -1468,7 +1478,7 @@ impl PlayListLyricsPage {
                 nickname.to_owned()
             }
         } else if nickname.is_empty() && user_id != 0 {
-            "用户".to_owned()
+            gettext("User")
         } else {
             nickname.to_owned()
         }
@@ -1584,8 +1594,8 @@ impl PlayListLyricsPage {
         let imp = self.imp();
         let overlay = imp.lyrics_overlay.get();
         let menu = Box::new(Orientation::Vertical, 0);
-        let copy_button = app_menu::text_row("复制");
-        let select_all_button = app_menu::text_row("全选");
+        let copy_button = app_menu::text_row(&gettext("Copy"));
+        let select_all_button = app_menu::text_row(&gettext("Select All"));
         menu.append(&copy_button);
         menu.append(&select_all_button);
 
@@ -1641,8 +1651,8 @@ impl PlayListLyricsPage {
         let imp = self.imp();
         let overlay = imp.lyrics_overlay.get();
         let menu = Box::new(Orientation::Vertical, 0);
-        let copy_button = app_menu::text_row("复制");
-        let select_all_button = app_menu::text_row("全选");
+        let copy_button = app_menu::text_row(&gettext("Copy"));
+        let select_all_button = app_menu::text_row(&gettext("Select All"));
         menu.append(&copy_button);
         menu.append(&select_all_button);
 
@@ -1700,10 +1710,10 @@ impl PlayListLyricsPage {
         let imp = self.imp();
         let overlay = imp.lyrics_overlay.get();
         let menu = Box::new(Orientation::Vertical, 0);
-        let cut_button = app_menu::text_row("剪切");
-        let copy_button = app_menu::text_row("复制");
-        let paste_button = app_menu::text_row("粘贴");
-        let select_all_button = app_menu::text_row("全选");
+        let cut_button = app_menu::text_row(&gettext("Cut"));
+        let copy_button = app_menu::text_row(&gettext("Copy"));
+        let paste_button = app_menu::text_row(&gettext("Paste"));
+        let select_all_button = app_menu::text_row(&gettext("Select All"));
         let has_selection = entry_selected_text(entry).is_some();
         let has_text = !entry.text().is_empty();
         let is_editable = entry.is_editable();
@@ -1808,7 +1818,7 @@ impl PlayListLyricsPage {
         let overlay = imp.lyrics_overlay.get();
         let menu = Box::new(Orientation::Vertical, 0);
 
-        let delete_button = Button::with_label("删除");
+        let delete_button = Button::with_label(&gettext("Delete"));
         delete_button.add_css_class("flat");
         delete_button.add_css_class("destructive-action");
         delete_button.add_css_class("lyrics-comment-context-delete");
@@ -1900,18 +1910,22 @@ fn format_comment_count(count: u64) -> String {
 
 fn format_reply_button_label(count: u64, revealed: bool) -> String {
     match (count, revealed) {
-        (0, true) => "收起回复".to_owned(),
-        (0, false) => "查看回复".to_owned(),
-        (_, true) => format!("收起回复({})", format_short_count(count)),
-        (_, false) => format!("查看更多回复({})", format_short_count(count)),
+        (0, true) => gettext("Collapse replies"),
+        (0, false) => gettext("View replies"),
+        (_, true) => format!(
+            "{}({})",
+            gettext("Collapse replies"),
+            format_short_count(count)
+        ),
+        (_, false) => format!("{}({})", gettext("More replies"), format_short_count(count)),
     }
 }
 
 fn format_short_count(count: u64) -> String {
     if count == 0 {
         String::new()
-    } else if count >= 10_000 {
-        format!("{:.1}万", count as f64 / 10_000.0)
+    } else if count >= 1_000 {
+        format!("{:.1}K", count as f64 / 1_000.0)
     } else {
         count.to_string()
     }
@@ -1949,7 +1963,7 @@ fn append_empty_reply_row(list_box: &ListBox) {
     let row = ListBoxRow::new();
     row.set_selectable(false);
     row.set_activatable(false);
-    let empty = Label::new(Some("暂无回复"));
+    let empty = Label::new(Some(&gettext("No replies")));
     empty.set_halign(Align::Start);
     empty.add_css_class("lyrics-comment-replies-empty");
     row.set_child(Some(&empty));

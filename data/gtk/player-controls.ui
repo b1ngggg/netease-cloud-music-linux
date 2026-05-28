@@ -17,7 +17,7 @@
             <object class="GtkOverlay" id="cover_queue_button">
                 <property name="halign">fill</property>
                 <property name="valign">center</property>
-                <property name="tooltip-text">打开歌词和队列</property>
+                <property name="tooltip-text" translatable="yes">Open lyrics and queue</property>
                 <style>
                     <class name="player-cover-button" />
                 </style>
@@ -61,7 +61,7 @@
                     <object class="GtkLabel" id="title_label">
                         <property name="halign">start</property>
                         <property name="valign">fill</property>
-                        <property name="label">歌曲名</property>
+                        <property name="label" translatable="yes">Song Title</property>
                         <property name="max-width-chars">18</property>
                         <property name="ellipsize">middle</property>
                         <child>
@@ -78,7 +78,7 @@
                     <object class="GtkLabel" id="artist_label">
                         <property name="halign">start</property>
                         <property name="valign">fill</property>
-                        <property name="label">歌手名</property>
+                        <property name="label" translatable="yes">Artist Name</property>
                         <property name="max-width-chars">18</property>
                         <property name="ellipsize">middle</property>
                         <style>
@@ -186,7 +186,7 @@
                     <object class="GtkButton" id="queue_drawer_button">
                         <property name="halign">fill</property>
                         <property name="valign">center</property>
-                        <property name="tooltip-text">播放队列</property>
+                        <property name="tooltip-text" translatable="yes">Queue</property>
                         <property name="icon-name">view-list-symbolic</property>
                         <signal name="clicked" handler="queue_drawer_cb" swapped="true" />
                         <style>
@@ -199,7 +199,7 @@
                     <object class="GtkButton" id="like_button">
                         <property name="halign">fill</property>
                         <property name="valign">center</property>
-                        <property name="tooltip-text">喜欢</property>
+                        <property name="tooltip-text" translatable="yes">Like</property>
                         <property name="icon-name">starred-symbolic</property>
                         <signal name="clicked" handler="like_button_cb" swapped="true" />
                         <style>
@@ -241,7 +241,7 @@
                         <property name="focusable">False</property>
                         <property name="receives_default">true</property>
                         <property name="popover">repeat_popover</property>
-                        <property name="tooltip-text">播放模式</property>
+                        <property name="tooltip-text" translatable="yes">Playback mode</property>
                         <child>
                             <object class="GtkBox" id="replayBox">
                                 <property name="focusable">False</property>
@@ -264,7 +264,7 @@
                     <object class="GtkButton">
                         <property name="halign">fill</property>
                         <property name="valign">center</property>
-                        <property name="tooltip-text">查看专辑</property>
+                        <property name="tooltip-text" translatable="yes">View album</property>
                         <property name="icon_name">media-optical-cd-audio-symbolic</property>
                         <signal name="clicked" handler="cover_clicked_cb" swapped="true" />
                         <style>
@@ -305,7 +305,7 @@
                 </style>
                 <child>
                     <object class="GtkCheckButton" id="none">
-                        <property name="label">顺序播放</property>
+                        <property name="label" translatable="yes">Sequential</property>
                         <property name="active">true</property>
                         <signal name="toggled" handler="repeat_none_cb" swapped="true" />
                         <style>
@@ -315,7 +315,7 @@
                 </child>
                 <child>
                     <object class="GtkCheckButton" id="one">
-                        <property name="label">单曲循环</property>
+                        <property name="label" translatable="yes">Repeat One</property>
                         <property name="group">none</property>
                         <signal name="toggled" handler="repeat_one_cb" swapped="true" />
                         <style>
@@ -325,7 +325,7 @@
                 </child>
                 <child>
                     <object class="GtkCheckButton" id="loop">
-                        <property name="label">列表循环</property>
+                        <property name="label" translatable="yes">Repeat All</property>
                         <property name="group">none</property>
                         <signal name="toggled" handler="repeat_loop_cb" swapped="true" />
                         <style>
@@ -335,7 +335,7 @@
                 </child>
                 <child>
                     <object class="GtkCheckButton" id="shuffle">
-                        <property name="label">随机播放</property>
+                        <property name="label" translatable="yes">Shuffle</property>
                         <property name="group">none</property>
                         <signal name="toggled" handler="repeat_shuffle_cb" swapped="true" />
                         <style>

@@ -190,7 +190,7 @@
                             </style>
                             <child>
                               <object class="GtkLabel">
-                                <property name="label" translatable="yes">正在播放</property>
+                                <property name="label" translatable="yes">Now Playing</property>
                                 <property name="halign">start</property>
                                 <style>
                                   <class name="app-eyebrow"/>
@@ -199,7 +199,7 @@
                             </child>
                             <child>
                               <object class="GtkLabel" id="lyrics_song_title_label">
-                                <property name="label" translatable="yes">歌词</property>
+                                <property name="label" translatable="yes">Lyrics</property>
                                 <property name="halign">start</property>
                                 <property name="ellipsize">end</property>
                                 <property name="max-width-chars">56</property>
@@ -210,7 +210,7 @@
                             </child>
                             <child>
                               <object class="GtkLabel" id="lyrics_song_meta_label">
-                                <property name="label">专辑 · 歌手</property>
+                                <property name="label" translatable="yes">Album · Artist</property>
                                 <property name="halign">start</property>
                                 <property name="ellipsize">end</property>
                                 <property name="max-width-chars">72</property>
@@ -293,7 +293,7 @@
                         <property name="valign">center</property>
                         <child>
                           <object class="GtkLabel">
-                            <property name="label" translatable="yes">全部评论</property>
+                            <property name="label" translatable="yes">All Comments</property>
                             <property name="halign">start</property>
                             <style>
                               <class name="lyrics-comments-title"/>
@@ -302,7 +302,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="comments_count_label">
-                            <property name="label" translatable="yes">加载中</property>
+                            <property name="label" translatable="yes">Loading...</property>
                             <property name="halign">start</property>
                             <property name="valign">baseline</property>
                             <style>
@@ -321,7 +321,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel" id="comments_status_label">
-                        <property name="label" translatable="yes">暂无评论</property>
+                        <property name="label" translatable="yes">No comments</property>
                         <property name="halign">start</property>
                         <property name="wrap">True</property>
                         <style>
@@ -381,7 +381,7 @@
                         <property name="spacing">4</property>
                         <child>
                           <object class="GtkLabel">
-                            <property name="label" translatable="yes">播放队列</property>
+                            <property name="label" translatable="yes">Queue</property>
                             <property name="halign">start</property>
                             <style>
                               <class name="app-section-title"/>
@@ -390,7 +390,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="label" translatable="yes">当前列表与即将播放</property>
+                            <property name="label" translatable="yes">Current list and upcoming songs</property>
                             <property name="halign">start</property>
                             <style>
                               <class name="app-muted-label"/>
@@ -403,7 +403,7 @@
                       <object class="GtkButton">
                         <property name="icon-name">window-close-symbolic</property>
                         <property name="valign">start</property>
-                        <property name="tooltip-text">关闭队列</property>
+                        <property name="tooltip-text" translatable="yes">Close queue</property>
                         <signal name="clicked" handler="queue_close_cb" swapped="true"/>
                         <style>
                           <class name="flat"/>

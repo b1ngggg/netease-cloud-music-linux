@@ -676,8 +676,8 @@ impl NeteaseCloudMusicLinuxApplication {
             }
             Action::ToTopPicksPage => {
                 let page = window.init_picks_songlist();
-                let title = "全部热门推荐";
-                window.page_new(&page, title, "ToTopPicksPage");
+                let title = gettext("All Popular Recommendations");
+                window.page_new(&page, &title, "ToTopPicksPage");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
@@ -728,8 +728,8 @@ impl NeteaseCloudMusicLinuxApplication {
             Action::ToAllAlbumsPage => {
                 let page = window.init_all_albums();
 
-                let title = "全部专辑";
-                window.page_new(&page, title, "ToAllAlbumsPage");
+                let title = gettext("All Albums");
+                window.page_new(&page, &title, "ToAllAlbumsPage");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
@@ -1210,9 +1210,9 @@ impl NeteaseCloudMusicLinuxApplication {
                 });
             }
             Action::ToMyPageDailyRec => {
-                let title = "每日推荐";
-                let page = window.init_search_song_page(title, SearchType::DailyRec);
-                window.page_new(&page, title, "ToMyPageDailyRec");
+                let title = gettext("Daily Recommendations");
+                let page = window.init_search_song_page(&title, SearchType::DailyRec);
+                window.page_new(&page, &title, "ToMyPageDailyRec");
                 let page = page.downgrade();
 
                 let sender = imp.sender.clone();
@@ -1240,9 +1240,9 @@ impl NeteaseCloudMusicLinuxApplication {
                 });
             }
             Action::ToMyPageHeartbeat => {
-                let title = "收藏单曲";
-                let page = window.init_search_song_page(title, SearchType::Heartbeat);
-                window.page_new(&page, title, "ToMyPageHeartbeat");
+                let title = gettext("Liked Songs");
+                let page = window.init_search_song_page(&title, SearchType::Heartbeat);
+                window.page_new(&page, &title, "ToMyPageHeartbeat");
                 let page = page.downgrade();
 
                 let sender = imp.sender.clone();
@@ -1358,9 +1358,9 @@ impl NeteaseCloudMusicLinuxApplication {
                 });
             }
             Action::ToMyPageCloudDisk => {
-                let title = "云盘音乐";
-                let page = window.init_search_song_page(title, SearchType::CloudDisk);
-                window.page_new(&page, title, "ToMyPageCloudDisk");
+                let title = gettext("Cloud Music");
+                let page = window.init_search_song_page(&title, SearchType::CloudDisk);
+                window.page_new(&page, &title, "ToMyPageCloudDisk");
                 let page = page.downgrade();
 
                 let sender = imp.sender.clone();
@@ -1388,9 +1388,9 @@ impl NeteaseCloudMusicLinuxApplication {
                 });
             }
             Action::ToMyPageRadio => {
-                let title = "我的电台";
-                let page = window.init_search_songlist_page(title, SearchType::Radio);
-                window.page_new(&page, title, "ToMyPageRadio");
+                let title = gettext("My Radio");
+                let page = window.init_search_songlist_page(&title, SearchType::Radio);
+                window.page_new(&page, &title, "ToMyPageRadio");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
@@ -1405,9 +1405,9 @@ impl NeteaseCloudMusicLinuxApplication {
                 });
             }
             Action::ToMyPageAlbums => {
-                let title = "收藏专辑";
-                let page = window.init_search_songlist_page(title, SearchType::LikeAlbums);
-                window.page_new(&page, title, "ToMyPageAlbums");
+                let title = gettext("Saved Albums");
+                let page = window.init_search_songlist_page(&title, SearchType::LikeAlbums);
+                window.page_new(&page, &title, "ToMyPageAlbums");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
@@ -1422,9 +1422,9 @@ impl NeteaseCloudMusicLinuxApplication {
                 });
             }
             Action::ToMyPageSonglist => {
-                let title = "收藏歌单";
-                let page = window.init_search_songlist_page(title, SearchType::LikeSongList);
-                window.page_new(&page, title, "ToMyPageSonglist");
+                let title = gettext("Saved Playlists");
+                let page = window.init_search_songlist_page(&title, SearchType::LikeSongList);
+                window.page_new(&page, &title, "ToMyPageSonglist");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
@@ -1599,7 +1599,10 @@ impl NeteaseCloudMusicLinuxApplication {
                             debug!("发送评论回复失败: {:?}", err);
                             window.comment_action_failed(song_id, comment_id);
                             sender
-                                .send(Action::AddToast(format!("发送评论失败：{err}")))
+                                .send(Action::AddToast(format!(
+                                    "{}: {err}",
+                                    gettext("Failed to send comment")
+                                )))
                                 .await
                                 .unwrap();
                         }
@@ -1625,7 +1628,10 @@ impl NeteaseCloudMusicLinuxApplication {
                             debug!("删除评论失败: {:?}", err);
                             window.comment_action_failed(song_id, comment_id);
                             sender
-                                .send(Action::AddToast(format!("删除评论失败：{err}")))
+                                .send(Action::AddToast(format!(
+                                    "{}: {err}",
+                                    gettext("Failed to delete comment")
+                                )))
                                 .await
                                 .unwrap();
                         }
@@ -1719,20 +1725,20 @@ impl NeteaseCloudMusicLinuxApplication {
             .version(VERSION)
             .developer_name("b1ngggg")
             .comments(
-                "基于 Rust + GTK 和 NetEase Cloud Music Gtk 二次开发。\n\n\
-                 重构界面 UI，新增评论区，并优化歌词页、播放队列、播放条和大列表性能。",
+                "Unofficial Linux desktop client based on NetEase Cloud Music Gtk.\n\n\
+                 Redesigned UI with comments, lyric view, queue, player bar, and large-list performance optimizations.",
             )
             .build();
         dialog.add_link(
-            "项目主页",
+            &gettext("Project Homepage"),
             "https://github.com/b1ngggg/netease-cloud-music-linux",
         );
         dialog.add_link(
-            "原项目",
+            &gettext("Original Project"),
             "https://github.com/gmg137/netease-cloud-music-gtk",
         );
         dialog.add_acknowledgement_section(
-            Some("鸣谢"),
+            Some(&gettext("Acknowledgements")),
             &[
                 "b1ngggg",
                 "gmg137",

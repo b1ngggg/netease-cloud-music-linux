@@ -21,15 +21,15 @@
         <file compressed="true">themes/discover.css</file>
     </gresource>
     <gresource prefix="/io/github/b1ngggg/netease_cloud_music_linux/icons/scalable/apps/">
-        <file preprocess="xml-stripblanks" alias="logo.svg">icons/hicolor/scalable/apps/io.github.b1ngggg.netease_cloud_music_linux.svg</file>
+        <file preprocess="xml-stripblanks" alias="logo.svg">icons/hicolor/scalable/apps/io.github.b1ngggg.netease-cloud-music-linux.svg</file>
     </gresource>
     <gresource prefix="/io/github/b1ngggg/netease_cloud_music_linux/icons/symbolic/apps/">
-        <file preprocess="xml-stripblanks" alias="logo-symbolic.svg">icons/hicolor/symbolic/apps/io.github.b1ngggg.netease_cloud_music_linux-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="logo-symbolic.svg">icons/hicolor/symbolic/apps/io.github.b1ngggg.netease-cloud-music-linux-symbolic.svg</file>
     </gresource>
     <gresource prefix="/io/github/b1ngggg/netease_cloud_music_linux/icons">
-        <file preprocess="xml-stripblanks" alias="hicolor/scalable/apps/io.github.b1ngggg.netease_cloud_music_linux.svg">icons/hicolor/scalable/apps/io.github.b1ngggg.netease_cloud_music_linux.svg</file>
-        <file preprocess="xml-stripblanks" alias="hicolor/symbolic/apps/io.github.b1ngggg.netease_cloud_music_linux-symbolic.svg">icons/hicolor/symbolic/apps/io.github.b1ngggg.netease_cloud_music_linux-symbolic.svg</file>
-        <file preprocess="xml-stripblanks" alias="hicolor/scalable/apps/netease-cloud-music-linux-current.svg">icons/hicolor/scalable/apps/io.github.b1ngggg.netease_cloud_music_linux.svg</file>
-        <file preprocess="xml-stripblanks" alias="hicolor/symbolic/apps/netease-cloud-music-linux-current-symbolic.svg">icons/hicolor/symbolic/apps/io.github.b1ngggg.netease_cloud_music_linux-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="hicolor/scalable/apps/io.github.b1ngggg.netease-cloud-music-linux.svg">icons/hicolor/scalable/apps/io.github.b1ngggg.netease-cloud-music-linux.svg</file>
+        <file preprocess="xml-stripblanks" alias="hicolor/symbolic/apps/io.github.b1ngggg.netease-cloud-music-linux-symbolic.svg">icons/hicolor/symbolic/apps/io.github.b1ngggg.netease-cloud-music-linux-symbolic.svg</file>
+        <file preprocess="xml-stripblanks" alias="hicolor/scalable/apps/netease-cloud-music-linux-current.svg">icons/hicolor/scalable/apps/io.github.b1ngggg.netease-cloud-music-linux.svg</file>
+        <file preprocess="xml-stripblanks" alias="hicolor/symbolic/apps/netease-cloud-music-linux-current-symbolic.svg">icons/hicolor/symbolic/apps/io.github.b1ngggg.netease-cloud-music-linux-symbolic.svg</file>
     </gresource>
 </gresources>
