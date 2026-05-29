@@ -1,9 +1,9 @@
-# CloudMusicPlayer
+# CloudMusicPlayer (网易云音乐)
 
-基于 Rust、GTK4 和 libadwaita 的网易云音乐 Linux 桌面客户端。
+CloudMusicPlayer 是面向网易云音乐的 Linux 音乐播放器，基于 
+[netease-cloud-music-gtk](https://github.com/gmg137/netease-cloud-music-gtk) 
+进行界面UI、交互、视觉及动画效果设计重构，评论区开放、互动等新功能，并包含播放队列、歌词页和列表性能优化等改动,体验更完善丝滑
 
-本项目是 NetEase Cloud Music Gtk 的 fork，原项目：
-https://github.com/gmg137/netease-cloud-music-gtk
 
 ## 主要特性
 
@@ -42,11 +42,7 @@ ninja -C _build install
 
 ## 项目说明
 
-CloudMusicPlayer 是面向网易云音乐的 Linux 音乐播放器，基于 NetEase Cloud Music Gtk 二开优化，重构了界面 UI，新增评论区，并包含播放队列、歌词页和大列表性能优化等改动。
-
 本项目是非官方客户端，不隶属于网易云音乐。
-
-原项目：https://github.com/gmg137/netease-cloud-music-gtk
 
 版权和来源说明见 [NOTICE.md](NOTICE.md)。
 
