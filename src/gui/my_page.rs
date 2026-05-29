@@ -1,11 +1,12 @@
 //
 // my_page.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 
 use async_channel::Sender;
-use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate};
+use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*};
 use ncm_api::SongList;
 use once_cell::sync::OnceCell;
 
@@ -61,12 +62,10 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/my-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/my-page.ui")]
     pub struct MyPage {
         #[template_child]
         pub rec_grid: TemplateChild<gtk::FlowBox>,
-        #[template_child]
-        pub daily_rec_avatar: TemplateChild<adw::Avatar>,
 
         pub sender: OnceCell<Sender<Action>>,
     }
@@ -79,7 +78,6 @@ mod imp {
 
         fn class_init(klass: &mut Self::Class) {
             klass.bind_template();
-            klass.bind_template_callbacks();
         }
 
         fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -87,64 +85,9 @@ mod imp {
         }
     }
 
-    #[gtk::template_callbacks]
-    impl MyPage {
-        #[template_callback]
-        fn daily_rec_cb(&self) {
-            if let Ok(datetime) = glib::DateTime::now_local() {
-                self.daily_rec_avatar.set_show_initials(true);
-                self.daily_rec_avatar.set_text(Some(&format!(
-                    "{} {}",
-                    datetime.day_of_month() / 10,
-                    datetime.day_of_month() % 10
-                )));
-            }
-            let sender = self.sender.get().unwrap();
-            sender.send_blocking(Action::ToMyPageDailyRec).unwrap();
-        }
-
-        #[template_callback]
-        fn heartbeat_cb(&self) {
-            let sender = self.sender.get().unwrap();
-            sender.send_blocking(Action::ToMyPageHeartbeat).unwrap();
-        }
-
-        #[template_callback]
-        fn radio_cb(&self) {
-            let sender = self.sender.get().unwrap();
-            sender.send_blocking(Action::ToMyPageRadio).unwrap();
-        }
-
-        #[template_callback]
-        fn cloud_disk_cb(&self) {
-            let sender = self.sender.get().unwrap();
-            sender.send_blocking(Action::ToMyPageCloudDisk).unwrap();
-        }
-
-        #[template_callback]
-        fn collection_album_cb(&self) {
-            let sender = self.sender.get().unwrap();
-            sender.send_blocking(Action::ToMyPageAlbums).unwrap();
-        }
-
-        #[template_callback]
-        fn collection_songlist_cb(&self) {
-            let sender = self.sender.get().unwrap();
-            sender.send_blocking(Action::ToMyPageSonglist).unwrap();
-        }
-    }
-
     impl ObjectImpl for MyPage {
         fn constructed(&self) {
             self.parent_constructed();
-            if let Ok(datetime) = glib::DateTime::now_local() {
-                self.daily_rec_avatar.set_show_initials(true);
-                self.daily_rec_avatar.set_text(Some(&format!(
-                    "{} {}",
-                    datetime.day_of_month() / 10,
-                    datetime.day_of_month() % 10
-                )));
-            }
         }
     }
     impl WidgetImpl for MyPage {}

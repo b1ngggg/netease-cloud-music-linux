@@ -2,7 +2,7 @@ pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.proje
 
 conf = configuration_data()
 conf.set_quoted('VERSION', meson.project_version())
-conf.set_quoted('GETTEXT_PACKAGE', 'netease-cloud-music-gtk4')
+conf.set_quoted('GETTEXT_PACKAGE', 'cloudmusicplayer')
 conf.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
 conf.set_quoted('PKGDATADIR', pkgdatadir)
 

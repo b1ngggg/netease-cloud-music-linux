@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=CloudMusicPlayer
+Comment=Linux music player for NetEase Cloud Music
+Exec=cloudmusicplayer
+Icon=io.github.b1ngggg.CloudMusicPlayer
+StartupWMClass=cloudmusicplayer
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;AudioVideo;Player;Audio;
+StartupNotify=true
+Keywords=Player;Audio;Song;MP3;Playlist;Radio;Multimedia;

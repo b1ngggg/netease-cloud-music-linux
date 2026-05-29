@@ -1,6 +1,7 @@
 //
 // user_menus.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use crate::{
@@ -18,6 +19,7 @@ use std::path::PathBuf;
 
 #[derive(Debug, Default)]
 pub struct UserMenus {
+    pub container: Box,
     pub qrbox: Box,
     pub qrimage: Image,
     pub refresh_button: Button,
@@ -42,9 +44,8 @@ pub struct UserMenus {
 
 impl UserMenus {
     pub fn new(send: Sender<Action>) -> Self {
-        let builder = gtk::Builder::from_resource(
-            "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/user-menus.ui",
-        );
+        let builder =
+            gtk::Builder::from_resource("/io/github/b1ngggg/CloudMusicPlayer/gtk/user-menus.ui");
         let qrbox: Box = builder.object("qrbox").unwrap();
         let qrimage: Image = builder.object("qrimage").unwrap();
         let refresh_button: Button = builder.object("refresh_button").unwrap();
@@ -63,11 +64,20 @@ impl UserMenus {
         let user_name: Label = builder.object("user_name").unwrap();
         let logout_button: Button = builder.object("logout_button").unwrap();
 
+        let container = Box::new(Orientation::Vertical, 0);
+        container.add_css_class("app-user-menu-embedded");
+        container.append(&qrbox);
+        container.append(&phonebox);
+        container.append(&userbox);
+        phonebox.set_visible(false);
+        userbox.set_visible(false);
+
         let current_menu: Cell<UserMenuChild> = Cell::new(UserMenuChild::default());
 
         let sender = OnceCell::new();
         sender.set(send).unwrap();
         let s = Self {
+            container,
             qrbox,
             qrimage,
             refresh_button,
@@ -187,20 +197,12 @@ impl UserMenus {
         self.current_menu.get() == menu
     }
 
-    pub fn switch_menu(&self, new_menu: UserMenuChild, popover: &PopoverMenu) {
-        fn get_box(_self: &UserMenus, menu: UserMenuChild) -> &impl IsA<Widget> {
-            match menu {
-                UserMenuChild::Qr => &_self.qrbox,
-                UserMenuChild::Phone => &_self.phonebox,
-                UserMenuChild::User => &_self.userbox,
-            }
-        }
+    pub fn switch_menu(&self, new_menu: UserMenuChild) {
         let current = self.current_menu.get();
         if current != new_menu {
-            popover.remove_child(get_box(self, current));
-            popover.add_child(get_box(self, new_menu), "user_popover");
-            popover.notify("child");
-
+            self.qrbox.set_visible(new_menu == UserMenuChild::Qr);
+            self.phonebox.set_visible(new_menu == UserMenuChild::Phone);
+            self.userbox.set_visible(new_menu == UserMenuChild::User);
             self.current_menu.replace(new_menu);
         }
     }

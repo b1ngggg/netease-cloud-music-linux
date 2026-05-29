@@ -1,3 +1,4 @@
+mod app_theme;
 mod application;
 mod audio;
 mod config;
@@ -8,11 +9,11 @@ mod path;
 mod utils;
 mod window;
 
-use self::application::NeteaseCloudMusicGtk4Application;
-use self::window::NeteaseCloudMusicGtk4Window;
+use self::application::CloudMusicPlayerApplication;
+use self::window::CloudMusicPlayerWindow;
 
 use config::{GETTEXT_PACKAGE, LOCALEDIR, PKGDATADIR};
-use gettextrs::{bind_textdomain_codeset, bindtextdomain, textdomain};
+use gettextrs::{LocaleCategory, bind_textdomain_codeset, bindtextdomain, setlocale, textdomain};
 use gtk::gio;
 use gtk::glib;
 use gtk::prelude::*;
@@ -20,9 +21,10 @@ use gtk::prelude::*;
 use env_logger::Env;
 use once_cell::sync::Lazy;
 
-const APP_ID: &str = "com.gitee.gmg137.NeteaseCloudMusicGtk4";
-const APP_NAME: &str = "NetEase Cloud Music Gtk4";
-const MPRIS_NAME: &str = "NeteaseCloudMusicGtk4";
+const APP_ID: &str = "io.github.b1ngggg.CloudMusicPlayer";
+const APP_ICON: &str = "CloudMusicPlayer-current";
+const APP_NAME: &str = "CloudMusicPlayer";
+const MPRIS_NAME: &str = APP_ID;
 
 pub static MAINCONTEXT: Lazy<glib::MainContext> = Lazy::new(glib::MainContext::default);
 
@@ -36,23 +38,22 @@ fn main() {
     // Initialize paths
     path::init().expect("Unable to create paths.");
     // Set up gettext translations
+    let _ = setlocale(LocaleCategory::LcAll, "");
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR).expect("Unable to bind the text domain");
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8")
         .expect("Unable to set the text domain encoding");
     textdomain(GETTEXT_PACKAGE).expect("Unable to switch to the text domain");
 
     // Load resources
-    let resources =
-        gio::Resource::load(PKGDATADIR.to_owned() + "/netease-cloud-music-gtk4.gresource")
-            .expect("Could not load resources");
+    let resources = gio::Resource::load(PKGDATADIR.to_owned() + "/cloudmusicplayer.gresource")
+        .expect("Could not load resources");
     gio::resources_register(&resources);
 
     glib::set_application_name(&gettextrs::gettext(APP_NAME));
-
     // Create a new GtkApplication. The application manages our main loop,
     // application windows, integration with the window manager/compositor, and
     // desktop features such as file opening and single-instance applications.
-    let app = NeteaseCloudMusicGtk4Application::new(APP_ID, &gio::ApplicationFlags::empty());
+    let app = CloudMusicPlayerApplication::new(APP_ID, &gio::ApplicationFlags::empty());
 
     let _guard = MAINCONTEXT.acquire().unwrap();
 

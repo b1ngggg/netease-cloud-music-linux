@@ -1,6 +1,6 @@
-data/com.gitee.gmg137.NeteaseCloudMusicGtk4.desktop.in
-data/com.gitee.gmg137.NeteaseCloudMusicGtk4.appdata.xml.in
-data/com.gitee.gmg137.NeteaseCloudMusicGtk4.gschema.xml
+data/io.github.b1ngggg.CloudMusicPlayer.desktop.in
+data/io.github.b1ngggg.CloudMusicPlayer.metainfo.xml.in
+data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml
 data/gtk/window.ui
 data/gtk/preferences.ui
 data/gtk/theme-selector.ui

@@ -6,9 +6,14 @@
         <property name="halign">fill</property>
         <property name="orientation">vertical</property>
         <property name="spacing">20</property>
+        <style>
+            <class name="app-page" />
+            <class name="search-song-page" />
+        </style>
         <child>
             <object class="AdwClamp" id="title_clamp">
                 <property name="hexpand">true</property>
+                <property name="margin-top">22</property>
                 <property name="margin-start">20</property>
                 <property name="margin-end">20</property>
                 <property name="maximum-size">1000</property>
@@ -20,22 +25,34 @@
                         <property name="hexpand">true</property>
                         <property name="orientation">horizontal</property>
                         <property name="spacing">12</property>
+                        <style>
+                            <class name="app-search-results-hero" />
+                        </style>
                         <child>
                             <object class="GtkBox">
                                 <property name="orientation">vertical</property>
                                 <property name="halign">fill</property>
                                 <property name="valign">end</property>
-                                <property name="spacing">2</property>
+                                <property name="hexpand">true</property>
+                                <property name="spacing">10</property>
+                                <child>
+                                    <object class="GtkLabel">
+                                        <property name="label" translatable="yes">Search Results</property>
+                                        <property name="halign">start</property>
+                                        <style>
+                                            <class name="app-eyebrow" />
+                                        </style>
+                                    </object>
+                                </child>
                                 <child>
                                     <object class="GtkLabel" id="title_label">
-                                        <property name="label">Title</property>
+                                        <property name="label" translatable="yes">Title</property>
                                         <property name="halign">start</property>
                                         <property name="valign">end</property>
                                         <property name="max-width-chars">27</property>
                                         <property name="ellipsize">end</property>
-                                        <property name="margin-top">20</property>
                                         <style>
-                                            <class name="title-1" />
+                                            <class name="app-detail-title" />
                                         </style>
                                     </object>
                                 </child>
@@ -50,6 +67,9 @@
                                                 <property name="label" translatable="yes">0 songs</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">end</property>
+                                                <style>
+                                                    <class name="app-muted-label" />
+                                                </style>
                                             </object>
                                         </child>
                                         <child>
@@ -59,9 +79,10 @@
                                                 <property name="hexpand">true</property>
                                                 <property name="icon-name">media-playback-start-symbolic</property>
                                                 <signal name="clicked" handler="play_button_clicked_cb" swapped="true" />
-                                                <property name="tooltip-text" translatable="yes">Play songs list</property>
+                                                <property name="tooltip-text" translatable="yes">Play list</property>
                                                 <style>
                                                     <class name="circular" />
+                                                    <class name="app-primary-play" />
                                                 </style>
                                             </object>
                                         </child>

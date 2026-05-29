@@ -1,16 +1,17 @@
 //
 // toplist.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use crate::{
     application::Action, gui::songlist_view::SongListView, model::ImageDownloadImpl, path::CACHE,
     utils::*,
 };
-use adw::{prelude::ActionRowExt, subclass::prelude::BinImpl, ActionRow};
+use adw::{ActionRow, prelude::ActionRowExt, subclass::prelude::BinImpl};
 use async_channel::Sender;
 use gettextrs::gettext;
-use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
+use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
 use ncm_api::{SongInfo, TopList};
 use once_cell::sync::OnceCell;
 use std::{cell::RefCell, rc::Rc};
@@ -48,7 +49,9 @@ impl TopListView {
                 .title(glib::markup_escape_text(&t.name))
                 .title_lines(1)
                 .subtitle(&t.update)
+                .subtitle_lines(1)
                 .build();
+            action.add_css_class("toplist-row");
             let mut path = CACHE.clone();
             path.push(format!("{}-toplist.jpg", t.id));
             let image = gtk::Image::from_icon_name("image-missing-symbolic");
@@ -61,6 +64,7 @@ impl TopListView {
             }
 
             image.set_pixel_size(40);
+            image.add_css_class("toplist-row-cover");
             action.add_prefix(&image);
             sidebar.append(&action);
             if !select {
@@ -92,6 +96,10 @@ impl TopListView {
         songs_list.init_new_list(sis, likes);
         songs_list.set_property("no-act-remove", true);
     }
+
+    pub fn set_loading(&self, loading: bool) {
+        self.imp().songs_list.get().set_loading(loading);
+    }
 }
 
 mod imp {
@@ -99,7 +107,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/toplist.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/toplist.ui")]
     pub struct TopListView {
         #[template_child]
         pub sidebar: TemplateChild<ListBox>,
@@ -163,6 +171,7 @@ mod imp {
             let songs_list = self.songs_list.get();
             songs_list.set_property("no-act-remove", true);
             songs_list.clear_list();
+            songs_list.set_loading(true);
 
             let data = self.data.get().unwrap();
             if let Some(info) = data.get(index as usize) {

@@ -1,0 +1,41 @@
+app-id: io.github.b1ngggg.CloudMusicPlayer
+branch: stable
+runtime: org.gnome.Platform
+runtime-version: "50"
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: cloudmusicplayer
+separate-locales: false
+
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+  - --device=dri
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/cloudmusicplayer/cargo
+    CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+    CARGO_TARGET_DIR: /run/build/cloudmusicplayer/target
+  build-args:
+    - --share=network
+
+modules:
+  - name: cloudmusicplayer
+    buildsystem: meson
+    config-opts:
+      - --buildtype=release
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - .flatpak-builder
+          - .git
+          - _build
+          - flatpak-build
+          - target

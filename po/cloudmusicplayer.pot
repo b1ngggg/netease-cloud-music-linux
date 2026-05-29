@@ -1,0 +1,205 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the cloudmusicplayer package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: cloudmusicplayer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-27 16:56+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.desktop.in:3
+#: data/io.github.b1ngggg.CloudMusicPlayer.metainfo.xml.in:12
+msgid "CloudMusicPlayer"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.desktop.in:12
+msgid "Player;Audio;Song;MP3;Playlist;Radio;Multimedia;"
+msgstr ""
+
+msgid "Linux music player for NetEase Cloud Music"
+msgstr ""
+
+msgid "CloudMusicPlayer is a Linux music player for NetEase Cloud Music. It provides desktop playback, playlists, synced lyrics, comments, and optimizations for large music libraries."
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.metainfo.xml.in:5
+msgid "b1ngggg"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:11
+msgid "Settings theme"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:21
+msgid "Settings player loop"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:25
+msgid "Set exit key behavior"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:29
+msgid "Mute when startup"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:33
+msgid "Settings proxy address"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:37
+msgid "Settings music rate"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:41
+msgid "Settings cache clear rules, 0: Never, 1: Daily, 2: Weekly, 3: Monthly"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:45
+msgid "Cache clear flag"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:49
+msgid "Volume"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:53
+msgid "Always try to play grey song"
+msgstr ""
+
+#: data/io.github.b1ngggg.CloudMusicPlayer.gschema.xml:57
+msgid "Desktop Lyrics"
+msgstr ""
+
+#: data/gtk/window.ui:703 data/gtk/preferences.ui:8
+msgid "首选项"
+msgstr ""
+
+#: data/gtk/window.ui:707
+msgid "快捷键"
+msgstr ""
+
+#: data/gtk/window.ui:711
+msgid "关于"
+msgstr ""
+
+#: data/gtk/preferences.ui:13
+msgid "通用"
+msgstr ""
+
+#: data/gtk/preferences.ui:16
+msgid "关闭时退到后台"
+msgstr ""
+
+#: data/gtk/preferences.ui:17
+msgid "设置主窗口关闭按钮的行为"
+msgstr ""
+
+#: data/gtk/preferences.ui:30
+msgid "启动时静音"
+msgstr ""
+
+#: data/gtk/preferences.ui:31
+msgid "应用启动后将音量设为 0"
+msgstr ""
+
+#: data/gtk/preferences.ui:44
+msgid "不忽略灰色歌曲"
+msgstr ""
+
+#: data/gtk/preferences.ui:45
+msgid "始终尝试播放灰色歌曲"
+msgstr ""
+
+#: data/gtk/preferences.ui:58
+msgid "网络代理"
+msgstr ""
+
+#: data/gtk/preferences.ui:59
+msgid "http/https/socks4/socks4a/socks5/socks5h"
+msgstr ""
+
+#: data/gtk/preferences.ui:72
+msgid "缓存清理"
+msgstr ""
+
+#: data/gtk/preferences.ui:76
+msgid "从不"
+msgstr ""
+
+#: data/gtk/preferences.ui:77
+msgid "每天"
+msgstr ""
+
+#: data/gtk/preferences.ui:78
+msgid "每周"
+msgstr ""
+
+#: data/gtk/preferences.ui:79
+msgid "每月"
+msgstr ""
+
+#: data/gtk/preferences.ui:89
+msgid "音乐"
+msgstr ""
+
+#: data/gtk/preferences.ui:92
+msgid "音质"
+msgstr ""
+
+#: data/gtk/preferences.ui:108
+msgid "桌面歌词"
+msgstr ""
+
+#: data/gtk/preferences.ui:109
+msgid "需要 desktop-lyrics 或 osdlyrics"
+msgstr ""
+
+#: data/gtk/theme-selector.ui:23
+msgid "跟随系统"
+msgstr ""
+
+#: data/gtk/theme-selector.ui:37
+msgid "浅色模式"
+msgstr ""
+
+#: data/gtk/theme-selector.ui:52
+msgid "深色模式"
+msgstr ""
+
+#: data/gtk/playlist-lyrics-page.ui:193
+msgid "正在播放"
+msgstr ""
+
+#: data/gtk/playlist-lyrics-page.ui:202
+msgid "歌词"
+msgstr ""
+
+#: data/gtk/playlist-lyrics-page.ui:296
+msgid "全部评论"
+msgstr ""
+
+#: data/gtk/playlist-lyrics-page.ui:305
+msgid "加载中"
+msgstr ""
+
+#: data/gtk/playlist-lyrics-page.ui:324
+msgid "暂无评论"
+msgstr ""
+
+#: data/gtk/playlist-lyrics-page.ui:384
+msgid "播放队列"
+msgstr ""
+
+#: data/gtk/playlist-lyrics-page.ui:393
+msgid "当前列表与即将播放"
+msgstr ""

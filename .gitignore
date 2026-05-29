@@ -1,5 +1,9 @@
 /target
+/.flatpak-builder
+/_build
+/_run
+/_vendor
+/.idea
 /build
 **/*.rs.bk
 /src/config.rs
-/Cargo.lock

@@ -1,18 +1,19 @@
 //
 // player_controls.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use async_channel::Sender;
 use gettextrs::gettext;
 use gio::Settings;
 use glib::{
-    clone, source::Priority, ParamSpec, ParamSpecBoolean, ParamSpecDouble, ParamSpecEnum,
-    ParamSpecUInt, ParamSpecUInt64, Value,
+    ParamSpec, ParamSpecBoolean, ParamSpecDouble, ParamSpecEnum, ParamSpecUInt, ParamSpecUInt64,
+    Value, clone, source::Priority,
 };
-use gst::{prelude::ObjectExt, ClockTime};
+use gst::{ClockTime, prelude::ObjectExt};
 use gstreamer_play::{prelude::ElementExt, *};
-use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, GestureClick, *};
+use gtk::{CompositeTemplate, GestureClick, glib, prelude::*, subclass::prelude::*, *};
 use log::*;
 use mpris_server::PlaybackStatus;
 use ncm_api::{SongInfo, SongList};
@@ -44,6 +45,19 @@ impl PlayerControls {
         self.connect_gst_signals();
         self.bind_click();
         self.setup_mpris();
+    }
+
+    pub fn set_repeat_menu_handler<F: Fn(&MenuButton) + 'static>(&self, handler: F) {
+        let button = self.imp().repeat_menu_button.get();
+        let gesture = GestureClick::new();
+        gesture.set_button(1);
+        gesture.set_propagation_phase(PropagationPhase::Capture);
+        let button_for_handler = button.clone();
+        gesture.connect_pressed(move |gesture, _, _, _| {
+            handler(&button_for_handler);
+            gesture.set_state(EventSequenceState::Claimed);
+        });
+        button.add_controller(gesture);
     }
 
     fn setup_settings(&self) {
@@ -219,16 +233,14 @@ impl PlayerControls {
         let bus = player.pipeline().bus().unwrap();
         bus.connect_message(Some("element"), move |_, msg| {
             use gst::MessageView;
-            if let MessageView::Element(ele) = msg.view() {
-                if let Some(stu) = ele.structure() {
-                    if "GstCacheDownloadComplete" == stu.name() {
-                        if let Ok(loc) = stu.get::<String>("location") {
-                            sender
-                                .send_blocking(Action::GstCacheDownloadComplete(loc))
-                                .unwrap();
-                        }
-                    }
-                }
+            if let MessageView::Element(ele) = msg.view()
+                && let Some(stu) = ele.structure()
+                && "GstCacheDownloadComplete" == stu.name()
+                && let Ok(loc) = stu.get::<String>("location")
+            {
+                sender
+                    .send_blocking(Action::GstCacheDownloadComplete(loc))
+                    .unwrap();
             }
         });
 
@@ -327,10 +339,11 @@ impl PlayerControls {
         // 当剩余5秒时提前获取下首歌曲的播放链接。
         let duration: u64 = self.property("duration");
         let secp = (msec / 10u64.pow(5)) % 10;
-        if duration - sec == 5 && secp >= 5 {
-            if let Some(si) = self.get_next_song() {
-                sender.send_blocking(Action::GetSongUrl(si)).unwrap();
-            }
+        if duration - sec == 5
+            && secp >= 5
+            && let Some(si) = self.get_next_song()
+        {
+            sender.send_blocking(Action::GetSongUrl(si)).unwrap();
         }
     }
 
@@ -371,20 +384,20 @@ impl PlayerControls {
 
         self.set_property("duration", sec);
 
-        if let Some(mpris) = imp.mpris.get() {
-            if let Some(mut si) = self.get_current_song() {
-                si.duration = msec / 1000;
-                crate::MAINCONTEXT.spawn_local_with_priority(
-                    Priority::LOW,
-                    clone!(
-                        #[weak]
-                        mpris,
-                        async move {
-                            mpris.update_metadata(&si).await.ok();
-                        }
-                    ),
-                );
-            }
+        if let Some(mpris) = imp.mpris.get()
+            && let Some(mut si) = self.get_current_song()
+        {
+            si.duration = msec / 1000;
+            crate::MAINCONTEXT.spawn_local_with_priority(
+                Priority::LOW,
+                clone!(
+                    #[weak]
+                    mpris,
+                    async move {
+                        mpris.update_metadata(&si).await.ok();
+                    }
+                ),
+            );
         }
     }
 
@@ -406,17 +419,17 @@ impl PlayerControls {
     pub fn gst_cache_download_complete(&self, loc: String) {
         let duration: u64 = self.property("duration");
         // 不缓存小于 30 秒时长的乐曲(vip试听)
-        if duration > 30 {
-            if let Some(si) = self.get_current_song() {
-                let rate = self.property::<u32>("music-rate");
-                let src = path::PathBuf::from(loc);
-                let dst = crate::path::get_music_cache_path(si.id, rate);
-                thread::spawn(|| {
-                    if let Err(err) = fs::copy(src, dst) {
-                        log::error!("{:?}", err);
-                    }
-                });
-            }
+        if duration > 30
+            && let Some(si) = self.get_current_song()
+        {
+            let rate = self.property::<u32>("music-rate");
+            let src = path::PathBuf::from(loc);
+            let dst = crate::path::get_music_cache_path(si.id, rate);
+            thread::spawn(|| {
+                if let Err(err) = fs::copy(src, dst) {
+                    log::error!("{:?}", err);
+                }
+            });
         }
     }
 
@@ -460,10 +473,10 @@ impl PlayerControls {
             .observe_controllers()
             .into_iter()
             .for_each(|collection| {
-                if let Ok(event) = collection {
-                    if event.type_() == GestureClick::static_type() {
-                        gesture = event.downcast::<GestureClick>().unwrap();
-                    }
+                if let Ok(event) = collection
+                    && event.type_() == GestureClick::static_type()
+                {
+                    gesture = event.downcast::<GestureClick>().unwrap();
                 }
             });
         let sender = self.imp().sender.get().unwrap().clone();
@@ -472,20 +485,8 @@ impl PlayerControls {
         });
     }
 
-    fn playlist_length(&self) -> usize {
-        if let Ok(playlist) = self.imp().playlist.lock() {
-            playlist.len()
-        } else {
-            0
-        }
-    }
-
-    pub fn get_list(&self) -> Vec<SongInfo> {
-        if let Ok(playlist) = self.imp().playlist.lock() {
-            playlist.get_list()
-        } else {
-            vec![]
-        }
+    pub fn with_playlist<R>(&self, f: impl FnOnce(&PlayList) -> R) -> Option<R> {
+        self.imp().playlist.lock().ok().map(|playlist| f(&playlist))
     }
 
     pub fn add_song(&self, song: SongInfo) {
@@ -495,23 +496,32 @@ impl PlayerControls {
     }
 
     pub fn remove_song(&self, song: SongInfo) {
-        if let Some(songinfo) = self.get_current_song() {
-            if songinfo.id == song.id {
-                if self.playlist_length() > 1 {
-                    self.next_song();
-                } else {
-                    self.switch_stop();
-                }
-            }
-            if let Ok(mut playlist) = self.imp().playlist.lock() {
+        let was_current = self
+            .get_current_song()
+            .is_some_and(|songinfo| songinfo.id == song.id);
+        let Some((replacement, position, has_songs)) =
+            self.imp().playlist.lock().ok().map(|mut playlist| {
                 playlist.remove_song(song);
-                let sender = self.imp().sender.get().unwrap().clone();
-                if playlist.len() >= 1 {
-                    sender
-                        .send_blocking(Action::UpdatePlayListStatus(playlist.get_position()))
-                        .unwrap();
-                }
+                (
+                    playlist.current_song().cloned(),
+                    playlist.get_position(),
+                    playlist.len() >= 1,
+                )
+            })
+        else {
+            return;
+        };
+
+        let sender = self.imp().sender.get().unwrap().clone();
+        if has_songs {
+            sender
+                .send_blocking(Action::UpdatePlayListStatus(position))
+                .unwrap();
+            if was_current && let Some(song) = replacement {
+                sender.send_blocking(Action::Play(song)).unwrap();
             }
+        } else if was_current {
+            self.switch_stop();
         }
     }
 
@@ -640,6 +650,23 @@ impl PlayerControls {
         }
     }
 
+    pub fn set_queue_view_open(&self, open: bool) {
+        let imp = self.imp();
+        let icon = if open {
+            "pan-down-symbolic"
+        } else {
+            "pan-up-symbolic"
+        };
+        let tooltip = if open {
+            gettext("Collapse player view")
+        } else {
+            gettext("Open lyrics and queue")
+        };
+
+        imp.cover_queue_hint.set_icon_name(Some(icon));
+        imp.cover_queue_button.set_tooltip_text(Some(&tooltip));
+    }
+
     pub fn set_volume(&self, value: f64) {
         let old: f64 = self.property("volume");
         if (old * 100.0).round() as i64 != (value * 100.0).round() as i64 {
@@ -663,6 +690,24 @@ impl PlayerControls {
         settings.set_double("volume", value).unwrap();
     }
 
+    fn update_repeat_presentation(&self, state: LoopsState) {
+        let imp = self.imp();
+        let (icon, tooltip) = match state {
+            LoopsState::Shuffle => ("media-playlist-shuffle-symbolic", gettext("Shuffle")),
+            LoopsState::None => ("media-playlist-consecutive-symbolic", gettext("Sequential")),
+            LoopsState::Track => ("media-playlist-repeat-song-symbolic", gettext("Repeat One")),
+            LoopsState::Playlist => ("media-playlist-repeat-symbolic", gettext("Repeat All")),
+        };
+
+        imp.repeat_image.set_icon_name(Some(icon));
+        imp.repeat_menu_button.set_tooltip_text(Some(&tooltip));
+        if state == LoopsState::None {
+            imp.repeat_menu_button.remove_css_class("active");
+        } else {
+            imp.repeat_menu_button.add_css_class("active");
+        }
+    }
+
     pub fn setup_notify_connect(&self) {
         self.connect_notify(None, move |s, p| {
             s.property_changed(p.name(), p);
@@ -674,7 +719,7 @@ impl PlayerControls {
         match name {
             "volume" => {
                 let value = self.property::<f64>("volume");
-                self.imp().volume_button.get().set_value(value);
+                self.imp().volume_scale.get().set_value(value);
                 if let Some(mpris) = imp.mpris.get() {
                     crate::MAINCONTEXT.spawn_local_with_priority(
                         Priority::LOW,
@@ -692,6 +737,7 @@ impl PlayerControls {
             }
             "loops" => {
                 let value = self.property::<LoopsState>("loops");
+                self.update_repeat_presentation(value);
                 let switch: gtk::CheckButton = match value {
                     LoopsState::Shuffle => imp.shuffle_button.get(),
                     LoopsState::None => imp.none_button.get(),
@@ -795,7 +841,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/player-controls.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/player-controls.ui")]
     pub struct PlayerControls {
         #[template_child]
         pub prev_button: TemplateChild<Button>,
@@ -804,7 +850,11 @@ mod imp {
         #[template_child]
         pub next_button: TemplateChild<Button>,
         #[template_child]
+        pub cover_queue_button: TemplateChild<Overlay>,
+        #[template_child]
         pub cover_image: TemplateChild<Image>,
+        #[template_child]
+        pub cover_queue_hint: TemplateChild<Image>,
         #[template_child]
         pub title_label: TemplateChild<Label>,
         #[template_child]
@@ -816,7 +866,7 @@ mod imp {
         #[template_child]
         pub duration_label: TemplateChild<Label>,
         #[template_child]
-        pub volume_button: TemplateChild<VolumeButton>,
+        pub volume_scale: TemplateChild<Scale>,
 
         #[template_child]
         pub repeat_menu_button: TemplateChild<MenuButton>,
@@ -830,8 +880,6 @@ mod imp {
         pub loop_button: TemplateChild<CheckButton>,
         #[template_child(id = "shuffle")]
         pub shuffle_button: TemplateChild<CheckButton>,
-        #[template_child(id = "moved_button")]
-        pub moved_button: TemplateChild<Button>,
         #[template_child(id = "like_button")]
         pub like_button: TemplateChild<Button>,
 
@@ -876,17 +924,17 @@ mod imp {
         #[template_callback]
         fn prev_button_clicked_cb(&self) {
             let sender = self.sender.get().unwrap().clone();
-            if let Ok(mut playlist) = self.playlist.lock() {
-                if let Some(song_info) = playlist.prev_song() {
-                    let song_info = song_info.to_owned();
-                    sender
-                        .send_blocking(Action::Play(song_info.to_owned()))
-                        .unwrap();
-                    sender
-                        .send_blocking(Action::UpdatePlayListStatus(playlist.get_position()))
-                        .unwrap();
-                    return;
-                }
+            if let Ok(mut playlist) = self.playlist.lock()
+                && let Some(song_info) = playlist.prev_song()
+            {
+                let song_info = song_info.to_owned();
+                sender
+                    .send_blocking(Action::Play(song_info.to_owned()))
+                    .unwrap();
+                sender
+                    .send_blocking(Action::UpdatePlayListStatus(playlist.get_position()))
+                    .unwrap();
+                return;
             }
             sender
                 .send_blocking(Action::AddToast(gettext("No more songs！")))
@@ -944,17 +992,17 @@ mod imp {
         #[template_callback]
         fn next_button_clicked_cb(&self) {
             let sender = self.sender.get().unwrap().clone();
-            if let Ok(mut playlist) = self.playlist.lock() {
-                if let Some(song_info) = playlist.next_song() {
-                    let song_info = song_info.to_owned();
-                    sender
-                        .send_blocking(Action::Play(song_info.to_owned()))
-                        .unwrap();
-                    sender
-                        .send_blocking(Action::UpdatePlayListStatus(playlist.get_position()))
-                        .unwrap();
-                    return;
-                }
+            if let Ok(mut playlist) = self.playlist.lock()
+                && let Some(song_info) = playlist.next_song()
+            {
+                let song_info = song_info.to_owned();
+                sender
+                    .send_blocking(Action::Play(song_info.to_owned()))
+                    .unwrap();
+                sender
+                    .send_blocking(Action::UpdatePlayListStatus(playlist.get_position()))
+                    .unwrap();
+                return;
             }
             sender
                 .send_blocking(Action::AddToast(gettext("No more songs！")))
@@ -973,31 +1021,15 @@ mod imp {
         }
 
         #[template_callback]
-        fn moved_button_cb(&self) {
-            let sender = self.sender.get().unwrap().clone();
-            if let Ok(playlist) = self.playlist.lock() {
-                if let Some(song_info) = playlist.current_song() {
-                    sender
-                        .send_blocking(Action::Moved(song_info.clone()))
-                        .unwrap();
-                    return;
-                }
-            }
-            sender
-                .send_blocking(Action::AddToast(gettext("Intelligent mode failure！")))
-                .unwrap();
-        }
-
-        #[template_callback]
         fn like_button_cb(&self) {
             let sender = self.sender.get().unwrap().clone();
-            if let Ok(playlist) = self.playlist.lock() {
-                if let Some(song_info) = playlist.current_song() {
-                    sender
-                        .send_blocking(Action::LikeSong(song_info.id, !self.like.get(), None))
-                        .unwrap();
-                    return;
-                }
+            if let Ok(playlist) = self.playlist.lock()
+                && let Some(song_info) = playlist.current_song()
+            {
+                sender
+                    .send_blocking(Action::LikeSong(song_info.id, !self.like.get(), None))
+                    .unwrap();
+                return;
             }
             sender
                 .send_blocking(Action::AddToast(gettext("Collection failure！")))
@@ -1005,62 +1037,65 @@ mod imp {
         }
 
         #[template_callback]
-        fn repeat_none_cb(&self) {
+        fn queue_drawer_cb(&self) {
+            let sender = self.sender.get().unwrap().clone();
+            sender
+                .send_blocking(Action::TogglePlayListQueueDrawer)
+                .unwrap();
+        }
+
+        #[template_callback]
+        fn repeat_none_cb(&self, check: CheckButton) {
+            if !check.is_active() {
+                return;
+            }
             self.repeat_image
                 .set_icon_name(Some("media-playlist-consecutive-symbolic"));
 
+            self.repeat_menu_button.popdown();
             self.obj().set_loops(LoopsState::None);
         }
 
         #[template_callback]
-        fn repeat_one_cb(&self) {
+        fn repeat_one_cb(&self, check: CheckButton) {
+            if !check.is_active() {
+                return;
+            }
             self.repeat_image
                 .set_icon_name(Some("media-playlist-repeat-song-symbolic"));
 
+            self.repeat_menu_button.popdown();
             self.obj().set_loops(LoopsState::Track);
         }
 
         #[template_callback]
-        fn repeat_loop_cb(&self) {
+        fn repeat_loop_cb(&self, check: CheckButton) {
+            if !check.is_active() {
+                return;
+            }
             self.repeat_image
                 .set_icon_name(Some("media-playlist-repeat-symbolic"));
 
+            self.repeat_menu_button.popdown();
             self.obj().set_loops(LoopsState::Playlist);
         }
 
         #[template_callback]
-        fn repeat_shuffle_cb(&self) {
+        fn repeat_shuffle_cb(&self, check: CheckButton) {
+            if !check.is_active() {
+                return;
+            }
             self.repeat_image
                 .set_icon_name(Some("media-playlist-shuffle-symbolic"));
 
+            self.repeat_menu_button.popdown();
             self.obj().set_loops(LoopsState::Shuffle);
         }
 
         #[template_callback]
         fn playlist_lyrics_cb(&self) {
-            if let Ok(playlist) = self.playlist.lock() {
-                let current_song = playlist
-                    .current_song()
-                    .unwrap_or(&SongInfo {
-                        id: 0,
-                        name: String::new(),
-                        singer: String::new(),
-                        album: String::new(),
-                        album_id: 0,
-                        pic_url: String::new(),
-                        duration: 0,
-                        song_url: String::new(),
-                        copyright: ncm_api::SongCopyright::Unknown,
-                    })
-                    .to_owned();
-                let sender = self.sender.get().unwrap().clone();
-                sender
-                    .send_blocking(Action::ToPlayListLyricsPage(
-                        playlist.get_list(),
-                        current_song,
-                    ))
-                    .unwrap();
-            }
+            let sender = self.sender.get().unwrap().clone();
+            sender.send_blocking(Action::ToPlayListLyricsPage).unwrap();
         }
     }
 

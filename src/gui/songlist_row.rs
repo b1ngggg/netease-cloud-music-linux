@@ -1,11 +1,12 @@
 //
 // songlist_row.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{glib, CompositeTemplate, *};
+use gtk::{CompositeTemplate, glib, *};
 
 use crate::application::Action;
 use async_channel::Sender;
@@ -15,7 +16,9 @@ use ncm_api::{SongInfo, SongList};
 use once_cell::sync::{Lazy, OnceCell};
 use std::{
     cell::{Cell, RefCell},
+    rc::Rc,
     sync::Arc,
+    time::Duration,
 };
 
 glib::wrapper! {
@@ -25,14 +28,21 @@ glib::wrapper! {
 }
 
 impl SonglistRow {
+    pub fn empty() -> Self {
+        glib::Object::new()
+    }
+
     pub fn new(sender: Sender<Action>, si: &SongInfo) -> Self {
-        let obj: Self = glib::Object::new();
-        let imp = obj.imp();
-        if imp.sender.get().is_none() {
-            imp.sender.set(sender).unwrap();
-        }
+        let obj = Self::empty();
+        obj.set_sender(sender);
         obj.set_from_song_info(si);
         obj
+    }
+
+    pub fn set_sender(&self, sender: Sender<Action>) {
+        if self.imp().sender.get().is_none() {
+            self.imp().sender.set(sender).unwrap();
+        }
     }
 
     pub fn set_from_song_info(&self, si: &SongInfo) {
@@ -48,11 +58,19 @@ impl SonglistRow {
     }
 
     pub fn not_ignore_grey(&self) -> bool {
-        self.property("not_ignore_grey")
+        self.property("not-ignore-grey")
     }
 
     pub fn get_song_info(&self) -> Option<SongInfo> {
         self.imp().song_info.borrow().as_ref().cloned()
+    }
+
+    pub fn set_model_index(&self, index: i32) {
+        self.imp().model_index.set(index);
+    }
+
+    pub fn model_index(&self) -> i32 {
+        self.imp().model_index.get()
     }
 
     pub fn switch_image(&self, visible: bool) {
@@ -78,16 +96,19 @@ impl SonglistRow {
     fn set_name(&self, label: &str) {
         let imp = self.imp();
         imp.title_label.set_label(label);
+        imp.title_label.set_tooltip_text(Some(label));
     }
 
     fn set_singer(&self, label: &str) {
         let imp = self.imp();
         imp.artist_label.set_label(label);
+        imp.artist_label.set_tooltip_text(Some(label));
     }
 
     fn set_album(&self, label: &str) {
         let imp = self.imp();
         imp.album_label.set_label(label);
+        imp.album_label.set_tooltip_text(Some(label));
     }
 
     fn set_duration(&self, duration: u64) {
@@ -155,12 +176,99 @@ impl SonglistRow {
     }
 }
 
+fn label_full_text(label: &Label) -> String {
+    label
+        .tooltip_text()
+        .map(|text| text.to_string())
+        .unwrap_or_else(|| label.label().to_string())
+}
+
+fn label_needs_marquee(label: &Label) -> bool {
+    let text = label_full_text(label);
+    if text.chars().count() < 8 || label.allocated_width() <= 0 {
+        return false;
+    }
+
+    let (_, natural_width, _, _) = label.measure(Orientation::Horizontal, -1);
+    natural_width > label.allocated_width() + 8
+}
+
+fn reset_marquee_label(label: &Label) {
+    let text = label_full_text(label);
+    label.set_label(&text);
+}
+
+fn setup_marquee_label(label: &Label) {
+    let source_id = Rc::new(RefCell::new(None::<glib::SourceId>));
+    let offset = Rc::new(Cell::new(0usize));
+    let controller = EventControllerMotion::new();
+
+    let enter_source_id = source_id.clone();
+    let enter_offset = offset.clone();
+    let label_weak = label.downgrade();
+    controller.connect_enter(move |_, _, _| {
+        if enter_source_id.borrow().is_some() {
+            return;
+        }
+        let Some(label) = label_weak.upgrade() else {
+            return;
+        };
+        if !label_needs_marquee(&label) {
+            return;
+        }
+
+        let text = label_full_text(&label);
+        let chars = Rc::new(text.chars().collect::<Vec<_>>());
+        if chars.len() < 2 {
+            return;
+        }
+
+        enter_offset.set(0);
+        let timer_label = label.downgrade();
+        let timer_chars = chars.clone();
+        let timer_offset = enter_offset.clone();
+        let timer_source_id = enter_source_id.clone();
+        let id = glib::timeout_add_local(Duration::from_millis(145), move || {
+            let Some(label) = timer_label.upgrade() else {
+                timer_source_id.borrow_mut().take();
+                return glib::ControlFlow::Break;
+            };
+
+            let len = timer_chars.len();
+            let start = (timer_offset.get() + 1) % len;
+            timer_offset.set(start);
+
+            let mut visible = String::with_capacity(len * 2 + 6);
+            visible.extend(timer_chars[start..].iter());
+            visible.push_str("   ");
+            visible.extend(timer_chars[..start].iter());
+            label.set_label(&visible);
+
+            glib::ControlFlow::Continue
+        });
+        *enter_source_id.borrow_mut() = Some(id);
+    });
+
+    let leave_source_id = source_id.clone();
+    let label_weak = label.downgrade();
+    controller.connect_leave(move |_| {
+        if let Some(id) = leave_source_id.borrow_mut().take() {
+            id.remove();
+        }
+        if let Some(label) = label_weak.upgrade() {
+            reset_marquee_label(&label);
+        }
+    });
+
+    label.add_controller(controller);
+}
+
 mod imp {
 
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/songlist-row.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/songlist-row.ui")]
     pub struct SonglistRow {
         #[template_child]
         pub play_icon: TemplateChild<Image>,
@@ -184,6 +292,7 @@ mod imp {
 
         pub like: Cell<bool>,
         pub not_ignore_grey: Cell<bool>,
+        pub model_index: Cell<i32>,
     }
 
     #[glib::object_subclass]
@@ -219,6 +328,10 @@ mod imp {
                     )
                 })
                 .build();
+
+            setup_marquee_label(&self.title_label.get());
+            setup_marquee_label(&self.artist_label.get());
+            setup_marquee_label(&self.album_label.get());
         }
 
         fn properties() -> &'static [ParamSpec] {
@@ -226,6 +339,7 @@ mod imp {
                 vec![
                     ParamSpecBoolean::builder("like").build(),
                     ParamSpecBoolean::builder("not-ignore-grey").build(),
+                    ParamSpecBoolean::builder("playing").build(),
                 ]
             });
             PROPERTIES.as_ref()
@@ -241,6 +355,10 @@ mod imp {
                     let val: bool = value.get().unwrap();
                     self.not_ignore_grey.replace(val);
                 }
+                "playing" => {
+                    let val: bool = value.get().unwrap();
+                    self.obj().switch_image(val);
+                }
                 n => unimplemented!("{}", n),
             }
         }
@@ -249,6 +367,7 @@ mod imp {
             match pspec.name() {
                 "like" => self.like.get().to_value(),
                 "not-ignore-grey" => self.not_ignore_grey.get().to_value(),
+                "playing" => self.play_icon.is_visible().to_value(),
                 n => unimplemented!("{}", n),
             }
         }

@@ -1,143 +1,55 @@
-# NeteaseCloudMusicGtk4
-> netease-cloud-music-gtk4 是基于 GTK4 + Libadwaita 构造的网易云音乐播放器，专为 Linux 系统打造，已在 openSUSE Tumbleweed + GNOME 环境下测试。
+# CloudMusicPlayer
 
-## 特点
-- 稳定：专为 Linux 系统打造，相比官方版本拥有更好的兼容与稳定性。
-- 极速：相比 Node/python 版，Rust + GTK 带给你如丝般的顺滑体验。
-- 可靠：除了断网或网易 API 限制，不会出现运行时问题。
-- 简洁：仿 GNOME Music 风格，GTK 原生界面，纯粹得令人发指。
-- 轻量：安装文件不到 3 M，只需最简单的运行时依赖。
+基于 Rust、GTK4 和 libadwaita 的网易云音乐 Linux 桌面客户端。
 
-## 路线图
-- [x] 发现页
-- [x] 榜单页
-- [x] 歌单详情页
-- [x] 自适应皮肤
-- [x] 网络代理
-- [x] 扫码登录
-- [x] 验证码登录
-- [x] 播放栏
-- [x] 多语言支持
-- [x] 歌单页
-- [x] 搜索页
-- [x] 我的页
-- [x] 首选项
-- [x] Mpris2 绑定
-- [x] 播放列表
-- [x] 歌词
-- [X] 桌面歌词(依赖于 [desktop-lyrics](https://github.com/tuberry/desktop-lyric) 或 osdlyrics)
+本项目是 NetEase Cloud Music Gtk 的 fork，原项目：
+https://github.com/gmg137/netease-cloud-music-gtk
 
-## 运行依赖
-> openssl, gstreamer, gstreamer-plugins-base, gstreamer-plugins-good, gstreamer-plugins-bad, gstreamer-plugins-ugly
+## 主要特性
+
+- 网易云音乐账号登录、歌单、专辑、榜单、搜索、每日推荐和收藏内容浏览
+- 底部播放条、播放队列抽屉、循环模式、桌面媒体控制和 MPRIS 支持
+- 全屏歌词详情页，包含唱片动画、歌词滚动、播放队列和歌曲评论区
+- 歌曲评论加载、点赞、回复、删除和回复列表展示
+- 大歌单和大播放队列分批渲染，减少大量歌曲一次性加载导致的卡顿
+- 深色/浅色主题适配，自定义应用图标和整体视觉样式
 
 ## 安装
-### openSUSE Tumbleweed
+
+使用 Flatpak 安装
+
 ```bash
-sudo zypper in netease-cloud-music-gtk
+flatpak install flathub io.github.b1ngggg.CloudMusicPlayer
 ```
-### openSUSE Leap
+
+## 本地构建
 ```bash
-// 添加源
-sudo zypper ar -f obs://multimedia:apps multimedia
-// 安装
-sudo zypper in netease-cloud-music-gtk
+meson setup _build --prefix="$PWD/_run"
+ninja -C _build
+ninja -C _build install
 ```
+## 界面展示
 
-### Arch Linux
-```bash
-# AUR
-paru -S netease-cloud-music-gtk4
-# archlinuxcn repo
-sudo pacman -Syu netease-cloud-music-gtk4
-```
+![发现页](screenshots/discover.png)
 
-### Ubuntu(24.10/24.04/22.04)
-```
-# 添加 PPA 源
-sudo add-apt-repository ppa:gmg137/ncm
-# 刷新源
-sudo apt update
-# 安装
-sudo apt install netease-cloud-music-gtk
-```
+![每日推荐](screenshots/daily-recommendation.png)
 
-### Debian
-> [添加 Debian 中文社区软件源](https://github.com/debiancn/repo/blob/master/README.rst)
-```
-# 安装
-sudo apt install netease-cloud-music-gtk
-```
+![歌词详情页](screenshots/lyrics.png)
 
-### Flatpak
-#### 从 Flathub 安装
-<a href='https://flathub.org/apps/com.github.gmg137.netease-cloud-music-gtk'>
-    <img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=zh-Hans'/>
-</a>
+![播放队列](screenshots/queue.png)
 
-#### 离线安装
-```bash
-sudo flatpak install com.gitee.gmg137.NeteaseCloudMusicGtk4-*.flatpak
-```
+![评论区](screenshots/comments.png)
 
-### Nix
-```bash
-nix-env -iA nixpkgs.netease-cloud-music-gtk
-```
+## 项目说明
 
-### Gentoo Linux
-```
-// 添加gentoo-zh源
-sudo emerge --ask app-eselect/eselect-repository
-sudo eselect repository enable gentoo-zh
-// 同步gentoo-zh源
-sudo emerge --sync gentoo-zh
-// 安装
-sudo emerge --ask media-sound/netease-cloud-music-gtk
-```
+CloudMusicPlayer 是面向网易云音乐的 Linux 音乐播放器，基于 NetEase Cloud Music Gtk 二开优化，重构了界面 UI，新增评论区，并包含播放队列、歌词页和大列表性能优化等改动。
 
-### 从源码安装(不推荐)
-> 编译依赖: openssl、dbus、gtk4、gdk-pixbuf、libadwaita-1、gstreamer、gstreamer-base
-```
-// 安装依赖（Debian）
-sudo apt-get install -y libssl-dev meson rustc libgtk-4-dev libadwaita-1-dev libgstreamer-plugins-bad1.0-dev
+本项目是非官方客户端，不隶属于网易云音乐。
 
-// 下载源码
-git clone https://github.com/gmg137/netease-cloud-music-gtk.git
-cd netease-cloud-music-gtk
+原项目：https://github.com/gmg137/netease-cloud-music-gtk
 
-// 编译
-meson _build
-cd _build
-ninja
+版权和来源说明见 [NOTICE.md](NOTICE.md)。
 
-// 安装
-sudo ninja install
-```
+## 许可证
 
-## FAQ
-1. 为什么后台运行时没有托盘图标?
-> 由于 GTK3 开始取消了托盘接口，所以目前不打算实现托盘功能。<br>
-> **替代方案:**
-> - Mpris 插件: GNOME 推荐 [Media Controls](https://extensions.gnome.org/extension/4470/media-controls/)，其它桌面可查找相应 Mpris 插件。
-> - 直接点击启动图标，亦可唤醒程序。
-2. 使用 osdlyrics 时没有正确匹配歌词?
-> 打开 osdlyrics 的[首选项]-[歌词位置]-[文件名]，添加匹配规则: %t-%p-%a。
-3. 音乐缓存目录在什么位置?
-> 缓存位于用户主目录下 .cache/netease-cloud-music-gtk4 文件夹内。
-4. 如何分享音乐?
-> 点击播放栏的歌曲名称，便会复制歌曲链接等信息到剪贴板。
-5. 如何查看日志
-> 从终端启动程序，添加环境变量 RUST_LOG=debug 或 RUST_LOG=netease_cloud_music_gtk4。
-
-## 截图
-![](./screenshots/discover.png)
-![](./screenshots/discover-dark.png)
-![](./screenshots/toplist.png)
-
-
-## License
-This project's source code and documentation is licensed under the  [GNU General Public License](COPYING) (GPL v3).
-
-## 参考
-- [Shortwave](https://gitlab.gnome.org/World/Shortwave)
-- [gnome-music](https://gitlab.gnome.org/GNOME/gnome-music)
+本项目遵循 GNU General Public License v3.0 or later。详见 [LICENSE](LICENSE)。

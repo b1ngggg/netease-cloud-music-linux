@@ -1,6 +1,7 @@
 //
 // theme_selector.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use gtk::subclass::prelude::*;
@@ -30,7 +31,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/theme-selector.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/theme-selector.ui")]
     pub struct ThemeSelector {
         #[template_child(id = "box")]
         pub gbox: TemplateChild<gtk::Box>,
@@ -71,8 +72,7 @@ mod imp {
 fn load_css() {
     // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
-    provider
-        .load_from_resource("/com/gitee/gmg137/NeteaseCloudMusicGtk4/themes/themesselector.css");
+    provider.load_from_resource("/io/github/b1ngggg/CloudMusicPlayer/themes/themesselector.css");
 
     // Add the provider to the default screen
     style_context_add_provider_for_display(

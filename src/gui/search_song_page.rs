@@ -1,13 +1,14 @@
 //
 // search_song_page.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use async_channel::Sender;
 use glib::{
-    clone, ParamSpec, ParamSpecBoolean, ParamSpecEnum, ParamSpecInt, ParamSpecString, Value,
+    ParamSpec, ParamSpecBoolean, ParamSpecEnum, ParamSpecInt, ParamSpecString, Value, clone,
 };
-pub(crate) use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
+pub(crate) use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
 use ncm_api::SongInfo;
 use once_cell::sync::{Lazy, OnceCell};
 
@@ -68,6 +69,7 @@ impl SearchSongPage {
         self.set_property("search-type", search_type);
 
         imp.songs_list.get().clear_list();
+        imp.songs_list.get().set_loading(true);
     }
 
     pub fn update_songs(&self, sis: &[SongInfo], likes: &[bool]) {
@@ -87,6 +89,10 @@ impl SearchSongPage {
 
         songs_list.init_new_list(sis, likes);
     }
+
+    pub fn set_loading(&self, loading: bool) {
+        self.imp().songs_list.get().set_loading(loading);
+    }
 }
 
 impl Default for SearchSongPage {
@@ -100,7 +106,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/search-song-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/search-song-page.ui")]
     pub struct SearchSongPage {
         #[template_child]
         pub title_clamp: TemplateChild<adw::Clamp>,
@@ -228,10 +234,10 @@ impl SearchSongPage {
                         offset as u16,
                         50,
                         Arc::new(move |sis| {
-                            if let Some(s) = s.upgrade() {
-                                if let SearchResult::Songs(sis, likes) = sis {
-                                    s.update_songs(&sis, &likes);
-                                }
+                            if let Some(s) = s.upgrade()
+                                && let SearchResult::Songs(sis, likes) = sis
+                            {
+                                s.update_songs(&sis, &likes);
                             }
                         }),
                     ))

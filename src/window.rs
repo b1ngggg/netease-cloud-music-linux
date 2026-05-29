@@ -1,6 +1,6 @@
 use crate::{
-    application::{Action, NeteaseCloudMusicGtk4Application},
-    audio::MprisController,
+    application::{Action, CloudMusicPlayerApplication},
+    audio::{LoopsState, MprisController},
     gui::*,
     model::*,
     ncmapi::NcmClient,
@@ -13,9 +13,9 @@ use glib::{
     ParamSpec, ParamSpecEnum, ParamSpecObject, ParamSpecUInt64, Value, clone, source::Priority,
 };
 use gtk::{
-    CompositeTemplate,
+    CompositeTemplate, CssProvider, gdk,
     gio::{self, SettingsBindFlags},
-    glib,
+    glib, style_context_add_provider_for_display,
 };
 use log::*;
 use ncm_api::{BannersInfo, LoginInfo, SongInfo, SongList, TopList};
@@ -27,19 +27,48 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+fn empty_song_info() -> SongInfo {
+    SongInfo {
+        id: 0,
+        name: String::new(),
+        singer: String::new(),
+        album: String::new(),
+        album_id: 0,
+        pic_url: String::new(),
+        duration: 0,
+        song_url: String::new(),
+        copyright: ncm_api::SongCopyright::Unknown,
+    }
+}
+
+fn editable_selected_text(editable: &Editable) -> Option<String> {
+    editable
+        .selection_bounds()
+        .and_then(|(start, end)| (start != end).then_some((start.min(end), start.max(end))))
+        .map(|(start, end)| editable.chars(start, end).to_string())
+}
+
 mod imp {
 
     use super::*;
 
     #[derive(Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/window.ui")]
-    pub struct NeteaseCloudMusicGtk4Window {
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/window.ui")]
+    pub struct CloudMusicPlayerWindow {
         #[template_child]
         pub header_bar: TemplateChild<adw::HeaderBar>,
+        #[template_child]
+        pub main_overlay: TemplateChild<Overlay>,
         #[template_child]
         pub gbox: TemplateChild<Box>,
         #[template_child]
         pub toast_overlay: TemplateChild<adw::ToastOverlay>,
+        #[template_child]
+        pub fullscreen_stack: TemplateChild<gtk::Stack>,
+        #[template_child]
+        pub global_queue_revealer: TemplateChild<Revealer>,
+        #[template_child]
+        pub global_queue_songs_list: TemplateChild<SongListView>,
         #[template_child]
         pub base_stack: TemplateChild<gtk::Stack>,
         #[template_child]
@@ -63,6 +92,24 @@ mod imp {
         #[template_child]
         pub user_button: TemplateChild<MenuButton>,
         #[template_child]
+        pub nav_discover_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_toplist_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_my_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_daily_rec_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_favorite_songs_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_radio_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_cloud_music_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_favorite_albums_button: TemplateChild<Button>,
+        #[template_child]
+        pub nav_favorite_songlists_button: TemplateChild<Button>,
+        #[template_child]
         pub player_revealer: TemplateChild<Revealer>,
         #[template_child]
         pub player_controls: TemplateChild<PlayerControls>,
@@ -78,18 +125,23 @@ mod imp {
         pub playlist_lyrics_page: OnceCell<PlayListLyricsPage>,
 
         pub user_menus: OnceCell<UserMenus>,
-        pub popover_menu: OnceCell<PopoverMenu>,
         pub settings: OnceCell<Settings>,
         pub sender: OnceCell<Sender<Action>>,
         pub stack_child: Arc<Mutex<LinkedList<(String, String)>>>,
         pub page_stack: OnceCell<PageStack>,
+        pub fullscreen_page_stack: OnceCell<PageStack>,
 
         search_type: Cell<SearchType>,
+        pub theme_css_provider: RefCell<Option<CssProvider>>,
+        pub active_app_menu_layer: RefCell<Option<Widget>>,
+        pub active_app_menu_card: RefCell<Option<Widget>>,
+        pub active_text_context_layer: RefCell<Option<Widget>>,
+        pub active_text_context_card: RefCell<Option<Widget>>,
         toast: RefCell<Option<Toast>>,
         user_info: RefCell<UserInfo>,
     }
 
-    impl NeteaseCloudMusicGtk4Window {
+    impl CloudMusicPlayerWindow {
         pub fn user_like_song_contains(&self, id: &u64) -> bool {
             self.user_info.borrow().like_songs.contains(id)
         }
@@ -99,15 +151,24 @@ mod imp {
         pub fn user_like_song_remove(&self, id: &u64) {
             self.user_info.borrow_mut().like_songs.remove(id);
         }
+        pub fn set_user_uid(&self, uid: u64) {
+            self.user_info.borrow_mut().uid = uid;
+        }
+        pub fn set_user_profile(&self, uid: u64, nickname: String, avatar_url: String) {
+            let mut user_info = self.user_info.borrow_mut();
+            user_info.uid = uid;
+            user_info.nickname = nickname;
+            user_info.avatar_url = avatar_url;
+        }
         pub fn clear_user_info(&self) {
             self.user_info.take();
         }
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for NeteaseCloudMusicGtk4Window {
-        const NAME: &'static str = "NeteaseCloudMusicGtk4Window";
-        type Type = super::NeteaseCloudMusicGtk4Window;
+    impl ObjectSubclass for CloudMusicPlayerWindow {
+        const NAME: &'static str = "CloudMusicPlayerWindow";
+        type Type = super::CloudMusicPlayerWindow;
         type ParentType = ApplicationWindow;
 
         fn class_init(klass: &mut Self::Class) {
@@ -120,13 +181,16 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for NeteaseCloudMusicGtk4Window {
+    impl ObjectImpl for CloudMusicPlayerWindow {
         fn constructed(&self) {
             let obj = self.obj();
             self.parent_constructed();
 
             self.page_stack
                 .set(PageStack::new(self.base_stack.get()))
+                .unwrap();
+            self.fullscreen_page_stack
+                .set(PageStack::new(self.fullscreen_stack.get()))
                 .unwrap();
 
             self.playlist_lyrics_page
@@ -185,23 +249,23 @@ mod imp {
             }
         }
     }
-    impl WidgetImpl for NeteaseCloudMusicGtk4Window {}
-    impl WindowImpl for NeteaseCloudMusicGtk4Window {}
-    impl ApplicationWindowImpl for NeteaseCloudMusicGtk4Window {}
+    impl WidgetImpl for CloudMusicPlayerWindow {}
+    impl WindowImpl for CloudMusicPlayerWindow {}
+    impl ApplicationWindowImpl for CloudMusicPlayerWindow {}
 }
 
 glib::wrapper! {
-    pub struct NeteaseCloudMusicGtk4Window(ObjectSubclass<imp::NeteaseCloudMusicGtk4Window>)
+    pub struct CloudMusicPlayerWindow(ObjectSubclass<imp::CloudMusicPlayerWindow>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow,
         @implements gio::ActionGroup, gio::ActionMap, gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
-impl NeteaseCloudMusicGtk4Window {
+impl CloudMusicPlayerWindow {
     pub fn new<P: glib::object::IsA<gtk::Application>>(
         application: &P,
         sender: Sender<Action>,
     ) -> Self {
-        let window: NeteaseCloudMusicGtk4Window = glib::Object::builder()
+        let window: CloudMusicPlayerWindow = glib::Object::builder()
             .property("application", application)
             .build();
 
@@ -227,16 +291,6 @@ impl NeteaseCloudMusicGtk4Window {
     fn setup_action(&self) {
         let imp = self.imp();
         let sender_ = imp.sender.get().unwrap().clone();
-        // 监测用户菜单弹出
-        let popover = imp.popover_menu.get().unwrap();
-        let sender = sender_.clone();
-        popover.connect_child_notify(move |_| {
-            sender.send_blocking(Action::TryUpdateQrCode).unwrap();
-        });
-        let sender = sender_.clone();
-        popover.connect_show(move |_| {
-            sender.send_blocking(Action::TryUpdateQrCode).unwrap();
-        });
 
         // 绑定设置与主题
         let action_style = self.settings().create_action("style-variant");
@@ -304,30 +358,644 @@ impl NeteaseCloudMusicGtk4Window {
             })
             .build();
 
+        self.setup_app_theme_css();
+
         self.settings()
             .bind("exit-switch", self, "hide-on-close")
             .flags(SettingsBindFlags::DEFAULT)
             .build();
     }
 
+    fn setup_app_theme_css(&self) {
+        let provider = CssProvider::new();
+        style_context_add_provider_for_display(
+            &gdk::Display::default().expect("Could not connect to a display."),
+            &provider,
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION + 3,
+        );
+        self.imp().theme_css_provider.replace(Some(provider));
+        self.update_app_theme_css();
+
+        self.settings().connect_changed(
+            Some("style-variant"),
+            clone!(
+                #[weak(rename_to = window)]
+                self,
+                move |_, _| {
+                    window.update_app_theme_css();
+                }
+            ),
+        );
+
+        StyleManager::default().connect_dark_notify(clone!(
+            #[weak(rename_to = window)]
+            self,
+            move |_| {
+                window.update_app_theme_css();
+            }
+        ));
+    }
+
+    fn update_app_theme_css(&self) {
+        let theme = self.settings().string("style-variant");
+        let dark = match theme.as_str() {
+            "light" => false,
+            "dark" => true,
+            _ => StyleManager::default().is_dark(),
+        };
+        let css = crate::app_theme::css(dark);
+        if let Some(provider) = self.imp().theme_css_provider.borrow().as_ref() {
+            provider.load_from_data(css);
+        }
+    }
+
     fn setup_widget(&self) {
         let imp = self.imp();
-        let sender = imp.sender.get().unwrap();
-        let primary_menu_button = imp.primary_menu_button.get();
-        let popover = primary_menu_button.popover().unwrap();
-        let popover = popover.downcast::<gtk::PopoverMenu>().unwrap();
-        let theme = crate::gui::ThemeSelector::new();
-        popover.add_child(&theme, "theme");
+        let display = gdk::Display::default().expect("Could not connect to a display.");
+        gtk::IconTheme::for_display(&display)
+            .add_resource_path("/io/github/b1ngggg/CloudMusicPlayer/icons");
 
+        let sender = imp.sender.get().unwrap();
         let user_menus = UserMenus::new(sender.clone());
 
-        let user_button = imp.user_button.get();
-        let popover = user_button.popover().unwrap();
-        let popover = popover.downcast::<PopoverMenu>().unwrap();
-        popover.add_child(&user_menus.qrbox, "user_popover");
-
         imp.user_menus.set(user_menus).unwrap();
-        imp.popover_menu.set(popover).unwrap();
+
+        self.setup_sidebar_navigation();
+        self.setup_builtin_menus();
+        self.setup_app_click_dismissal();
+        self.update_sidebar_selection("discover");
+    }
+
+    fn setup_app_click_dismissal(&self) {
+        let gesture = gtk::GestureClick::new();
+        gesture.set_button(0);
+        gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
+        let obj_weak = self.downgrade();
+        gesture.connect_pressed(move |gesture, _, x, y| {
+            let Some(obj) = obj_weak.upgrade() else {
+                return;
+            };
+            let target = gesture
+                .widget()
+                .and_then(|widget| widget.pick(x, y, gtk::PickFlags::DEFAULT));
+            obj.dismiss_app_menus_if_outside(target.as_ref());
+            obj.dismiss_window_text_context_menu_if_outside(target.as_ref());
+            obj.dismiss_comment_context_menu(target.as_ref());
+        });
+        self.add_controller(gesture);
+
+        let gesture = gtk::GestureClick::new();
+        gesture.set_button(0);
+        gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
+        let obj_weak = self.downgrade();
+        gesture.connect_pressed(move |gesture, _, x, y| {
+            let Some(obj) = obj_weak.upgrade() else {
+                return;
+            };
+            let target = gesture
+                .widget()
+                .and_then(|widget| widget.pick(x, y, gtk::PickFlags::DEFAULT));
+            obj.dismiss_app_menus_if_outside(target.as_ref());
+            obj.dismiss_window_text_context_menu_if_outside(target.as_ref());
+            obj.dismiss_comment_context_menu(target.as_ref());
+        });
+        self.imp().header_bar.add_controller(gesture);
+    }
+
+    fn setup_builtin_menus(&self) {
+        let imp = self.imp();
+        let primary_button = imp.primary_menu_button.get();
+        self.install_app_menu_button(&primary_button, |obj, button| {
+            obj.show_primary_app_menu(button);
+        });
+
+        let user_button = imp.user_button.get();
+        self.install_app_menu_button(&user_button, |obj, button| {
+            obj.show_user_app_menu(button);
+        });
+
+        let search_button = imp.search_menu.get();
+        self.install_app_menu_button(&search_button, |obj, button| {
+            obj.show_search_app_menu(button);
+        });
+
+        imp.player_controls.set_repeat_menu_handler(clone!(
+            #[weak(rename_to = obj)]
+            self,
+            move |button| {
+                obj.show_repeat_app_menu(button);
+            }
+        ));
+
+        self.attach_window_editable_context_menu(&imp.search_entry.get());
+        let user_menus = imp.user_menus.get().unwrap();
+        self.attach_window_editable_context_menu(&user_menus.ctcode_entry);
+        self.attach_window_editable_context_menu(&user_menus.phone_entry);
+        self.attach_window_editable_context_menu(&user_menus.captcha_entry);
+    }
+
+    fn install_app_menu_button<F>(&self, button: &MenuButton, handler: F)
+    where
+        F: Fn(&Self, &MenuButton) + 'static,
+    {
+        let gesture = gtk::GestureClick::new();
+        gesture.set_button(1);
+        gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
+        let obj_weak = self.downgrade();
+        let button = button.clone();
+        let button_for_handler = button.clone();
+        gesture.connect_pressed(move |gesture, _, _, _| {
+            let Some(obj) = obj_weak.upgrade() else {
+                return;
+            };
+            handler(&obj, &button_for_handler);
+            gesture.set_state(gtk::EventSequenceState::Claimed);
+        });
+        button.add_controller(gesture);
+    }
+
+    fn attach_window_editable_context_menu<W>(&self, editable: &W)
+    where
+        W: IsA<Widget> + IsA<Editable> + Clone + 'static,
+    {
+        let gesture = gtk::GestureClick::new();
+        gesture.set_button(3);
+        gesture.set_propagation_phase(gtk::PropagationPhase::Capture);
+        let obj_weak = self.downgrade();
+        let editable_for_menu = editable.clone().upcast::<Editable>();
+        let anchor_for_menu = editable.clone().upcast::<Widget>();
+        gesture.connect_pressed(move |gesture, _, x, y| {
+            if let Some(obj) = obj_weak.upgrade() {
+                obj.show_window_editable_context_menu(&editable_for_menu, &anchor_for_menu, x, y);
+            }
+            gesture.set_state(gtk::EventSequenceState::Claimed);
+        });
+        editable.add_controller(gesture);
+    }
+
+    fn dismiss_window_text_context_menu_if_outside(&self, target: Option<&Widget>) {
+        if target
+            .map(|target| self.window_text_context_contains_widget(target))
+            .unwrap_or_default()
+        {
+            return;
+        }
+        self.dismiss_window_text_context_menu();
+    }
+
+    fn window_text_context_contains_widget(&self, widget: &Widget) -> bool {
+        app_menu::contains_widget(&self.imp().active_text_context_card, widget)
+    }
+
+    fn dismiss_window_text_context_menu(&self) {
+        let imp = self.imp();
+        app_menu::clear_overlay_menu(
+            &imp.main_overlay,
+            &imp.active_text_context_layer,
+            &imp.active_text_context_card,
+        );
+    }
+
+    fn show_window_editable_context_menu(
+        &self,
+        editable: &Editable,
+        anchor: &Widget,
+        x: f64,
+        y: f64,
+    ) {
+        if self.app_menu_contains_widget(anchor) {
+            self.dismiss_window_text_context_menu();
+        } else {
+            self.dismiss_app_menus();
+        }
+
+        let imp = self.imp();
+        let overlay = imp.main_overlay.get();
+        let menu = Box::new(Orientation::Vertical, 0);
+        let cut_button = app_menu::text_row(&gettext("Cut"));
+        let copy_button = app_menu::text_row(&gettext("Copy"));
+        let paste_button = app_menu::text_row(&gettext("Paste"));
+        let select_all_button = app_menu::text_row(&gettext("Select All"));
+        let has_selection = editable_selected_text(editable).is_some();
+        let has_text = !editable.text().is_empty();
+        let is_editable = editable.is_editable();
+        cut_button.set_sensitive(has_selection && is_editable);
+        copy_button.set_sensitive(has_selection || has_text);
+        paste_button.set_sensitive(is_editable);
+        select_all_button.set_sensitive(has_text);
+        menu.append(&cut_button);
+        menu.append(&copy_button);
+        menu.append(&paste_button);
+        menu.append(&select_all_button);
+
+        let obj_weak = self.downgrade();
+        app_menu::show_point_menu(
+            app_menu::OverlayMenuState {
+                overlay: &overlay,
+                layer_state: &imp.active_text_context_layer,
+                card_state: &imp.active_text_context_card,
+            },
+            app_menu::PointMenuPlacement {
+                anchor,
+                width: 118,
+                estimated_height: 152,
+                x,
+                y,
+                extra_card_class: None,
+            },
+            &menu,
+            move || {
+                if let Some(obj) = obj_weak.upgrade() {
+                    obj.dismiss_window_text_context_menu();
+                }
+            },
+        );
+
+        let obj_weak = self.downgrade();
+        let editable_for_cut = editable.clone();
+        let anchor_for_cut = anchor.clone();
+        cut_button.connect_clicked(move |_| {
+            if let Some(text) = editable_selected_text(&editable_for_cut) {
+                anchor_for_cut.clipboard().set_text(&text);
+                editable_for_cut.delete_selection();
+            }
+            if let Some(obj) = obj_weak.upgrade() {
+                obj.dismiss_window_text_context_menu();
+            }
+        });
+
+        let obj_weak = self.downgrade();
+        let editable_for_copy = editable.clone();
+        let anchor_for_copy = anchor.clone();
+        copy_button.connect_clicked(move |_| {
+            let text = editable_selected_text(&editable_for_copy)
+                .unwrap_or_else(|| editable_for_copy.text().to_string());
+            anchor_for_copy.clipboard().set_text(&text);
+            if let Some(obj) = obj_weak.upgrade() {
+                obj.dismiss_window_text_context_menu();
+            }
+        });
+
+        let obj_weak = self.downgrade();
+        let editable_for_paste = editable.clone();
+        let anchor_for_paste = anchor.clone();
+        paste_button.connect_clicked(move |_| {
+            let clipboard = anchor_for_paste.clipboard();
+            let editable_for_paste = editable_for_paste.clone();
+            let anchor_for_focus = anchor_for_paste.clone();
+            clipboard.read_text_async(None::<&gio::Cancellable>, move |result| {
+                if let Ok(Some(text)) = result {
+                    anchor_for_focus.grab_focus();
+                    if editable_for_paste.selection_bounds().is_some() {
+                        editable_for_paste.delete_selection();
+                    }
+                    let mut position = editable_for_paste.position();
+                    editable_for_paste.insert_text(text.as_str(), &mut position);
+                    editable_for_paste.set_position(position);
+                }
+            });
+            if let Some(obj) = obj_weak.upgrade() {
+                obj.dismiss_window_text_context_menu();
+            }
+        });
+
+        let obj_weak = self.downgrade();
+        let editable_for_select = editable.clone();
+        let anchor_for_select = anchor.clone();
+        select_all_button.connect_clicked(move |_| {
+            anchor_for_select.grab_focus();
+            editable_for_select.select_region(0, -1);
+            if let Some(obj) = obj_weak.upgrade() {
+                obj.dismiss_window_text_context_menu();
+            }
+        });
+    }
+
+    fn dismiss_app_menus_if_outside(&self, target: Option<&Widget>) {
+        if target
+            .map(|target| {
+                self.app_menu_contains_widget(target)
+                    || self.window_text_context_contains_widget(target)
+            })
+            .unwrap_or_default()
+        {
+            return;
+        }
+        self.dismiss_app_menus();
+    }
+
+    fn app_menu_contains_widget(&self, widget: &Widget) -> bool {
+        app_menu::contains_widget(&self.imp().active_app_menu_card, widget)
+    }
+
+    fn dismiss_app_menus(&self) {
+        self.dismiss_window_text_context_menu();
+        let imp = self.imp();
+        app_menu::clear_overlay_menu(
+            &imp.main_overlay,
+            &imp.active_app_menu_layer,
+            &imp.active_app_menu_card,
+        );
+    }
+
+    fn show_primary_app_menu(&self, anchor: &impl IsA<Widget>) {
+        let menu = Box::new(Orientation::Vertical, 8);
+        menu.add_css_class("app-menu-content");
+        menu.append(&crate::gui::ThemeSelector::new());
+        menu.append(&app_menu::separator());
+        menu.append(&app_menu::action_row(
+            "emblem-system-symbolic",
+            &gettext("Preferences"),
+            {
+                let obj = self.downgrade();
+                move || {
+                    if let Some(obj) = obj.upgrade() {
+                        obj.dismiss_app_menus();
+                        let _ =
+                            gtk::prelude::WidgetExt::activate_action(&obj, "app.preferences", None);
+                    }
+                }
+            },
+        ));
+        menu.append(&app_menu::action_row(
+            "preferences-desktop-keyboard-symbolic",
+            &gettext("Keyboard Shortcuts"),
+            {
+                let obj = self.downgrade();
+                move || {
+                    if let Some(obj) = obj.upgrade() {
+                        obj.dismiss_app_menus();
+                        let _ = gtk::prelude::WidgetExt::activate_action(
+                            &obj,
+                            "win.show-help-overlay",
+                            None,
+                        );
+                    }
+                }
+            },
+        ));
+        menu.append(&app_menu::action_row(
+            "help-about-symbolic",
+            &gettext("About"),
+            {
+                let obj = self.downgrade();
+                move || {
+                    if let Some(obj) = obj.upgrade() {
+                        obj.dismiss_app_menus();
+                        let _ = gtk::prelude::WidgetExt::activate_action(&obj, "app.about", None);
+                    }
+                }
+            },
+        ));
+
+        self.show_app_menu_at_anchor(anchor, &menu, 286, 260, false, 18);
+    }
+
+    fn show_user_app_menu(&self, anchor: &impl IsA<Widget>) {
+        self.dismiss_app_menus();
+        if let Some(sender) = self.imp().sender.get() {
+            let _ = sender.send_blocking(Action::TryUpdateQrCode);
+        }
+        let user_menus = self.imp().user_menus.get().unwrap();
+        if user_menus.container.parent().is_some() {
+            user_menus.container.unparent();
+        }
+        user_menus.container.set_width_request(318);
+        self.show_app_menu_at_anchor(anchor, &user_menus.container, 318, 360, false, 64);
+    }
+
+    fn show_search_app_menu(&self, anchor: &impl IsA<Widget>) {
+        let menu = Box::new(Orientation::Vertical, 4);
+        menu.add_css_class("app-menu-content");
+        let current = self.property::<SearchType>("search-type");
+        for (label, search_type) in [
+            ("Songs", SearchType::Song),
+            ("Artists", SearchType::Singer),
+            ("Albums", SearchType::Album),
+            ("Lyrics", SearchType::Lyrics),
+            ("Playlists", SearchType::SongList),
+        ] {
+            let translated_label = gettext(label);
+            let row = app_menu::choice_row(&translated_label, current == search_type);
+            let obj = self.downgrade();
+            row.connect_clicked(move |_| {
+                if let Some(obj) = obj.upgrade() {
+                    obj.imp().search_menu.set_label(&gettext(label));
+                    obj.set_property("search-type", search_type);
+                    obj.dismiss_app_menus();
+                }
+            });
+            menu.append(&row);
+        }
+
+        self.show_app_menu_at_anchor(anchor, &menu, 132, 196, false, 320);
+    }
+
+    fn show_repeat_app_menu(&self, anchor: &impl IsA<Widget>) {
+        let menu = Box::new(Orientation::Vertical, 4);
+        menu.add_css_class("app-menu-content");
+        let player_controls = self.imp().player_controls.get();
+        let current = player_controls.property::<LoopsState>("loops");
+        for (label, icon, state) in [
+            (
+                "Sequential",
+                "media-playlist-consecutive-symbolic",
+                LoopsState::None,
+            ),
+            (
+                "Repeat One",
+                "media-playlist-repeat-song-symbolic",
+                LoopsState::Track,
+            ),
+            (
+                "Repeat All",
+                "media-playlist-repeat-symbolic",
+                LoopsState::Playlist,
+            ),
+            (
+                "Shuffle",
+                "media-playlist-shuffle-symbolic",
+                LoopsState::Shuffle,
+            ),
+        ] {
+            let translated_label = gettext(label);
+            let row = app_menu::icon_choice_row(icon, &translated_label, current == state);
+            let obj = self.downgrade();
+            row.connect_clicked(move |_| {
+                if let Some(obj) = obj.upgrade() {
+                    obj.imp().player_controls.set_loops(state);
+                    obj.dismiss_app_menus();
+                }
+            });
+            menu.append(&row);
+        }
+
+        self.show_app_menu_at_anchor(anchor, &menu, 172, 180, true, 70);
+    }
+
+    fn show_app_menu_at_anchor(
+        &self,
+        anchor: &impl IsA<Widget>,
+        content: &impl IsA<Widget>,
+        width: i32,
+        estimated_height: i32,
+        above: bool,
+        fallback_end_margin: i32,
+    ) {
+        self.dismiss_window_text_context_menu();
+        self.dismiss_app_menus();
+
+        let imp = self.imp();
+        let overlay = imp.main_overlay.get();
+        let obj_weak = self.downgrade();
+        app_menu::show_anchor_menu(
+            app_menu::OverlayMenuState {
+                overlay: &overlay,
+                layer_state: &imp.active_app_menu_layer,
+                card_state: &imp.active_app_menu_card,
+            },
+            app_menu::AnchorMenuPlacement {
+                anchor: anchor.upcast_ref(),
+                width,
+                estimated_height,
+                above,
+                fallback_end_margin,
+            },
+            content,
+            move || {
+                if let Some(obj) = obj_weak.upgrade() {
+                    obj.dismiss_app_menus();
+                }
+            },
+        );
+    }
+
+    fn setup_sidebar_navigation(&self) {
+        let imp = self.imp();
+        let nav_discover_button = imp.nav_discover_button.get();
+        let nav_toplist_button = imp.nav_toplist_button.get();
+        let nav_my_button = imp.nav_my_button.get();
+        let nav_daily_rec_button = imp.nav_daily_rec_button.get();
+        let nav_favorite_songs_button = imp.nav_favorite_songs_button.get();
+        let nav_radio_button = imp.nav_radio_button.get();
+        let nav_cloud_music_button = imp.nav_cloud_music_button.get();
+        let nav_favorite_albums_button = imp.nav_favorite_albums_button.get();
+        let nav_favorite_songlists_button = imp.nav_favorite_songlists_button.get();
+
+        let weak_window = self.downgrade();
+        nav_discover_button.connect_clicked(move |_| {
+            if let Some(window) = weak_window.upgrade() {
+                window.switch_root_page("discover");
+            }
+        });
+
+        let weak_window = self.downgrade();
+        nav_toplist_button.connect_clicked(move |_| {
+            if let Some(window) = weak_window.upgrade() {
+                window.switch_root_page("toplist");
+            }
+        });
+
+        let weak_window = self.downgrade();
+        nav_my_button.connect_clicked(move |_| {
+            if let Some(window) = weak_window.upgrade() {
+                window.switch_root_page("my");
+            }
+        });
+
+        let sender = imp.sender.get().unwrap().clone();
+        nav_daily_rec_button.connect_clicked(move |_| {
+            sender.send_blocking(Action::ToMyPageDailyRec).unwrap();
+        });
+
+        let sender = imp.sender.get().unwrap().clone();
+        nav_favorite_songs_button.connect_clicked(move |_| {
+            sender.send_blocking(Action::ToMyPageHeartbeat).unwrap();
+        });
+
+        let sender = imp.sender.get().unwrap().clone();
+        nav_radio_button.connect_clicked(move |_| {
+            sender.send_blocking(Action::ToMyPageRadio).unwrap();
+        });
+
+        let sender = imp.sender.get().unwrap().clone();
+        nav_cloud_music_button.connect_clicked(move |_| {
+            sender.send_blocking(Action::ToMyPageCloudDisk).unwrap();
+        });
+
+        let sender = imp.sender.get().unwrap().clone();
+        nav_favorite_albums_button.connect_clicked(move |_| {
+            sender.send_blocking(Action::ToMyPageAlbums).unwrap();
+        });
+
+        let sender = imp.sender.get().unwrap().clone();
+        nav_favorite_songlists_button.connect_clicked(move |_| {
+            sender.send_blocking(Action::ToMyPageSonglist).unwrap();
+        });
+    }
+
+    fn switch_root_page(&self, name: &str) {
+        let imp = self.imp();
+        let page_stack = imp.page_stack.get().unwrap();
+
+        self.set_global_queue_revealed(false);
+
+        while page_stack.len() > 1 {
+            page_stack.back_page();
+        }
+
+        imp.stack.set_visible_child_name(name);
+        self.page_widget_switch(false);
+        self.update_sidebar_selection(name);
+    }
+
+    fn update_sidebar_selection(&self, name: &str) {
+        let known_sidebar_target = matches!(
+            name,
+            "discover"
+                | "toplist"
+                | "my"
+                | "ToMyPageDailyRec"
+                | "ToMyPageHeartbeat"
+                | "ToMyPageRadio"
+                | "ToMyPageCloudDisk"
+                | "ToMyPageAlbums"
+                | "ToMyPageSonglist"
+        );
+        if !known_sidebar_target {
+            return;
+        }
+
+        let imp = self.imp();
+        let set_active = |button: Button, active: bool| {
+            if active {
+                button.add_css_class("active");
+            } else {
+                button.remove_css_class("active");
+            }
+        };
+
+        set_active(imp.nav_discover_button.get(), name == "discover");
+        set_active(imp.nav_toplist_button.get(), name == "toplist");
+        set_active(imp.nav_my_button.get(), name == "my");
+        set_active(imp.nav_daily_rec_button.get(), name == "ToMyPageDailyRec");
+        set_active(
+            imp.nav_favorite_songs_button.get(),
+            name == "ToMyPageHeartbeat",
+        );
+        set_active(imp.nav_radio_button.get(), name == "ToMyPageRadio");
+        set_active(
+            imp.nav_cloud_music_button.get(),
+            name == "ToMyPageCloudDisk",
+        );
+        set_active(
+            imp.nav_favorite_albums_button.get(),
+            name == "ToMyPageAlbums",
+        );
+        set_active(
+            imp.nav_favorite_songlists_button.get(),
+            name == "ToMyPageSonglist",
+        );
     }
 
     pub fn get_uid(&self) -> u64 {
@@ -336,6 +1004,7 @@ impl NeteaseCloudMusicGtk4Window {
 
     pub fn set_uid(&self, val: u64) {
         self.set_property("uid", val);
+        self.imp().set_user_uid(val);
     }
 
     pub fn is_logined(&self) -> bool {
@@ -344,6 +1013,9 @@ impl NeteaseCloudMusicGtk4Window {
 
     pub fn logout(&self) {
         self.imp().clear_user_info();
+        if let Some(page) = self.imp().playlist_lyrics_page.get() {
+            page.set_comment_user_info(0, String::new(), String::new());
+        }
     }
 
     pub fn get_song_likes(&self, sis: &[SongInfo]) -> Vec<bool> {
@@ -354,10 +1026,10 @@ impl NeteaseCloudMusicGtk4Window {
 
     pub fn set_like_song(&self, id: u64, val: bool) {
         let imp = self.imp();
-        if let Some(song) = imp.player_controls.get().get_current_song() {
-            if song.id == id {
-                imp.player_controls.get().set_property("like", val);
-            }
+        if let Some(song) = imp.player_controls.get().get_current_song()
+            && song.id == id
+        {
+            imp.player_controls.get().set_property("like", val);
         }
 
         if val {
@@ -388,25 +1060,31 @@ impl NeteaseCloudMusicGtk4Window {
     }
 
     pub fn switch_user_menu_to_phone(&self) {
-        let popover = self.imp().popover_menu.get().unwrap();
         let user_menus = self.imp().user_menus.get().unwrap();
-        user_menus.switch_menu(UserMenuChild::Phone, popover);
+        user_menus.switch_menu(UserMenuChild::Phone);
     }
 
     pub fn switch_user_menu_to_qr(&self) {
-        let popover = self.imp().popover_menu.get().unwrap();
         let user_menus = self.imp().user_menus.get().unwrap();
-        user_menus.switch_menu(UserMenuChild::Qr, popover);
+        user_menus.switch_menu(UserMenuChild::Qr);
     }
 
     pub fn switch_user_menu_to_user(&self, login_info: LoginInfo, _menu: UserMenuChild) {
-        let popover = self.imp().popover_menu.get().unwrap();
         let user_menus = self.imp().user_menus.get().unwrap();
-        user_menus.switch_menu(UserMenuChild::User, popover);
+        user_menus.switch_menu(UserMenuChild::User);
+        let uid = login_info.uid;
+        let nickname = login_info.nickname;
+        let avatar_url = login_info.avatar_url;
         if login_info.vip_type == 0 {
-            user_menus.set_user_name(login_info.nickname);
+            user_menus.set_user_name(nickname.clone());
         } else {
-            user_menus.set_user_name(format!("👑{}", login_info.nickname));
+            user_menus.set_user_name(format!("👑{}", nickname));
+        }
+
+        self.imp()
+            .set_user_profile(uid, nickname.clone(), avatar_url.clone());
+        if let Some(page) = self.imp().playlist_lyrics_page.get() {
+            page.set_comment_user_info(uid, nickname, avatar_url);
         }
     }
 
@@ -460,30 +1138,39 @@ impl NeteaseCloudMusicGtk4Window {
 
     pub fn remove_from_playlist(&self, song_info: SongInfo) {
         let player_controls = self.imp().player_controls.get();
+        let lyrics_page_open = self.page_cur_playlist_lyrics_page();
+        let global_queue_open = self.imp().global_queue_revealer.reveals_child();
         player_controls.remove_song(song_info);
 
-        let sis = player_controls.get_list();
-        let si = player_controls.get_current_song().unwrap_or(SongInfo {
-            id: 0,
-            name: String::new(),
-            singer: String::new(),
-            album: String::new(),
-            album_id: 0,
-            pic_url: String::new(),
-            duration: 0,
-            song_url: String::new(),
-            copyright: ncm_api::SongCopyright::Unknown,
+        let refresh_result = player_controls.with_playlist(|playlist| {
+            playlist.current_song().cloned().map(|si| {
+                let should_update_lyrics = if lyrics_page_open {
+                    self.refresh_playlist_lyrics_page(playlist.songs(), si.to_owned())
+                } else {
+                    false
+                };
+                if global_queue_open {
+                    self.refresh_global_queue_drawer(playlist.songs(), &si);
+                }
+                (si, should_update_lyrics)
+            })
         });
 
-        self.init_playlist_lyrics_page(sis, si.to_owned());
-
-        if si.id == 0 {
+        if let Some(Some((si, should_update_lyrics))) = refresh_result {
+            if should_update_lyrics {
+                let sender = self.imp().sender.get().unwrap();
+                sender
+                    .send_blocking(Action::UpdateLyrics(si.to_owned(), 0))
+                    .unwrap();
+            }
+        } else {
+            self.set_global_queue_revealed(false);
             let player_revealer = self.imp().player_revealer.get();
             player_revealer.set_reveal_child(false);
-            player_revealer.set_visible(false);
-            player_revealer.set_reveal_child(false);
-            let sender = self.imp().sender.get().unwrap();
-            sender.send_blocking(Action::PageBack).unwrap();
+            if lyrics_page_open {
+                let sender = self.imp().sender.get().unwrap();
+                sender.send_blocking(Action::PageBack).unwrap();
+            }
         }
     }
 
@@ -513,15 +1200,36 @@ impl NeteaseCloudMusicGtk4Window {
         player_controls.next_song();
     }
 
-    pub fn play(&self, song_info: SongInfo) {
+    pub fn play(&self, song_info: SongInfo) -> bool {
         let player_controls = self.imp().player_controls.get();
         player_controls.set_property("like", self.imp().user_like_song_contains(&song_info.id));
-        player_controls.play(song_info);
+        player_controls.play(song_info.clone());
+
+        let should_update_lyrics = if self.page_cur_playlist_lyrics_page() {
+            player_controls
+                .with_playlist(|playlist| {
+                    self.refresh_playlist_lyrics_page(playlist.songs(), song_info.clone())
+                })
+                .unwrap_or(false)
+        } else if let Some(song_info) = player_controls.get_current_song() {
+            let page = self.imp().playlist_lyrics_page.get().unwrap();
+            page.update_now_playing(&song_info);
+            false
+        } else {
+            false
+        };
+
+        self.imp()
+            .playlist_lyrics_page
+            .get()
+            .unwrap()
+            .set_playback_active(true);
         let player_revealer = self.imp().player_revealer.get();
         if !player_revealer.reveals_child() {
             player_revealer.set_visible(true);
             player_revealer.set_reveal_child(true);
         }
+        should_update_lyrics
     }
 
     pub fn init_page_data(&self) {
@@ -549,10 +1257,15 @@ impl NeteaseCloudMusicGtk4Window {
         // 初始化播放列表页
         let playlist_lyrics_page = imp.playlist_lyrics_page.get().unwrap();
         playlist_lyrics_page.set_sender(sender.clone());
+        let global_queue_songs_list = imp.global_queue_songs_list.get();
+        global_queue_songs_list.set_sender(sender.clone());
 
         let page_stack = imp.page_stack.get().unwrap();
         page_stack.set_transition_type(StackTransitionType::Crossfade);
         page_stack.set_transition_duration(100); // default 200
+        let fullscreen_page_stack = imp.fullscreen_page_stack.get().unwrap();
+        fullscreen_page_stack.set_transition_type(StackTransitionType::OverUp);
+        fullscreen_page_stack.set_transition_duration(260);
     }
 
     pub fn init_toplist(&self, list: Vec<TopList>) {
@@ -579,9 +1292,20 @@ impl NeteaseCloudMusicGtk4Window {
         let back_button = imp.back_button.get();
 
         let visible = need_back;
+        let player_view_open = visible && self.page_cur_playlist_lyrics_page();
         back_button.set_visible(visible);
+        if player_view_open {
+            back_button.set_icon_name("pan-down-symbolic");
+            back_button.set_tooltip_text(Some(&gettext("Collapse player view")));
+        } else {
+            back_button.set_icon_name("go-previous-symbolic");
+            back_button.set_tooltip_text(Some(&gettext("Back")));
+        }
+        imp.player_controls
+            .get()
+            .set_queue_view_open(player_view_open);
         label_title.set_visible(visible);
-        switcher_title.set_visible(!visible);
+        switcher_title.set_visible(false);
     }
     pub fn page_set_info(&self, title: &str) {
         let imp = self.imp();
@@ -598,11 +1322,13 @@ impl NeteaseCloudMusicGtk4Window {
     ) {
         let imp = self.imp();
         let stack = imp.page_stack.get().unwrap();
-        // stack.set_transition_type(StackTransitionType::SlideLeft);
+        stack.set_transition_type(StackTransitionType::Crossfade);
+        stack.set_transition_duration(100);
         let stack_page = stack.new_page_with_name(page, name);
         stack_page.set_title(title);
         self.page_set_info(title);
         self.page_widget_switch(true);
+        self.update_sidebar_selection(name);
     }
     pub fn page_new(&self, page: &impl glib::object::IsA<Widget>, title: &str, name: &str) {
         let imp = self.imp();
@@ -619,7 +1345,46 @@ impl NeteaseCloudMusicGtk4Window {
                 }
             }
         }
-        // stack.set_transition_type(StackTransitionType::SlideLeft);
+        if name == "Lyrics & Queue" {
+            stack.set_transition_type(StackTransitionType::OverUp);
+            stack.set_transition_duration(260);
+        } else {
+            stack.set_transition_type(StackTransitionType::Crossfade);
+            stack.set_transition_duration(100);
+        }
+        let stack_page = stack.new_page(page);
+        stack_page.set_title(title);
+        stack_page.set_name(name);
+        self.page_set_info(title);
+        self.page_widget_switch(true);
+        self.update_sidebar_selection(name);
+    }
+    pub fn fullscreen_page_new(
+        &self,
+        page: &impl glib::object::IsA<Widget>,
+        title: &str,
+        name: &str,
+    ) {
+        let imp = self.imp();
+        let stack = imp.fullscreen_page_stack.get().unwrap();
+        if stack.len() > 1 {
+            let top_page = stack.top_page();
+            if top_page.title().unwrap() == title {
+                if let Some(n) = top_page.name() {
+                    if n == name {
+                        self.page_set_info(title);
+                        self.page_widget_switch(true);
+                        return;
+                    }
+                } else {
+                    self.page_set_info(title);
+                    self.page_widget_switch(true);
+                    return;
+                }
+            }
+        }
+        stack.set_transition_type(StackTransitionType::OverUp);
+        stack.set_transition_duration(260);
         let stack_page = stack.new_page(page);
         stack_page.set_title(title);
         stack_page.set_name(name);
@@ -630,14 +1395,43 @@ impl NeteaseCloudMusicGtk4Window {
         let imp = self.imp();
         let stack = imp.page_stack.get().unwrap();
 
-        // stack.set_transition_type(StackTransitionType::UnderRight);
+        if self.page_cur_playlist_lyrics_page() {
+            let fullscreen_stack = imp.fullscreen_page_stack.get().unwrap();
+            fullscreen_stack.set_transition_type(StackTransitionType::UnderDown);
+            fullscreen_stack.set_transition_duration(260);
+            fullscreen_stack.back_page();
+
+            if stack.len() > 1 {
+                let top_page = stack.top_page();
+                self.page_set_info(top_page.title().unwrap().to_string().as_str());
+                if let Some(name) = top_page.name() {
+                    self.update_sidebar_selection(name.as_str());
+                }
+                self.page_widget_switch(true);
+            } else {
+                if let Some(name) = imp.stack.visible_child_name() {
+                    self.update_sidebar_selection(name.as_str());
+                }
+                self.page_widget_switch(false);
+            }
+            return None;
+        }
+
+        stack.set_transition_type(StackTransitionType::Crossfade);
+        stack.set_transition_duration(100);
         stack.back_page();
 
         if stack.len() > 1 {
             let top_page = stack.top_page();
             self.page_set_info(top_page.title().unwrap().to_string().as_str());
+            if let Some(name) = top_page.name() {
+                self.update_sidebar_selection(name.as_str());
+            }
             self.page_widget_switch(true);
         } else {
+            if let Some(name) = imp.stack.visible_child_name() {
+                self.update_sidebar_selection(name.as_str());
+            }
             self.page_widget_switch(false);
         }
         None
@@ -649,7 +1443,11 @@ impl NeteaseCloudMusicGtk4Window {
     pub fn page_cur_playlist_lyrics_page(&self) -> bool {
         let imp = self.imp();
         let page = imp.playlist_lyrics_page.get().unwrap();
-        let cur = &imp.page_stack.get().unwrap().top_page().child();
+        let fullscreen_stack = imp.fullscreen_page_stack.get().unwrap();
+        if fullscreen_stack.len() <= 1 {
+            return false;
+        }
+        let cur = &fullscreen_stack.top_page().child();
         cur == page
     }
 
@@ -658,7 +1456,7 @@ impl NeteaseCloudMusicGtk4Window {
         let sender = imp.sender.get().unwrap().clone();
         let page = SearchSongListPage::new();
         page.set_sender(sender);
-        page.init_page("全部歌单", SearchType::TopPicks);
+        page.init_page(&gettext("All Playlists"), SearchType::TopPicks);
         page
     }
 
@@ -667,7 +1465,7 @@ impl NeteaseCloudMusicGtk4Window {
         let sender = imp.sender.get().unwrap().clone();
         let page = SearchSongListPage::new();
         page.set_sender(sender);
-        page.init_page("全部新碟", SearchType::AllAlbums);
+        page.init_page(&gettext("All Albums"), SearchType::AllAlbums);
         page
     }
 
@@ -731,19 +1529,182 @@ impl NeteaseCloudMusicGtk4Window {
         self.imp().my_page.init_page(sls);
     }
 
-    pub fn init_playlist_lyrics_page(&self, sis: Vec<SongInfo>, si: SongInfo) {
+    pub fn init_playlist_lyrics_page(&self) -> Option<(SongInfo, bool)> {
         let imp = self.imp();
         let page = imp.playlist_lyrics_page.get().unwrap();
-        page.init_page(&sis, si, &self.get_song_likes(&sis));
+        let (si, should_update_lyrics) = imp.player_controls.get().with_playlist(|playlist| {
+            let si = playlist
+                .current_song()
+                .cloned()
+                .unwrap_or_else(empty_song_info);
+            let should_update_lyrics =
+                self.refresh_playlist_lyrics_page(playlist.songs(), si.clone());
+            (si, should_update_lyrics)
+        })?;
 
-        self.page_new(page, &gettext("Play List&Lyrics"), "Play List&Lyrics");
+        self.set_global_queue_revealed(false);
+        self.fullscreen_page_new(page, &gettext("Now Playing"), "Lyrics & Queue");
+        Some((si, should_update_lyrics))
+    }
+
+    fn refresh_playlist_lyrics_page(&self, sis: &[SongInfo], si: SongInfo) -> bool {
+        let page = self.imp().playlist_lyrics_page.get().unwrap();
+        let playlist_changed = page.playlist_changed(sis);
+        let likes = if playlist_changed {
+            self.get_song_likes(sis)
+        } else {
+            Vec::new()
+        };
+        let should_update_lyrics = page.init_page(sis, si, &likes, playlist_changed);
+        if !should_update_lyrics {
+            page.queue_record_motion_sync();
+        }
+        should_update_lyrics
+    }
+
+    pub fn set_global_queue_revealed(&self, revealed: bool) {
+        self.imp().global_queue_revealer.set_reveal_child(revealed);
+    }
+
+    pub fn toggle_global_queue_drawer(&self) {
+        let imp = self.imp();
+        let revealer = imp.global_queue_revealer.get();
+        if revealer.reveals_child() {
+            revealer.set_reveal_child(false);
+            return;
+        }
+
+        imp.player_controls.get().with_playlist(|playlist| {
+            let si = playlist
+                .current_song()
+                .cloned()
+                .unwrap_or_else(empty_song_info);
+            self.refresh_global_queue_drawer(playlist.songs(), &si);
+        });
+        revealer.set_reveal_child(true);
+    }
+
+    fn refresh_global_queue_drawer(&self, sis: &[SongInfo], si: &SongInfo) {
+        let imp = self.imp();
+        let songs_list = imp.global_queue_songs_list.get();
+        songs_list.replace_list_if_changed(sis, &self.get_song_likes(sis));
+        if let Some(index) = sis.iter().position(|song| song.id == si.id) {
+            songs_list.mark_new_row_playing(index as i32, false);
+        }
+    }
+
+    pub fn set_playlist_queue_revealed(&self, revealed: bool) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.set_queue_revealed(revealed);
+    }
+
+    pub fn toggle_playlist_queue_revealed(&self) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.toggle_queue_revealed();
+    }
+
+    pub fn begin_lyrics_update(&self, song_id: u64) -> bool {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.begin_lyrics_update(song_id, &gettext("Loading lyrics..."))
+    }
+
+    pub fn lyrics_update_failed(&self, song_id: u64) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.lyrics_update_failed(song_id, &gettext("Lyrics unavailable"))
+    }
+
+    pub fn begin_comments_update(&self, song_id: u64, offset: u32) -> bool {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.begin_comments_update(song_id, offset)
+    }
+
+    pub fn comments_update_failed(&self, song_id: u64, offset: u32) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.comments_update_failed(song_id, offset);
+    }
+
+    pub fn update_comments(
+        &self,
+        song_id: u64,
+        offset: u32,
+        comments: crate::ncmapi::SongComments,
+    ) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.update_comments(song_id, offset, comments);
+    }
+
+    pub fn update_comment_like(&self, song_id: u64, comment_id: u64, liked: bool) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.update_comment_like(song_id, comment_id, liked);
+    }
+
+    pub fn update_comment_replies(
+        &self,
+        song_id: u64,
+        comment_id: u64,
+        replies: crate::ncmapi::SongCommentReplies,
+    ) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.update_comment_replies(song_id, comment_id, replies);
+    }
+
+    pub fn update_comment_reply_count(&self, song_id: u64, comment_id: u64, count: u64) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.update_comment_reply_count(song_id, comment_id, count);
+    }
+
+    pub fn comment_reply_sent(
+        &self,
+        song_id: u64,
+        comment_id: u64,
+        reply: Option<crate::ncmapi::CommentReply>,
+    ) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.comment_reply_sent(song_id, comment_id, reply);
+    }
+
+    pub fn dismiss_comment_context_menu(&self, target: Option<&Widget>) {
+        let imp = self.imp();
+        let Some(page) = imp.playlist_lyrics_page.get() else {
+            return;
+        };
+        if target
+            .map(|target| page.comment_context_contains_widget(target))
+            .unwrap_or_default()
+        {
+            return;
+        }
+        page.dismiss_comment_context_menu();
+    }
+
+    pub fn comment_deleted(&self, song_id: u64, parent_comment_id: u64, comment_id: u64) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.comment_deleted(song_id, parent_comment_id, comment_id);
+    }
+
+    pub fn comment_action_failed(&self, song_id: u64, comment_id: u64) {
+        let imp = self.imp();
+        let page = imp.playlist_lyrics_page.get().unwrap();
+        page.comment_action_failed(song_id, comment_id);
     }
 
     /// 更新歌词内容，不调整位置
-    pub fn update_lyrics(&self, lrc: Vec<(u64, String)>) {
+    pub fn update_lyrics(&self, song_id: u64, lrc: Vec<(u64, String)>) {
         let imp = self.imp();
         let page = imp.playlist_lyrics_page.get().unwrap();
-        page.update_lyrics(lrc);
+        page.update_lyrics(song_id, lrc);
     }
 
     /// 强行更新歌词区文字，用于显示歌词加载提示
@@ -768,6 +1729,11 @@ impl NeteaseCloudMusicGtk4Window {
         if self.page_cur_playlist_lyrics_page() {
             page.switch_row(index as i32);
         }
+        if imp.global_queue_revealer.reveals_child() {
+            imp.global_queue_songs_list
+                .get()
+                .mark_new_row_playing(index as i32, false);
+        }
     }
 
     pub fn set_song_url(&self, si: SongInfo) {
@@ -778,6 +1744,11 @@ impl NeteaseCloudMusicGtk4Window {
     }
     pub fn gst_state_changed(&self, state: gstreamer_play::PlayState) {
         self.imp().player_controls.get().gst_state_changed(state);
+        self.imp()
+            .playlist_lyrics_page
+            .get()
+            .unwrap()
+            .set_playback_active(matches!(state, gstreamer_play::PlayState::Playing));
     }
     pub fn gst_volume_changed(&self, volume: f64) {
         self.imp().player_controls.get().gst_volume_changed(volume);
@@ -913,21 +1884,27 @@ impl NeteaseCloudMusicGtk4Window {
 }
 
 #[gtk::template_callbacks]
-impl NeteaseCloudMusicGtk4Window {
+impl CloudMusicPlayerWindow {
+    #[template_callback]
+    fn global_queue_close_cb(&self) {
+        self.set_global_queue_revealed(false);
+    }
+
     #[template_callback]
     fn stack_visible_child_cb(&self) {
         let imp = self.imp();
         let stack = imp.stack.get();
         let label = imp.label_title.get();
         if let Some(visible_child_name) = stack.visible_child_name() {
+            self.update_sidebar_selection(visible_child_name.as_str());
             let mut stack_child = LinkedList::new();
             if let Ok(sc) = imp.stack_child.lock() {
                 stack_child = (*sc).clone();
             }
-            if let Some(child) = stack_child.back() {
-                if visible_child_name == child.0 {
-                    return;
-                }
+            if let Some(child) = stack_child.back()
+                && visible_child_name == child.0
+            {
+                return;
             }
             if stack_child.len() == 1 {
                 if visible_child_name == "discover"
@@ -957,36 +1934,56 @@ impl NeteaseCloudMusicGtk4Window {
 
     #[template_callback]
     fn search_song_cb(&self, check: CheckButton) {
+        if !check.is_active() {
+            return;
+        }
         let menu = self.imp().search_menu.get();
         menu.set_label(&check.label().unwrap());
+        menu.popdown();
         self.set_property("search-type", SearchType::Song);
     }
 
     #[template_callback]
     fn search_singer_cb(&self, check: CheckButton) {
+        if !check.is_active() {
+            return;
+        }
         let menu = self.imp().search_menu.get();
         menu.set_label(&check.label().unwrap());
+        menu.popdown();
         self.set_property("search-type", SearchType::Singer);
     }
 
     #[template_callback]
     fn search_album_cb(&self, check: CheckButton) {
+        if !check.is_active() {
+            return;
+        }
         let menu = self.imp().search_menu.get();
         menu.set_label(&check.label().unwrap());
+        menu.popdown();
         self.set_property("search-type", SearchType::Album);
     }
 
     #[template_callback]
     fn search_lyrics_cb(&self, check: CheckButton) {
+        if !check.is_active() {
+            return;
+        }
         let menu = self.imp().search_menu.get();
         menu.set_label(&check.label().unwrap());
+        menu.popdown();
         self.set_property("search-type", SearchType::Lyrics);
     }
 
     #[template_callback]
     fn search_songlist_cb(&self, check: CheckButton) {
+        if !check.is_active() {
+            return;
+        }
         let menu = self.imp().search_menu.get();
         menu.set_label(&check.label().unwrap());
+        menu.popdown();
         self.set_property("search-type", SearchType::SongList);
     }
 
@@ -1053,9 +2050,9 @@ impl NeteaseCloudMusicGtk4Window {
     }
 }
 
-impl Default for NeteaseCloudMusicGtk4Window {
+impl Default for CloudMusicPlayerWindow {
     fn default() -> Self {
-        NeteaseCloudMusicGtk4Application::default()
+        CloudMusicPlayerApplication::default()
             .active_window()
             .unwrap()
             .downcast()

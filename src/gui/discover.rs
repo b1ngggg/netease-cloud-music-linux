@@ -1,12 +1,13 @@
 //
 // discover.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use crate::{application::Action, gui::SongListGridItem, model::ImageDownloadImpl, path::CACHE};
-use async_channel::{unbounded, Sender};
-use glib::{clone, ControlFlow};
-use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
+use async_channel::{Sender, unbounded};
+use glib::{ControlFlow, clone};
+use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
 use ncm_api::{BannersInfo, SongList};
 use once_cell::sync::OnceCell;
 use std::sync::{Arc, RwLock};
@@ -123,7 +124,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/discover.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/discover.ui")]
     pub struct Discover {
         #[template_child]
         pub carousel: TemplateChild<adw::Carousel>,
@@ -285,7 +286,7 @@ mod imp {
 fn load_css() {
     // Load the CSS file and add it to the provider
     let provider = CssProvider::new();
-    provider.load_from_resource("/com/gitee/gmg137/NeteaseCloudMusicGtk4/themes/discover.css");
+    provider.load_from_resource("/io/github/b1ngggg/CloudMusicPlayer/themes/discover.css");
 
     // Add the provider to the default screen
     style_context_add_provider_for_display(

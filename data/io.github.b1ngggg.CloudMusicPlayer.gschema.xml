@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="netease-cloud-music-gtk4">
-    <schema id="com.gitee.gmg137.NeteaseCloudMusicGtk4" path="/com/gitee/gmg137/NeteaseCloudMusicGtk4/">
+<schemalist gettext-domain="cloudmusicplayer">
+    <schema id="io.github.b1ngggg.CloudMusicPlayer" path="/io/github/b1ngggg/cloudmusicplayer/">
         <key name="style-variant" type="s">
             <choices>
                 <choice value='system' />

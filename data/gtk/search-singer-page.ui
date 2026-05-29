@@ -6,9 +6,16 @@
         <property name="halign">fill</property>
         <property name="orientation">vertical</property>
         <property name="spacing">20</property>
+        <style>
+            <class name="app-page" />
+            <class name="search-singer-page" />
+        </style>
         <child>
             <object class="GtkScrolledWindow">
                 <signal name="edge-overshot" handler="scrolled_edge_cb" swapped="true" />
+                <style>
+                    <class name="app-grid-scroll" />
+                </style>
                 <child>
                     <object class="GtkViewport">
                         <child>

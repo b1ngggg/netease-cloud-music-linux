@@ -1,6 +1,7 @@
 //
 // search_grid_item.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use async_channel::Sender;
@@ -53,6 +54,7 @@ impl SongListGridItem {
 
     fn create(pic_size: i32) -> (Box, Image, Label, Label) {
         let boxs = Box::new(Orientation::Vertical, 0);
+        boxs.add_css_class("app-grid-card-content");
 
         let image = Image::builder()
             .pixel_size(pic_size)
@@ -64,6 +66,7 @@ impl SongListGridItem {
             .valign(Align::Center)
             .child(&image)
             .build();
+        frame.add_css_class("app-cover-frame");
 
         boxs.append(&frame);
 
@@ -76,6 +79,7 @@ impl SongListGridItem {
             .ellipsize(pango::EllipsizeMode::End)
             .wrap(true)
             .margin_top(6)
+            .css_classes(["app-grid-title"].map(String::from).to_vec())
             .build();
 
         let label_author = Label::builder()

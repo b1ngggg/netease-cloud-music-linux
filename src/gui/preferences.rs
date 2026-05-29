@@ -1,21 +1,32 @@
 //
 // preferences.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 
+use gettextrs::gettext;
 use gio::Settings;
 use gtk::gio::SettingsBindFlags;
-use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
+use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
 use once_cell::sync::OnceCell;
 
+use crate::gui::app_menu;
+
 glib::wrapper! {
-    pub struct NeteaseCloudMusicGtk4Preferences(ObjectSubclass<imp::NeteaseCloudMusicGtk4Preferences>)
+    pub struct CloudMusicPlayerPreferences(ObjectSubclass<imp::CloudMusicPlayerPreferences>)
         @extends adw::PreferencesDialog, adw::Dialog, Widget,
         @implements Accessible, Buildable, ConstraintTarget, Native, Root, ShortcutManager;
 }
 
-impl NeteaseCloudMusicGtk4Preferences {
+fn entry_selected_text(entry: &Entry) -> Option<String> {
+    entry
+        .selection_bounds()
+        .and_then(|(start, end)| (start != end).then_some((start.min(end), start.max(end))))
+        .map(|(start, end)| entry.chars(start, end).to_string())
+}
+
+impl CloudMusicPlayerPreferences {
     pub fn new() -> Self {
         glib::Object::new()
     }
@@ -76,6 +87,113 @@ impl NeteaseCloudMusicGtk4Preferences {
             .build();
     }
 
+    fn setup_entry_context_menu(&self) {
+        let proxy_entry = self.imp().proxy_entry.get();
+        self.attach_entry_context_menu(&proxy_entry);
+    }
+
+    fn attach_entry_context_menu(&self, entry: &Entry) {
+        let entry = entry.clone();
+        let gesture = GestureClick::new();
+        gesture.set_button(3);
+        gesture.set_propagation_phase(PropagationPhase::Capture);
+        let obj_weak = self.downgrade();
+        let entry_for_menu = entry.clone();
+        gesture.connect_pressed(move |gesture, _, x, y| {
+            if let Some(obj) = obj_weak.upgrade() {
+                obj.show_entry_context_menu(&entry_for_menu, x, y);
+            }
+            gesture.set_state(EventSequenceState::Claimed);
+        });
+        entry.add_controller(gesture);
+    }
+
+    fn show_entry_context_menu(&self, entry: &Entry, x: f64, y: f64) {
+        let popover = Popover::new();
+        popover.set_has_arrow(false);
+        popover.set_autohide(true);
+        popover.add_css_class("app-entry-context-popover");
+        popover.set_parent(entry);
+        popover.set_pointing_to(Some(&gtk::gdk::Rectangle::new(
+            x.round() as i32,
+            y.round() as i32,
+            1,
+            1,
+        )));
+
+        let card = Box::new(Orientation::Vertical, 0);
+        card.set_width_request(118);
+        card.add_css_class("app-menu-card");
+
+        let cut_button = app_menu::text_row(&gettext("Cut"));
+        let copy_button = app_menu::text_row(&gettext("Copy"));
+        let paste_button = app_menu::text_row(&gettext("Paste"));
+        let select_all_button = app_menu::text_row(&gettext("Select All"));
+        let has_selection = entry_selected_text(entry).is_some();
+        let has_text = !entry.text().is_empty();
+        let is_editable = entry.is_editable();
+        cut_button.set_sensitive(has_selection && is_editable);
+        copy_button.set_sensitive(has_selection || has_text);
+        paste_button.set_sensitive(is_editable);
+        select_all_button.set_sensitive(has_text);
+        card.append(&cut_button);
+        card.append(&copy_button);
+        card.append(&paste_button);
+        card.append(&select_all_button);
+        popover.set_child(Some(&card));
+
+        let popover_for_cut = popover.clone();
+        let entry_for_cut = entry.clone();
+        cut_button.connect_clicked(move |_| {
+            if let Some(text) = entry_selected_text(&entry_for_cut) {
+                entry_for_cut.clipboard().set_text(&text);
+                entry_for_cut.delete_selection();
+            }
+            popover_for_cut.popdown();
+        });
+
+        let popover_for_copy = popover.clone();
+        let entry_for_copy = entry.clone();
+        copy_button.connect_clicked(move |_| {
+            let text = entry_selected_text(&entry_for_copy)
+                .unwrap_or_else(|| entry_for_copy.text().to_string());
+            entry_for_copy.clipboard().set_text(&text);
+            popover_for_copy.popdown();
+        });
+
+        let popover_for_paste = popover.clone();
+        let entry_for_paste = entry.clone();
+        paste_button.connect_clicked(move |_| {
+            let clipboard = entry_for_paste.clipboard();
+            let entry_for_paste = entry_for_paste.clone();
+            clipboard.read_text_async(None::<&gtk::gio::Cancellable>, move |result| {
+                if let Ok(Some(text)) = result {
+                    entry_for_paste.grab_focus();
+                    if entry_for_paste.selection_bounds().is_some() {
+                        entry_for_paste.delete_selection();
+                    }
+                    let mut position = entry_for_paste.position();
+                    entry_for_paste.insert_text(text.as_str(), &mut position);
+                    entry_for_paste.set_position(position);
+                }
+            });
+            popover_for_paste.popdown();
+        });
+
+        let popover_for_select = popover.clone();
+        let entry_for_select = entry.clone();
+        select_all_button.connect_clicked(move |_| {
+            entry_for_select.grab_focus();
+            entry_for_select.select_region(0, -1);
+            popover_for_select.popdown();
+        });
+
+        popover.connect_closed(|popover| {
+            popover.unparent();
+        });
+        popover.popup();
+    }
+
     pub fn set_cache_size_label(&self, size: f64, unit: String) {
         self.imp()
             .cache_clear
@@ -84,7 +202,7 @@ impl NeteaseCloudMusicGtk4Preferences {
     }
 }
 
-impl Default for NeteaseCloudMusicGtk4Preferences {
+impl Default for CloudMusicPlayerPreferences {
     fn default() -> Self {
         Self::new()
     }
@@ -97,8 +215,8 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/preferences.ui")]
-    pub struct NeteaseCloudMusicGtk4Preferences {
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/preferences.ui")]
+    pub struct CloudMusicPlayerPreferences {
         pub settings: OnceCell<Settings>,
         #[template_child]
         pub exit_switch: TemplateChild<Switch>,
@@ -117,9 +235,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for NeteaseCloudMusicGtk4Preferences {
-        const NAME: &'static str = "NeteaseCloudMusicGtk4Preferences";
-        type Type = super::NeteaseCloudMusicGtk4Preferences;
+    impl ObjectSubclass for CloudMusicPlayerPreferences {
+        const NAME: &'static str = "CloudMusicPlayerPreferences";
+        type Type = super::CloudMusicPlayerPreferences;
         type ParentType = adw::PreferencesDialog;
 
         fn class_init(klass: &mut Self::Class) {
@@ -131,16 +249,17 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for NeteaseCloudMusicGtk4Preferences {
+    impl ObjectImpl for CloudMusicPlayerPreferences {
         fn constructed(&self) {
             let obj = self.obj();
             self.parent_constructed();
 
             obj.setup_settings();
             obj.bind_settings();
+            obj.setup_entry_context_menu();
         }
     }
-    impl WidgetImpl for NeteaseCloudMusicGtk4Preferences {}
-    impl AdwDialogImpl for NeteaseCloudMusicGtk4Preferences {}
-    impl PreferencesDialogImpl for NeteaseCloudMusicGtk4Preferences {}
+    impl WidgetImpl for CloudMusicPlayerPreferences {}
+    impl AdwDialogImpl for CloudMusicPlayerPreferences {}
+    impl PreferencesDialogImpl for CloudMusicPlayerPreferences {}
 }

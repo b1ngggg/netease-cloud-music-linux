@@ -8,28 +8,28 @@
                 <property name="max-height">10</property>
                 <child>
                     <object class="GtkShortcutsGroup">
-                        <property name="title" translatable="yes" context="shortcut window">General</property>
+                        <property name="title" context="shortcut window" translatable="yes">General</property>
                         <child>
                             <object class="GtkShortcutsShortcut">
-                                <property name="title" translatable="yes" context="shortcut window">Show Shortcuts</property>
+                                <property name="title" context="shortcut window">Show shortcuts</property>
                                 <property name="action-name">win.show-help-overlay</property>
                             </object>
                         </child>
                         <child>
                             <object class="GtkShortcutsShortcut">
-                                <property name="title" translatable="yes" context="shortcut window">Quit</property>
+                                <property name="title" context="shortcut window">Quit</property>
                                 <property name="action-name">app.quit</property>
                             </object>
                         </child>
                         <child>
                             <object class="GtkShortcutsShortcut">
-                                <property name="title" translatable="yes" context="shortcut window">Search</property>
+                                <property name="title" context="shortcut window" translatable="yes">Search</property>
                                 <property name="action-name">win.search-button</property>
                             </object>
                         </child>
                         <child>
                             <object class="GtkShortcutsShortcut">
-                                <property name="title" translatable="yes" context="shortcut window">Back</property>
+                                <property name="title" context="shortcut window">Back</property>
                                 <property name="action-name">win.back-button</property>
                             </object>
                         </child>
@@ -37,22 +37,22 @@
                 </child>
                 <child>
                     <object class="GtkShortcutsGroup">
-                        <property name="title" translatable="yes" context="shortcut window">Playback</property>
+                        <property name="title" context="shortcut window">Playback Controls</property>
                         <child>
                             <object class="GtkShortcutsShortcut">
-                                <property name="title" translatable="yes" context="shortcut window">Play/Pause</property>
+                                <property name="title" context="shortcut window">Play/Pause</property>
                                 <property name="accelerator">&lt;primary&gt;space</property>
                             </object>
                         </child>
                         <child>
                             <object class="GtkShortcutsShortcut">
-                                <property name="title" translatable="yes" context="shortcut window">Next song</property>
+                                <property name="title" context="shortcut window">Next track</property>
                                 <property name="accelerator">&lt;primary&gt;n</property>
                             </object>
                         </child>
                         <child>
                             <object class="GtkShortcutsShortcut">
-                                <property name="title" translatable="yes" context="shortcut window">Previous song</property>
+                                <property name="title" context="shortcut window">Previous track</property>
                                 <property name="accelerator">&lt;primary&gt;b</property>
                             </object>
                         </child>

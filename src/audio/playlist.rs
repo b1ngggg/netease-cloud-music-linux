@@ -1,6 +1,7 @@
 //
 // playlist.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 
@@ -39,8 +40,8 @@ impl PlayList {
         }
     }
 
-    pub fn get_list(&self) -> Vec<SongInfo> {
-        self.list.clone()
+    pub fn songs(&self) -> &[SongInfo] {
+        &self.list
     }
 
     pub fn current_song(&self) -> Option<&SongInfo> {
@@ -121,15 +122,26 @@ impl PlayList {
         } else if self.position > list_index {
             self.position -= 1;
         }
+
+        let len = match self.loops {
+            LoopsState::Shuffle => self.shuffle.len(),
+            _ => self.list.len(),
+        };
+        if len == 0 {
+            self.position = 0;
+        } else if self.position >= len {
+            self.position = len - 1;
+        }
     }
 
     pub fn add_list(&mut self, list: Vec<SongInfo>) {
-        self.list = list.clone();
-        let mut list = list;
         if let LoopsState::Shuffle = self.loops {
-            fastrand::shuffle(&mut list);
-            self.shuffle = list;
+            self.shuffle = list.clone();
+            fastrand::shuffle(&mut self.shuffle);
+        } else {
+            self.shuffle.clear();
         }
+        self.list = list;
         self.position = 0;
     }
 
@@ -137,10 +149,10 @@ impl PlayList {
         if let Some(si_old) = self.list.iter_mut().find(|s| s.id == si.id) {
             si_old.song_url = si.song_url.clone();
         }
-        if let LoopsState::Shuffle = self.loops {
-            if let Some(si_old) = self.shuffle.iter_mut().find(|s| s.id == si.id) {
-                si_old.song_url = si.song_url;
-            }
+        if let LoopsState::Shuffle = self.loops
+            && let Some(si_old) = self.shuffle.iter_mut().find(|s| s.id == si.id)
+        {
+            si_old.song_url = si.song_url;
         }
     }
 
@@ -167,12 +179,12 @@ impl PlayList {
     }
 
     pub fn get_position(&self) -> usize {
-        if let LoopsState::Shuffle = self.loops {
-            if let Some(song) = self.current_song() {
-                for (p, si) in self.list.iter().enumerate() {
-                    if si.id == song.id {
-                        return p;
-                    }
+        if let LoopsState::Shuffle = self.loops
+            && let Some(song) = self.current_song()
+        {
+            for (p, si) in self.list.iter().enumerate() {
+                if si.id == song.id {
+                    return p;
                 }
             }
         }
@@ -324,13 +336,15 @@ impl From<LoopStatus> for LoopsState {
     }
 }
 
-impl ToString for LoopsState {
-    fn to_string(&self) -> String {
-        match self {
-            LoopsState::None => "none".to_string(),
-            LoopsState::Track => "one".to_string(),
-            LoopsState::Playlist => "loop".to_string(),
-            LoopsState::Shuffle => "shuffle".to_string(),
-        }
+impl std::fmt::Display for LoopsState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let value = match self {
+            LoopsState::None => "none",
+            LoopsState::Track => "one",
+            LoopsState::Playlist => "loop",
+            LoopsState::Shuffle => "shuffle",
+        };
+
+        f.write_str(value)
     }
 }

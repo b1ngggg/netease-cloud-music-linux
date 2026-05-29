@@ -1,11 +1,12 @@
 //
 // search_singer_page.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use async_channel::Sender;
 use glib::{ParamSpec, ParamSpecBoolean, ParamSpecInt, ParamSpecString, Value};
-pub(crate) use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
+pub(crate) use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
 use ncm_api::SingerInfo;
 use once_cell::sync::{Lazy, OnceCell};
 
@@ -72,6 +73,8 @@ impl SearchSingerPage {
             }
 
             let boxs = gtk::Box::new(gtk::Orientation::Vertical, 0);
+            boxs.add_css_class("app-grid-card-content");
+            boxs.add_css_class("app-singer-card");
             boxs.append(&avatar);
             let label = gtk::Label::new(Some(&si.name));
             label.set_lines(2);
@@ -81,6 +84,7 @@ impl SearchSingerPage {
             label.set_max_width_chars(1);
             label.set_ellipsize(gtk::pango::EllipsizeMode::End);
             label.set_wrap(true);
+            label.add_css_class("app-grid-title");
             boxs.append(&label);
             singer_grid.attach(&boxs, col, row, 1, 1);
             col += 1;
@@ -112,7 +116,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/search-singer-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/search-singer-page.ui")]
     pub struct SearchSingerPage {
         #[template_child]
         pub singer_grid: TemplateChild<Grid>,
@@ -200,10 +204,10 @@ impl SearchSingerPage {
                         offset as u16,
                         50,
                         Arc::new(move |sgs| {
-                            if let Some(s) = s.upgrade() {
-                                if let SearchResult::Singers(sgs) = sgs {
-                                    s.update_singer(sgs);
-                                }
+                            if let Some(s) = s.upgrade()
+                                && let SearchResult::Singers(sgs) = sgs
+                            {
+                                s.update_singer(sgs);
                             }
                         }),
                     ))

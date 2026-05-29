@@ -13,41 +13,44 @@
                 <child>
                     <object class="GtkToggleButton" id="system">
                         <style>
+                            <class name="theme-mode-button" />
                             <class name="system" />
                         </style>
                         <property name="group">light</property>
                         <property name="focus-on-click">false</property>
                         <property name="action-name">win.style-variant</property>
                         <property name="action-target">'system'</property>
-                        <property name="tooltip-text" translatable="yes">Use system style</property>
-                        <property name="icon-name">object-select-symbolic</property>
+                        <property name="tooltip-text" translatable="yes">Follow System</property>
+                        <property name="icon-name">computer-symbolic</property>
                     </object>
                 </child>
 
                 <child>
                     <object class="GtkToggleButton" id="light">
                         <style>
+                            <class name="theme-mode-button" />
                             <class name="light" />
                         </style>
                         <property name="focus-on-click">false</property>
                         <property name="action-name">win.style-variant</property>
                         <property name="action-target">'light'</property>
-                        <property name="tooltip-text" translatable="yes">Light style</property>
-                        <property name="icon-name">object-select-symbolic</property>
+                        <property name="tooltip-text" translatable="yes">Light Mode</property>
+                        <property name="icon-name">weather-clear-symbolic</property>
                     </object>
                 </child>
 
                 <child>
                     <object class="GtkToggleButton" id="dark">
                         <style>
+                            <class name="theme-mode-button" />
                             <class name="dark" />
                         </style>
                         <property name="group">light</property>
                         <property name="focus-on-click">false</property>
                         <property name="action-name">win.style-variant</property>
                         <property name="action-target">'dark'</property>
-                        <property name="tooltip-text" translatable="yes">Dark style</property>
-                        <property name="icon-name">object-select-symbolic</property>
+                        <property name="tooltip-text" translatable="yes">Dark Mode</property>
+                        <property name="icon-name">weather-clear-night-symbolic</property>
                     </object>
                 </child>
 

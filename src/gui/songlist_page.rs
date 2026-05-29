@@ -1,14 +1,15 @@
 //
 // songlist_page.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use async_channel::Sender;
 use chrono::{TimeZone, Utc};
 use gettextrs::gettext;
 use glib::{ParamSpec, ParamSpecBoolean, Value};
-pub(crate) use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
-use ncm_api::SongList;
+pub(crate) use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
+use ncm_api::{SongInfo, SongList};
 use once_cell::sync::{Lazy, OnceCell};
 
 use crate::{
@@ -79,7 +80,9 @@ impl SonglistPage {
             .set_label(&gettext_f("{num} songs", &[("num", "0")]));
         self.set_property("like", false);
 
+        imp.playlist.borrow_mut().clear();
         imp.songs_list.clear_list();
+        imp.songs_list.set_loading(true);
     }
 
     pub fn init_songlist(&self, detail: &SongListDetail, likes: &[bool]) {
@@ -127,12 +130,13 @@ impl SonglistPage {
                     &[("num", &detail.len().to_string())],
                 ));
                 for si in sis.iter_mut() {
-                    if let Ok(date) = si.album.parse() {
-                        let dt = Utc.timestamp_millis_opt(date).unwrap();
+                    if let Ok(date) = si.album.parse()
+                        && let Some(dt) = Utc.timestamp_millis_opt(date).single()
+                    {
                         let dt = dt.format("%Y-%m-%d");
                         si.album = dt.to_string();
                     } else {
-                        si.album = "未知".to_string();
+                        si.album = gettext("Unknown");
                     }
                 }
             }
@@ -140,7 +144,12 @@ impl SonglistPage {
 
         let sender = imp.sender.get().unwrap();
         songs_list.set_sender(sender.clone());
+        imp.playlist.replace(sis.clone());
         songs_list.init_new_list(sis, likes);
+    }
+
+    pub fn set_loading(&self, loading: bool) {
+        self.imp().songs_list.get().set_loading(loading);
     }
 }
 
@@ -155,7 +164,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/songlist-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/songlist-page.ui")]
     pub struct SonglistPage {
         #[template_child(id = "cover_image")]
         pub cover_image: TemplateChild<Image>,
@@ -175,6 +184,7 @@ mod imp {
 
         pub songlist: Rc<RefCell<Option<SongList>>>,
         pub page_type: Rc<RefCell<Option<DiscoverSubPage>>>,
+        pub playlist: Rc<RefCell<Vec<SongInfo>>>,
 
         pub sender: OnceCell<Sender<Action>>,
 
@@ -202,7 +212,7 @@ mod imp {
         #[template_callback]
         fn play_button_clicked_cb(&self) {
             let sender = self.sender.get().unwrap();
-            let playlist = self.songs_list.get_songinfo_list();
+            let playlist = self.playlist.borrow().clone();
             if !playlist.is_empty() {
                 sender
                     .send_blocking(Action::AddPlayList(playlist, true))

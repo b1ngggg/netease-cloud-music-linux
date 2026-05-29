@@ -1,18 +1,21 @@
 //
 // model.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use crate::application::Action;
 use async_channel::Sender;
-use glib::{source::Priority, SendWeakRef};
-use gtk::{gdk_pixbuf, glib, prelude::*, Image, Picture};
+use glib::{SendWeakRef, source::Priority};
+use gtk::{Image, Picture, gdk_pixbuf, glib, prelude::*};
 use ncm_api::{SingerInfo, SongInfo, SongList};
 use std::{cell::RefCell, path::PathBuf, rc::Rc, sync::Arc};
 
 #[derive(Default)]
 pub struct UserInfo {
     pub uid: u64,
+    pub nickname: String,
+    pub avatar_url: String,
     pub like_songs: std::collections::HashSet<u64>,
 }
 
@@ -211,7 +214,13 @@ pub trait ImageDownloadImpl {
 }
 
 impl ImageDownloadImpl for Image {
-    fn set_from_net(&self, url: String, path: PathBuf, (width, height): (u16, u16), sender: &Sender<Action>) {
+    fn set_from_net(
+        &self,
+        url: String,
+        path: PathBuf,
+        (width, height): (u16, u16),
+        sender: &Sender<Action>,
+    ) {
         let image = glib::SendWeakRef::from(self.downgrade());
         sender
             .send_blocking(Action::DownloadImage(
@@ -230,7 +239,13 @@ impl ImageDownloadImpl for Image {
 }
 
 impl ImageDownloadImpl for Picture {
-    fn set_from_net(&self, url: String, path: PathBuf, (width, height): (u16, u16), sender: &Sender<Action>) {
+    fn set_from_net(
+        &self,
+        url: String,
+        path: PathBuf,
+        (width, height): (u16, u16),
+        sender: &Sender<Action>,
+    ) {
         let picture = glib::SendWeakRef::from(self.downgrade());
         sender
             .send_blocking(Action::DownloadImage(
@@ -239,15 +254,14 @@ impl ImageDownloadImpl for Picture {
                 width,
                 height,
                 Some(Arc::new(move |_| {
-                    let image = gtk::gdk_pixbuf::Pixbuf::from_file(&path).unwrap();
-                    let image = image
-                        .scale_simple(
+                    if let Ok(image) = gtk::gdk_pixbuf::Pixbuf::from_file(&path)
+                        && let Some(image) = image.scale_simple(
                             width as i32,
                             height as i32,
                             gtk::gdk_pixbuf::InterpType::Bilinear,
                         )
-                        .unwrap();
-                    if let Some(picture) = picture.upgrade() {
+                        && let Some(picture) = picture.upgrade()
+                    {
                         picture.set_pixbuf(Some(&image));
                     }
                 })),
@@ -257,7 +271,13 @@ impl ImageDownloadImpl for Picture {
 }
 
 impl ImageDownloadImpl for adw::Avatar {
-    fn set_from_net(&self, url: String, path: PathBuf, (width, height): (u16, u16), sender: &Sender<Action>) {
+    fn set_from_net(
+        &self,
+        url: String,
+        path: PathBuf,
+        (width, height): (u16, u16),
+        sender: &Sender<Action>,
+    ) {
         let avatar = SendWeakRef::from(self.downgrade());
         sender
             .send_blocking(Action::DownloadImage(
@@ -268,10 +288,10 @@ impl ImageDownloadImpl for adw::Avatar {
                 Some(Arc::new(move |_| {
                     if let Ok(pixbuf) = gdk_pixbuf::Pixbuf::from_file(&path) {
                         let image = Image::from_pixbuf(Some(&pixbuf));
-                        if let Some(paintable) = image.paintable() {
-                            if let Some(avatar) = avatar.upgrade() {
-                                avatar.set_custom_image(Some(&paintable));
-                            }
+                        if let Some(paintable) = image.paintable()
+                            && let Some(avatar) = avatar.upgrade()
+                        {
+                            avatar.set_custom_image(Some(&paintable));
                         }
                     }
                 })),

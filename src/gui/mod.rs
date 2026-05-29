@@ -1,9 +1,11 @@
 //
 // mod.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 
+pub mod app_menu;
 mod discover;
 mod my_page;
 mod player_controls;
@@ -30,6 +32,7 @@ pub use search_song_page::*;
 pub use search_songlist_page::*;
 pub use songlist_grid_item::*;
 pub use songlist_page::*;
+pub use songlist_view::*;
 pub use theme_selector::*;
 pub use toplist::*;
 pub use user_menus::*;

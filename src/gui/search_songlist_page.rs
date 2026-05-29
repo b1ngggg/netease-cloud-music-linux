@@ -1,11 +1,12 @@
 //
 // search_songlist_page.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 use async_channel::Sender;
 use glib::{ParamSpec, ParamSpecBoolean, ParamSpecEnum, ParamSpecInt, ParamSpecString, Value};
-pub(crate) use gtk::{glib, prelude::*, subclass::prelude::*, CompositeTemplate, *};
+pub(crate) use gtk::{CompositeTemplate, glib, prelude::*, subclass::prelude::*, *};
 use ncm_api::SongList;
 use once_cell::sync::{Lazy, OnceCell};
 
@@ -71,7 +72,7 @@ mod imp {
     use super::*;
 
     #[derive(Debug, Default, CompositeTemplate)]
-    #[template(resource = "/com/gitee/gmg137/NeteaseCloudMusicGtk4/gtk/search-songlist-page.ui")]
+    #[template(resource = "/io/github/b1ngggg/CloudMusicPlayer/gtk/search-songlist-page.ui")]
     pub struct SearchSongListPage {
         #[template_child(id = "songlist_grid")]
         pub songlist_grid: TemplateChild<gtk::GridView>,
@@ -179,10 +180,10 @@ impl SearchSongListPage {
                         offset as u16,
                         50,
                         Arc::new(move |sls| {
-                            if let Some(s) = s.upgrade() {
-                                if let SearchResult::SongLists(sls) = sls {
-                                    s.update_songlist(&sls);
-                                }
+                            if let Some(s) = s.upgrade()
+                                && let SearchResult::SongLists(sls) = sls
+                            {
+                                s.update_songlist(&sls);
                             }
                         }),
                     ))
@@ -200,7 +201,10 @@ impl SearchSongListPage {
         let search_type = self.property::<SearchType>("search-type");
         let sender = self.imp().sender.get().unwrap();
 
-        let item = SongListGridItem::view_item_at_pos(self.imp().songlist_grid.get(), pos).unwrap();
+        let Some(item) = SongListGridItem::view_item_at_pos(self.imp().songlist_grid.get(), pos)
+        else {
+            return;
+        };
         match search_type {
             SearchType::Album | SearchType::AllAlbums | SearchType::LikeAlbums => {
                 sender

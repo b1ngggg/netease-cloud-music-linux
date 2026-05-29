@@ -1,19 +1,20 @@
 //
 // mpris.rs
 // Copyright (C) 2022 gmg137 <gmg137 AT live.com>
+// Copyright (C) 2026 b1ngggg
 // Distributed under terms of the GPL-3.0-or-later license.
 //
 
 use adw::prelude::GtkWindowExt;
 use glib::clone;
 use gtk::glib;
-use mpris_server::{zbus::Result, Time, TrackId, *};
+use mpris_server::{Time, TrackId, zbus::Result, *};
 
 use ncm_api::SongInfo;
 use std::rc::Rc;
 
 use crate::gui::PlayerControls;
-use crate::window::NeteaseCloudMusicGtk4Window;
+use crate::window::CloudMusicPlayerWindow;
 
 use super::LoopsState;
 
@@ -61,7 +62,7 @@ impl MprisController {
         metadata.set_album(Some(si.album.clone()));
         metadata.set_length(Some(Time::from_micros(si.duration as i64 * 1000)));
         metadata.set_trackid(
-            TrackId::try_from(format!("/com/gitee/gmg137/NeteaseCloudMusicGtk4/{}", si.id)).ok(),
+            TrackId::try_from(format!("/io/github/b1ngggg/CloudMusicPlayer/{}", si.id)).ok(),
         );
         // 取消从缓存获取专辑封面
         //let mut path_cover = crate::path::CACHE.clone();
@@ -136,13 +137,13 @@ impl MprisController {
     pub fn setup_signals(&self, player_controls: &PlayerControls) {
         // mpris raise
         self.mpris_player.connect_raise(move |_| {
-            let window = NeteaseCloudMusicGtk4Window::default();
+            let window = CloudMusicPlayerWindow::default();
             window.present();
         });
 
         // mpris quit
         self.mpris_player.connect_quit(move |_| {
-            let window = NeteaseCloudMusicGtk4Window::default();
+            let window = CloudMusicPlayerWindow::default();
             window.destroy();
         });
 

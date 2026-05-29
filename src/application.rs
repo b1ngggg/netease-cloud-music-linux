@@ -10,11 +10,18 @@ use ncm_api::{
     SongInfo, SongList, TargetType, TopList,
 };
 use once_cell::sync::OnceCell;
-use std::{cell::RefCell, fs, path::PathBuf, sync::Arc, time::Duration};
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet},
+    fs,
+    path::PathBuf,
+    sync::Arc,
+    time::Duration,
+};
 
 use crate::{
-    MAINCONTEXT, NeteaseCloudMusicGtk4Window, audio::MprisController, config::VERSION,
-    gui::NeteaseCloudMusicGtk4Preferences, model::*, ncmapi::*, path::CACHE, utils::*,
+    CloudMusicPlayerWindow, MAINCONTEXT, audio::MprisController, config::VERSION,
+    gui::CloudMusicPlayerPreferences, model::*, ncmapi::*, path::CACHE, utils::*,
 };
 
 // implements Debug for Fn(Targ) using "blanket implementations"
@@ -33,6 +40,109 @@ impl<Targ> std::fmt::Debug for dyn ActionCallbackTr<Targ> {
 //   unique id for sender object, and store a map
 //   sender object create new (sender, receiver) and attach, then action send back
 pub type ActionCallback<Targ = ()> = Arc<dyn ActionCallbackTr<Targ>>;
+
+const SONG_DETAIL_BATCH_SIZE: usize = 500;
+const RADIO_PROGRAM_BATCH_SIZE: u16 = 500;
+
+fn empty_search_result(search_type: SearchType) -> SearchResult {
+    match search_type {
+        SearchType::Singer => SearchResult::Singers(Vec::new()),
+        SearchType::Album
+        | SearchType::SongList
+        | SearchType::TopPicks
+        | SearchType::AllAlbums
+        | SearchType::Radio
+        | SearchType::LikeAlbums
+        | SearchType::LikeSongList => SearchResult::SongLists(Vec::new()),
+        _ => SearchResult::Songs(Vec::new(), Vec::new()),
+    }
+}
+
+async fn fetch_all_radio_programs(ncmapi: &NcmClient, rid: u64) -> anyhow::Result<Vec<SongInfo>> {
+    let mut songs = Vec::new();
+    let mut offset = 0u32;
+
+    loop {
+        let chunk = ncmapi
+            .client
+            .radio_program(rid, offset as u16, RADIO_PROGRAM_BATCH_SIZE)
+            .await?;
+        let finished = chunk.len() < usize::from(RADIO_PROGRAM_BATCH_SIZE);
+        songs.extend(chunk);
+
+        if finished {
+            break;
+        }
+
+        offset += u32::from(RADIO_PROGRAM_BATCH_SIZE);
+        if offset > u32::from(u16::MAX) {
+            break;
+        }
+    }
+
+    Ok(songs)
+}
+
+fn song_id_order_score<'a>(ids: impl Iterator<Item = &'a u64>, playlist_ids: &[u64]) -> usize {
+    ids.zip(playlist_ids.iter())
+        .take(64)
+        .filter(|(id, playlist_id)| *id == *playlist_id)
+        .count()
+}
+
+fn should_reverse_song_id_order(ids: &[u64], playlist_ids: &[u64]) -> bool {
+    if playlist_ids.is_empty() {
+        return false;
+    }
+
+    let forward_score = song_id_order_score(ids.iter(), playlist_ids);
+    let reverse_score = song_id_order_score(ids.iter().rev(), playlist_ids);
+    reverse_score > forward_score
+}
+
+fn missing_comment_reply_count_ids(comments: &SongComments) -> Vec<u64> {
+    let mut seen = HashSet::new();
+    comments
+        .hot_comments
+        .iter()
+        .chain(comments.comments.iter())
+        .filter(|comment| comment.comment_id != 0 && comment.reply_count == 0)
+        .filter_map(|comment| {
+            seen.insert(comment.comment_id)
+                .then_some(comment.comment_id)
+        })
+        .collect()
+}
+
+async fn update_comment_reply_counts_after_render(
+    ncmapi: NcmClient,
+    window: CloudMusicPlayerWindow,
+    song_id: u64,
+    comment_ids: Vec<u64>,
+) {
+    if comment_ids.is_empty() {
+        return;
+    }
+
+    timeout_future(Duration::from_millis(80)).await;
+    for (index, comment_id) in comment_ids.into_iter().enumerate() {
+        if index > 0 {
+            timeout_future(Duration::from_millis(35)).await;
+        }
+        match ncmapi.song_comment_reply_count(song_id, comment_id).await {
+            Ok(count) if count > 0 => {
+                window.update_comment_reply_count(song_id, comment_id, count);
+            }
+            Ok(_) => {}
+            Err(err) => {
+                debug!("获取评论回复数失败 {}: {:?}", comment_id, err);
+            }
+        }
+        if index % 4 == 3 {
+            timeout_future(Duration::from_millis(120)).await;
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum Action {
@@ -95,8 +205,32 @@ pub enum Action {
     InitMyPageRecSongList(Vec<SongList>),
 
     // playlist
-    ToPlayListLyricsPage(Vec<SongInfo>, SongInfo),
+    ToPlayListLyricsPage,
+    TogglePlayListQueueDrawer,
     UpdateLyrics(SongInfo, u64),
+    LoadSongComments {
+        song_id: u64,
+        offset: u32,
+    },
+    LikeSongComment {
+        song_id: u64,
+        comment_id: u64,
+        like: bool,
+    },
+    LoadSongCommentReplies {
+        song_id: u64,
+        comment_id: u64,
+    },
+    ReplySongComment {
+        song_id: u64,
+        comment_id: u64,
+        content: String,
+    },
+    DeleteSongComment {
+        song_id: u64,
+        parent_comment_id: u64,
+        comment_id: u64,
+    },
     UpdatePlayListStatus(usize),
     RemoveFromPlayList(SongInfo),
 
@@ -132,8 +266,8 @@ mod imp {
 
     use super::*;
 
-    pub struct NeteaseCloudMusicGtk4Application {
-        pub window: OnceCell<WeakRef<NeteaseCloudMusicGtk4Window>>,
+    pub struct CloudMusicPlayerApplication {
+        pub window: OnceCell<WeakRef<CloudMusicPlayerWindow>>,
         pub sender: Sender<Action>,
         pub receiver: RefCell<Option<Receiver<Action>>>,
         pub unikey: Arc<RwLock<String>>,
@@ -141,9 +275,9 @@ mod imp {
     }
 
     #[glib::object_subclass]
-    impl ObjectSubclass for NeteaseCloudMusicGtk4Application {
-        const NAME: &'static str = "NeteaseCloudMusicGtk4Application";
-        type Type = super::NeteaseCloudMusicGtk4Application;
+    impl ObjectSubclass for CloudMusicPlayerApplication {
+        const NAME: &'static str = "CloudMusicPlayerApplication";
+        type Type = super::CloudMusicPlayerApplication;
         type ParentType = adw::Application;
         fn new() -> Self {
             let (sender, r) = unbounded();
@@ -162,7 +296,7 @@ mod imp {
         }
     }
 
-    impl ObjectImpl for NeteaseCloudMusicGtk4Application {
+    impl ObjectImpl for CloudMusicPlayerApplication {
         fn constructed(&self) {
             let obj = self.obj();
             self.parent_constructed();
@@ -175,7 +309,7 @@ mod imp {
         }
     }
 
-    impl ApplicationImpl for NeteaseCloudMusicGtk4Application {
+    impl ApplicationImpl for CloudMusicPlayerApplication {
         // We connect to the activate callback to create a window when the application
         // has been launched. Additionally, this callback notifies us when the user
         // tries to launch a "second instance" of the application. When they try
@@ -183,7 +317,7 @@ mod imp {
         fn activate(&self) {
             let obj = self.obj();
             let app = obj
-                .downcast_ref::<super::NeteaseCloudMusicGtk4Application>()
+                .downcast_ref::<super::CloudMusicPlayerApplication>()
                 .unwrap();
 
             if let Some(weak_window) = self.window.get() {
@@ -214,17 +348,17 @@ mod imp {
         }
     }
 
-    impl GtkApplicationImpl for NeteaseCloudMusicGtk4Application {}
-    impl AdwApplicationImpl for NeteaseCloudMusicGtk4Application {}
+    impl GtkApplicationImpl for CloudMusicPlayerApplication {}
+    impl AdwApplicationImpl for CloudMusicPlayerApplication {}
 }
 
 glib::wrapper! {
-    pub struct NeteaseCloudMusicGtk4Application(ObjectSubclass<imp::NeteaseCloudMusicGtk4Application>)
+    pub struct CloudMusicPlayerApplication(ObjectSubclass<imp::CloudMusicPlayerApplication>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap;
 }
 
-impl NeteaseCloudMusicGtk4Application {
+impl CloudMusicPlayerApplication {
     pub fn new(application_id: &str, flags: &gio::ApplicationFlags) -> Self {
         glib::Object::builder()
             .property("application-id", application_id)
@@ -232,9 +366,15 @@ impl NeteaseCloudMusicGtk4Application {
             .build()
     }
 
-    fn create_window(&self) -> NeteaseCloudMusicGtk4Window {
+    fn create_window(&self) -> CloudMusicPlayerWindow {
         let imp = self.imp();
-        let window = NeteaseCloudMusicGtk4Window::new(&self.clone(), imp.sender.clone());
+        if let Some(display) = gtk::gdk::Display::default() {
+            gtk::IconTheme::for_display(&display)
+                .add_resource_path("/io/github/b1ngggg/CloudMusicPlayer/icons");
+        }
+        gtk::Window::set_default_icon_name(crate::APP_ICON);
+        let window = CloudMusicPlayerWindow::new(&self.clone(), imp.sender.clone());
+        window.set_icon_name(Some(crate::APP_ICON));
 
         window.present();
         window
@@ -355,13 +495,13 @@ impl NeteaseCloudMusicGtk4Application {
                 window.set_user_qrimage(path);
             }
             Action::CheckQrTimeout(unikey) => {
-                if let Ok(key) = imp.unikey.read() {
-                    if unikey != *key {
-                        let sender = imp.sender.clone();
-                        sender
-                            .send_blocking(Action::CheckQrTimeoutCb(unikey))
-                            .unwrap();
-                    }
+                if let Ok(key) = imp.unikey.read()
+                    && unikey != *key
+                {
+                    let sender = imp.sender.clone();
+                    sender
+                        .send_blocking(Action::CheckQrTimeoutCb(unikey))
+                        .unwrap();
                 }
             }
             Action::CheckQrTimeoutCb(unikey) => {
@@ -536,17 +676,17 @@ impl NeteaseCloudMusicGtk4Application {
             }
             Action::ToTopPicksPage => {
                 let page = window.init_picks_songlist();
-                window.page_new(&page, gettext("all top picks").as_str(), "ToTopPicksPage");
+                let title = gettext("All Popular Recommendations");
+                window.page_new(&page, &title, "ToTopPicksPage");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
                     if let Some(SearchResult::SongLists(sls)) = window
                         .action_search(ncmapi, String::new(), SearchType::TopPicks, 0, 50)
                         .await
+                        && let Some(page) = page.upgrade()
                     {
-                        if let Some(page) = page.upgrade() {
-                            page.update_songlist(&sls);
-                        }
+                        page.update_songlist(&sls);
                     }
                 });
             }
@@ -557,10 +697,9 @@ impl NeteaseCloudMusicGtk4Application {
                         .download_img(url, path, width, height)
                         .await
                         .is_ok()
+                        && let Some(cb) = callback
                     {
-                        if let Some(cb) = callback {
-                            cb(());
-                        }
+                        cb(());
                     }
                 });
             }
@@ -589,17 +728,17 @@ impl NeteaseCloudMusicGtk4Application {
             Action::ToAllAlbumsPage => {
                 let page = window.init_all_albums();
 
-                window.page_new(&page, gettext("all new albums").as_str(), "ToAllAlbumsPage");
+                let title = gettext("All Albums");
+                window.page_new(&page, &title, "ToAllAlbumsPage");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
                     if let Some(SearchResult::SongLists(sls)) = window
                         .action_search(ncmapi, String::new(), SearchType::AllAlbums, 0, 50)
                         .await
+                        && let Some(page) = page.upgrade()
                     {
-                        if let Some(page) = page.upgrade() {
-                            page.update_songlist(&sls);
-                        }
+                        page.update_songlist(&sls);
                     }
                 });
             }
@@ -723,15 +862,14 @@ impl NeteaseCloudMusicGtk4Application {
                 }
             }
             Action::PlayStart(song_info) => {
-                // 启用桌面歌词
-                if window.settings().boolean("desktop-lyrics") {
+                let should_update_lyrics_page = window.play(song_info.clone());
+                if window.settings().boolean("desktop-lyrics") || should_update_lyrics_page {
                     let sender = imp.sender.clone();
                     sender
                         .send_blocking(Action::UpdateLyrics(song_info.to_owned(), 0))
                         .unwrap();
                 };
                 debug!("播放歌曲: {:?}", song_info);
-                window.play(song_info);
             }
             Action::ToSongListPage(songlist) => {
                 let page = window.init_songlist_page(&songlist, false);
@@ -741,7 +879,7 @@ impl NeteaseCloudMusicGtk4Application {
                 let sender = imp.sender.clone();
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
                     let detal_dynamic_as = ncmapi.client.songlist_detail_dynamic(songlist.id);
-                    match ncmapi.client.song_list_detail(songlist.id).await {
+                    match ncmapi.song_list_detail_complete(songlist.id).await {
                         Ok(detail) => {
                             debug!("获取歌单详情: {:?}", detail);
                             let dy = detal_dynamic_as.await.unwrap_or_else(|err| {
@@ -755,6 +893,9 @@ impl NeteaseCloudMusicGtk4Application {
                         }
                         Err(err) => {
                             error!("获取歌单详情失败: {:?}", err);
+                            if let Some(page) = page.upgrade() {
+                                page.set_loading(false);
+                            }
                             sender
                                 .send(Action::AddToast(gettext(
                                     "Failed to get song list details!",
@@ -819,6 +960,9 @@ impl NeteaseCloudMusicGtk4Application {
                         }
                         Err(err) => {
                             error!("获取专辑详情失败: {:?}", err);
+                            if let Some(page) = page.upgrade() {
+                                page.set_loading(false);
+                            }
                             sender
                                 .send(Action::AddToast(gettext("Failed to get album details!")))
                                 .await
@@ -834,7 +978,7 @@ impl NeteaseCloudMusicGtk4Application {
 
                 let sender = imp.sender.clone();
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
-                    match ncmapi.client.radio_program(songlist.id, 0, 1001).await {
+                    match fetch_all_radio_programs(&ncmapi, songlist.id).await {
                         Ok(detail) => {
                             debug!("获取电台详情: {:?}", detail);
                             let detail = SongListDetail::Radio(detail);
@@ -844,6 +988,9 @@ impl NeteaseCloudMusicGtk4Application {
                         }
                         Err(err) => {
                             error!("获取电台详情失败: {:?}", err);
+                            if let Some(page) = page.upgrade() {
+                                page.set_loading(false);
+                            }
                             sender
                                 .send(Action::AddToast(gettext("Failed to get radio details!")))
                                 .await
@@ -994,7 +1141,7 @@ impl NeteaseCloudMusicGtk4Application {
             Action::GetToplistSongsList(id) => {
                 let sender = imp.sender.clone();
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
-                    match ncmapi.client.song_list_detail(id).await {
+                    match ncmapi.song_list_detail_complete(id).await {
                         Ok(detail) => {
                             debug!("获取榜单 {} 详情：{:?}", id, detail);
                             sender
@@ -1004,6 +1151,10 @@ impl NeteaseCloudMusicGtk4Application {
                         }
                         Err(err) => {
                             error!("获取榜单 {} 失败! {:?}", id, err);
+                            sender
+                                .send(Action::UpdateTopList(Vec::new()))
+                                .await
+                                .unwrap();
                             sender
                                 .send(Action::AddToast(gettext(
                                     "Request for interface failed, please try again!",
@@ -1025,9 +1176,7 @@ impl NeteaseCloudMusicGtk4Application {
                     let res = window
                         .action_search(ncmapi, text, search_type, offset, limit)
                         .await;
-                    if let Some(res) = res {
-                        callback(res);
-                    }
+                    callback(res.unwrap_or_else(|| empty_search_result(search_type)));
                 });
             }
             Action::ToSingerSongsPage(singer) => {
@@ -1047,6 +1196,9 @@ impl NeteaseCloudMusicGtk4Application {
                         }
                         Err(err) => {
                             error!("{:?}", err);
+                            if let Some(page) = page.upgrade() {
+                                page.set_loading(false);
+                            }
                             sender
                                 .send(Action::AddToast(gettext(
                                     "Request for interface failed, please try again!",
@@ -1058,7 +1210,7 @@ impl NeteaseCloudMusicGtk4Application {
                 });
             }
             Action::ToMyPageDailyRec => {
-                let title = gettext("Daily Recommendation");
+                let title = gettext("Daily Recommendations");
                 let page = window.init_search_song_page(&title, SearchType::DailyRec);
                 window.page_new(&page, &title, "ToMyPageDailyRec");
                 let page = page.downgrade();
@@ -1074,6 +1226,9 @@ impl NeteaseCloudMusicGtk4Application {
                         }
                         Err(err) => {
                             error!("{:?}", err);
+                            if let Some(page) = page.upgrade() {
+                                page.set_loading(false);
+                            }
                             sender
                                 .send(Action::AddToast(gettext(
                                     "Request for interface failed, please try again!",
@@ -1085,7 +1240,7 @@ impl NeteaseCloudMusicGtk4Application {
                 });
             }
             Action::ToMyPageHeartbeat => {
-                let title = gettext("Favorite Songs");
+                let title = gettext("Liked Songs");
                 let page = window.init_search_song_page(&title, SearchType::Heartbeat);
                 window.page_new(&page, &title, "ToMyPageHeartbeat");
                 let page = page.downgrade();
@@ -1093,30 +1248,105 @@ impl NeteaseCloudMusicGtk4Application {
                 let sender = imp.sender.clone();
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
                     let uid = window.get_uid();
-                    match ncmapi.client.user_song_list(uid, 0, 1).await {
-                        Ok(sls) => {
-                            debug!("获取心动歌单：{:?}", sls);
-                            if !sls.is_empty() {
-                                match ncmapi.client.song_list_detail(sls[0].id).await {
-                                    Ok(detail) => {
+                    match ncmapi.client.user_song_id_list(uid).await {
+                        Ok(ids) => {
+                            debug!("获取收藏单曲 id：{}", ids.len());
+                            window.set_user_like_songs(&ids);
+                            if ids.is_empty() {
+                                if let Some(page) = page.upgrade() {
+                                    page.set_loading(false);
+                                }
+                                return;
+                            }
+
+                            let mut loaded_song_ids = HashSet::new();
+                            let mut loaded_playlist_ids = Vec::new();
+                            match ncmapi.client.user_song_list(uid, 0, 1).await {
+                                Ok(songlists) => {
+                                    if let Some(songlist) = songlists.first() {
+                                        match ncmapi.song_list_detail_complete(songlist.id).await {
+                                            Ok(detail) => {
+                                                for chunk in
+                                                    detail.songs.chunks(SONG_DETAIL_BATCH_SIZE)
+                                                {
+                                                    loaded_song_ids
+                                                        .extend(chunk.iter().map(|song| song.id));
+                                                    loaded_playlist_ids
+                                                        .extend(chunk.iter().map(|song| song.id));
+                                                    if let Some(page) = page.upgrade() {
+                                                        window.update_search_song_page(
+                                                            page,
+                                                            chunk.to_vec(),
+                                                        );
+                                                        timeout_future(Duration::from_millis(1))
+                                                            .await;
+                                                    } else {
+                                                        return;
+                                                    }
+                                                }
+                                            }
+                                            Err(err) => {
+                                                warn!(
+                                                    "获取收藏歌单详情失败，将按 id 列表补齐：{:?}",
+                                                    err
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                                Err(err) => {
+                                    warn!("获取用户歌单失败，将按 id 列表补齐：{:?}", err);
+                                }
+                            }
+
+                            let ordered_ids =
+                                if should_reverse_song_id_order(&ids, &loaded_playlist_ids) {
+                                    ids.iter().rev().copied().collect::<Vec<_>>()
+                                } else {
+                                    ids.clone()
+                                };
+                            let remaining_ids = ordered_ids
+                                .into_iter()
+                                .filter(|id| !loaded_song_ids.contains(id))
+                                .collect::<Vec<_>>();
+                            for chunk in remaining_ids.chunks(SONG_DETAIL_BATCH_SIZE) {
+                                match ncmapi.client.songs_detail(chunk).await {
+                                    Ok(mut songs) => {
+                                        let order = chunk
+                                            .iter()
+                                            .enumerate()
+                                            .map(|(index, id)| (*id, index))
+                                            .collect::<HashMap<_, _>>();
+                                        songs.sort_by_key(|song| {
+                                            order.get(&song.id).copied().unwrap_or(usize::MAX)
+                                        });
                                         if let Some(page) = page.upgrade() {
-                                            window.update_search_song_page(page, detail.songs);
+                                            window.update_search_song_page(page, songs);
+                                        } else {
+                                            return;
                                         }
                                     }
                                     Err(err) => {
                                         error!("{:?}", err);
+                                        if let Some(page) = page.upgrade() {
+                                            page.set_loading(false);
+                                        }
                                         sender
                                             .send(Action::AddToast(gettext(
                                                 "Failed to get song list details!",
                                             )))
                                             .await
                                             .unwrap();
+                                        return;
                                     }
                                 }
                             }
                         }
                         Err(err) => {
                             error!("{:?}", err);
+                            if let Some(page) = page.upgrade() {
+                                page.set_loading(false);
+                            }
                             sender
                                 .send(Action::AddToast(gettext(
                                     "Request for interface failed, please try again!",
@@ -1144,6 +1374,9 @@ impl NeteaseCloudMusicGtk4Application {
                         }
                         Err(err) => {
                             error!("{:?}", err);
+                            if let Some(page) = page.upgrade() {
+                                page.set_loading(false);
+                            }
                             sender
                                 .send(Action::AddToast(gettext(
                                     "Request for interface failed, please try again!",
@@ -1162,17 +1395,17 @@ impl NeteaseCloudMusicGtk4Application {
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
                     let res = window
-                        .action_search(ncmapi, String::new(), SearchType::Radio, 0, 1001)
+                        .action_search(ncmapi, String::new(), SearchType::Radio, 0, 50)
                         .await;
-                    if let Some(page) = page.upgrade() {
-                        if let Some(SearchResult::SongLists(sls)) = res {
-                            page.update_songlist(&sls);
-                        }
+                    if let Some(page) = page.upgrade()
+                        && let Some(SearchResult::SongLists(sls)) = res
+                    {
+                        page.update_songlist(&sls);
                     }
                 });
             }
             Action::ToMyPageAlbums => {
-                let title = gettext("Favorite Album");
+                let title = gettext("Saved Albums");
                 let page = window.init_search_songlist_page(&title, SearchType::LikeAlbums);
                 window.page_new(&page, &title, "ToMyPageAlbums");
                 let page = page.downgrade();
@@ -1181,27 +1414,27 @@ impl NeteaseCloudMusicGtk4Application {
                     let res = window
                         .action_search(ncmapi, String::new(), SearchType::LikeAlbums, 0, 50)
                         .await;
-                    if let Some(page) = page.upgrade() {
-                        if let Some(SearchResult::SongLists(sls)) = res {
-                            page.update_songlist(&sls);
-                        }
+                    if let Some(page) = page.upgrade()
+                        && let Some(SearchResult::SongLists(sls)) = res
+                    {
+                        page.update_songlist(&sls);
                     }
                 });
             }
             Action::ToMyPageSonglist => {
-                let title = gettext("Favorite Song List");
+                let title = gettext("Saved Playlists");
                 let page = window.init_search_songlist_page(&title, SearchType::LikeSongList);
                 window.page_new(&page, &title, "ToMyPageSonglist");
                 let page = page.downgrade();
 
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
                     let res = window
-                        .action_search(ncmapi, String::new(), SearchType::LikeSongList, 0, 1001)
+                        .action_search(ncmapi, String::new(), SearchType::LikeSongList, 0, 50)
                         .await;
-                    if let Some(page) = page.upgrade() {
-                        if let Some(SearchResult::SongLists(sls)) = res {
-                            page.update_songlist(&sls[1..]);
-                        }
+                    if let Some(page) = page.upgrade()
+                        && let Some(SearchResult::SongLists(sls)) = res
+                    {
+                        page.update_songlist(sls.get(1..).unwrap_or(&[]));
                     }
                 });
             }
@@ -1227,29 +1460,182 @@ impl NeteaseCloudMusicGtk4Application {
             Action::InitMyPageRecSongList(sls) => {
                 window.init_my_page(sls);
             }
-            Action::ToPlayListLyricsPage(sis, si) => {
+            Action::ToPlayListLyricsPage => {
                 let sender = imp.sender.clone();
                 if !window.page_cur_playlist_lyrics_page() {
-                    window.init_playlist_lyrics_page(sis, si.to_owned());
+                    if let Some((si, should_update_lyrics)) = window.init_playlist_lyrics_page() {
+                        window.set_playlist_queue_revealed(false);
+                        if si.id != 0 && should_update_lyrics {
+                            sender
+                                .send_blocking(Action::UpdateLyrics(si.to_owned(), 0))
+                                .unwrap();
+                        }
+                    }
                 } else {
                     sender.send_blocking(Action::PageBack).unwrap();
                 }
             }
+            Action::TogglePlayListQueueDrawer => {
+                if window.page_cur_playlist_lyrics_page() {
+                    window.toggle_playlist_queue_revealed();
+                } else {
+                    window.toggle_global_queue_drawer();
+                }
+            }
             Action::UpdateLyrics(si, time) => {
                 MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
+                    let song_id = si.id;
                     if time == 0 {
                         // 当新曲目播放时，写入歌词内容
-                        window.update_lyrics_text(&gettext("Loading lyrics..."));
-                        match ncmapi.get_lyrics(si).await {
-                            Ok(lrc) => {
-                                debug!("获取歌词：{:?}", lrc);
-                                window.update_lyrics(lrc);
+                        if window.begin_lyrics_update(song_id) {
+                            match ncmapi.get_lyrics(si).await {
+                                Ok(lrc) => {
+                                    debug!("获取歌词：{:?}", lrc);
+                                    window.update_lyrics(song_id, lrc);
+                                }
+                                Err(e) => {
+                                    debug!("{}", e);
+                                    window.lyrics_update_failed(song_id);
+                                }
                             }
-                            Err(e) => debug!("{}", e),
                         }
                     }
                     // 更新歌词高亮位置
                     window.update_lyrics_timestamp(time);
+                });
+            }
+            Action::LoadSongComments { song_id, offset } => {
+                MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
+                    if song_id == 0 || !window.begin_comments_update(song_id, offset) {
+                        return;
+                    }
+
+                    match ncmapi.song_comments(song_id, offset).await {
+                        Ok(comments) => {
+                            let missing_reply_count_ids =
+                                missing_comment_reply_count_ids(&comments);
+                            window.update_comments(song_id, offset, comments);
+                            update_comment_reply_counts_after_render(
+                                ncmapi,
+                                window,
+                                song_id,
+                                missing_reply_count_ids,
+                            )
+                            .await;
+                        }
+                        Err(err) => {
+                            debug!("获取评论失败: {:?}", err);
+                            window.comments_update_failed(song_id, offset);
+                        }
+                    }
+                });
+            }
+            Action::LikeSongComment {
+                song_id,
+                comment_id,
+                like,
+            } => {
+                let sender = imp.sender.clone();
+                MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
+                    match ncmapi.song_comment_like(song_id, comment_id, like).await {
+                        Ok(()) => {
+                            window.update_comment_like(song_id, comment_id, like);
+                        }
+                        Err(err) => {
+                            debug!("评论点赞失败: {:?}", err);
+                            window.comment_action_failed(song_id, comment_id);
+                            sender
+                                .send(Action::AddToast(if like {
+                                    gettext("Comment like failed!")
+                                } else {
+                                    gettext("Comment unlike failed!")
+                                }))
+                                .await
+                                .unwrap();
+                        }
+                    }
+                });
+            }
+            Action::LoadSongCommentReplies {
+                song_id,
+                comment_id,
+            } => {
+                let sender = imp.sender.clone();
+                MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
+                    match ncmapi.song_comment_replies(song_id, comment_id).await {
+                        Ok(replies) => {
+                            window.update_comment_replies(song_id, comment_id, replies);
+                        }
+                        Err(err) => {
+                            debug!("加载评论回复失败: {:?}", err);
+                            window.comment_action_failed(song_id, comment_id);
+                            sender
+                                .send(Action::AddToast(gettext("Failed to load comment replies!")))
+                                .await
+                                .unwrap();
+                        }
+                    }
+                });
+            }
+            Action::ReplySongComment {
+                song_id,
+                comment_id,
+                content,
+            } => {
+                let sender = imp.sender.clone();
+                MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
+                    match ncmapi
+                        .reply_song_comment(song_id, comment_id, &content)
+                        .await
+                    {
+                        Ok(sent_reply) => {
+                            window.comment_reply_sent(song_id, comment_id, sent_reply);
+                            sender
+                                .send(Action::AddToast(gettext("Comment sent!")))
+                                .await
+                                .unwrap();
+                        }
+                        Err(err) => {
+                            debug!("发送评论回复失败: {:?}", err);
+                            window.comment_action_failed(song_id, comment_id);
+                            sender
+                                .send(Action::AddToast(format!(
+                                    "{}: {err}",
+                                    gettext("Failed to send comment")
+                                )))
+                                .await
+                                .unwrap();
+                        }
+                    }
+                });
+            }
+            Action::DeleteSongComment {
+                song_id,
+                parent_comment_id,
+                comment_id,
+            } => {
+                let sender = imp.sender.clone();
+                MAINCONTEXT.spawn_local_with_priority(Priority::DEFAULT_IDLE, async move {
+                    match ncmapi.delete_song_comment(song_id, comment_id).await {
+                        Ok(()) => {
+                            window.comment_deleted(song_id, parent_comment_id, comment_id);
+                            sender
+                                .send(Action::AddToast(gettext("Comment deleted!")))
+                                .await
+                                .unwrap();
+                        }
+                        Err(err) => {
+                            debug!("删除评论失败: {:?}", err);
+                            window.comment_action_failed(song_id, comment_id);
+                            sender
+                                .send(Action::AddToast(format!(
+                                    "{}: {err}",
+                                    gettext("Failed to delete comment")
+                                )))
+                                .await
+                                .unwrap();
+                        }
+                    }
                 });
             }
             Action::UpdatePlayListStatus(index) => {
@@ -1323,7 +1709,7 @@ impl NeteaseCloudMusicGtk4Application {
 
     fn show_prefrerences(&self) {
         let window = self.active_window().unwrap();
-        let preferences = NeteaseCloudMusicGtk4Preferences::new();
+        let preferences = CloudMusicPlayerPreferences::new();
 
         let (size, unit) = crate::path::get_cache_size();
         preferences.set_cache_size_label(size, unit);
@@ -1334,11 +1720,27 @@ impl NeteaseCloudMusicGtk4Application {
     fn show_about(&self) {
         let window = self.active_window().unwrap();
         let dialog = adw::AboutDialog::builder()
-            .application_name(gettext(crate::APP_NAME))
-            .application_icon(crate::APP_ID)
+            .application_name(crate::APP_NAME)
+            .application_icon(crate::APP_ICON)
             .version(VERSION)
-            .developer_name("gmg137")
-            .developers(vec![
+            .developer_name("b1ngggg")
+            .comments(
+                "CloudMusicPlayer is a Linux music player for NetEase Cloud Music.\n\n\
+                 Redesigned UI with comments, lyric view, queue, player bar, and large-list performance optimizations.",
+            )
+            .build();
+        dialog.add_link(
+            &gettext("Project Homepage"),
+            "https://github.com/b1ngggg/CloudMusicPlayer",
+        );
+        dialog.add_link(
+            &gettext("Original Project"),
+            "https://github.com/gmg137/netease-cloud-music-gtk",
+        );
+        dialog.add_acknowledgement_section(
+            Some(&gettext("Acknowledgements")),
+            &[
+                "b1ngggg",
                 "gmg137",
                 "catsout",
                 "fplust",
@@ -1362,12 +1764,8 @@ impl NeteaseCloudMusicGtk4Application {
                 "arkuna23",
                 "wngtk",
                 "zyw271828",
-            ])
-            .website("https://github.com/gmg137/netease-cloud-music-gtk")
-            .issue_url("https://github.com/gmg137/netease-cloud-music-gtk/issues")
-            .license_type(gtk::License::Gpl30)
-            .copyright("© 2025 gmg137")
-            .build();
+            ],
+        );
 
         dialog.present(Some(&window));
     }
@@ -1426,7 +1824,7 @@ impl NeteaseCloudMusicGtk4Application {
     }
 }
 
-impl Default for NeteaseCloudMusicGtk4Application {
+impl Default for CloudMusicPlayerApplication {
     fn default() -> Self {
         gio::Application::default()
             .expect("Could not get default GApplication")

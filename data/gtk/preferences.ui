@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
     <requires lib="gtk" version="4.0" />
-    <template class="NeteaseCloudMusicGtk4Preferences" parent="AdwPreferencesDialog">
+    <template class="CloudMusicPlayerPreferences" parent="AdwPreferencesDialog">
+        <style>
+            <class name="app-preferences" />
+        </style>
         <property name="title" translatable="yes">Preferences</property>
         <child>
             <object class="AdwPreferencesPage">
@@ -10,7 +13,7 @@
                         <property name="title" translatable="yes">General</property>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">Exit to the background</property>
+                                <property name="title" translatable="yes">Minimize to tray on close</property>
                                 <property name="subtitle" translatable="yes">Set the main window close button behavior</property>
                                 <property name="use_underline">True</property>
                                 <property name="activatable-widget">exit_switch</property>
@@ -24,8 +27,8 @@
                         </child>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">Mute when startup</property>
-                                <property name="subtitle" translatable="yes">Set volume to 0 when startup</property>
+                                <property name="title" translatable="yes">Mute on startup</property>
+                                <property name="subtitle" translatable="yes">Set volume to 0 after startup</property>
                                 <property name="use_underline">True</property>
                                 <property name="activatable-widget">mute_start_switch</property>
                                 <child>
@@ -38,8 +41,8 @@
                         </child>
                         <child>
                             <object class="AdwActionRow">
-                                <property name="title" translatable="yes">Not ignore grey song</property>
-                                <property name="subtitle" translatable="yes">Always try to play grey song</property>
+                                <property name="title" translatable="yes">Do not skip grey songs</property>
+                                <property name="subtitle" translatable="yes">Always try to play grey songs</property>
                                 <property name="use_underline">True</property>
                                 <property name="activatable-widget">not_ignore_grey_switch</property>
                                 <child>
@@ -66,7 +69,7 @@
                         </child>
                         <child>
                             <object class="AdwComboRow" id="cache_clear">
-                                <property name="title" translatable="yes">Cache cleaning</property>
+                                <property name="title" translatable="yes">Cache Cleanup</property>
                                 <property name="model">
                                     <object class="GtkStringList">
                                         <items>
@@ -86,7 +89,7 @@
                         <property name="title" translatable="yes">Music</property>
                         <child>
                             <object class="AdwComboRow" id="switch_rate">
-                                <property name="title" translatable="yes">Sound quality</property>
+                                <property name="title" translatable="yes">Audio Quality</property>
                                 <property name="model">
                                     <object class="GtkStringList">
                                         <items>

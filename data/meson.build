@@ -1,16 +1,16 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 gnome = import('gnome')
 
-gnome.compile_resources('netease-cloud-music-gtk4',
-  'netease_cloud_music_gtk4.gresource.xml',
+gnome.compile_resources('cloudmusicplayer',
+  'cloudmusicplayer.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
 )
 
 desktop_file = i18n.merge_file(
-  input: 'com.gitee.gmg137.NeteaseCloudMusicGtk4.desktop.in',
-  output: 'com.gitee.gmg137.NeteaseCloudMusicGtk4.desktop',
+  input: 'io.github.b1ngggg.CloudMusicPlayer.desktop.in',
+  output: 'io.github.b1ngggg.CloudMusicPlayer.desktop',
   type: 'desktop',
   po_dir: '../po',
   install: true,
@@ -25,8 +25,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-  input: 'com.gitee.gmg137.NeteaseCloudMusicGtk4.metainfo.xml.in',
-  output: 'com.gitee.gmg137.NeteaseCloudMusicGtk4.metainfo.xml',
+  input: 'io.github.b1ngggg.CloudMusicPlayer.metainfo.xml.in',
+  output: 'io.github.b1ngggg.CloudMusicPlayer.metainfo.xml',
   po_dir: '../po',
   install: true,
   install_dir: join_paths(get_option('datadir'), 'metainfo')
@@ -36,7 +36,7 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
      args: ['validate', '--no-net', '--explain', appstream_file])
 
-install_data('com.gitee.gmg137.NeteaseCloudMusicGtk4.gschema.xml',
+install_data('io.github.b1ngggg.CloudMusicPlayer.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas')
 )
 
