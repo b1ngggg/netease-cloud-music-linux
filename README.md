@@ -16,8 +16,12 @@ CloudMusicPlayer 是面向网易云音乐的 Linux 音乐播放器，基于
 
 ## 安装
 
-使用 Flatpak 安装
+#### 从 Flathub 安装
+<a href='https://flathub.org/zh-Hant/apps/io.github.b1ngggg.CloudMusicPlayer'>
+    <img width='240' alt='Download on Flathub' src='https://flathub.org/api/badge?locale=zh-Hans'/>
+</a>
 
+或
 ```bash
 flatpak install flathub io.github.b1ngggg.CloudMusicPlayer
 ```
