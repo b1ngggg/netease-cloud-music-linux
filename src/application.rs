@@ -826,7 +826,7 @@ impl CloudMusicPlayerApplication {
                                     };
                                     sender.send(Action::PlayStart(song_info)).await.unwrap();
                                 } else {
-                                    error!("获取歌曲播放链接失败: {:?}", &[song_info.id]);
+                                    error!("获取歌曲播放链接失败: {:?}", [song_info.id]);
                                     sender
                                         .send(Action::AddToast(gettext_f(
                                             "Get [{name}] Playback link failed!",
@@ -838,7 +838,7 @@ impl CloudMusicPlayerApplication {
                                     sender.send(Action::PlayNextSong).await.unwrap();
                                 }
                             } else {
-                                error!("获取歌曲播放链接失败: {:?}", &[song_info.id]);
+                                error!("获取歌曲播放链接失败: {:?}", [song_info.id]);
                                 sender
                                     .send(Action::AddToast(gettext_f(
                                         "Get [{name}] Playback link failed!",
