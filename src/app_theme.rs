@@ -386,3 +386,23 @@ textview.lyrics-text-view text {
   box-shadow: -18px 0 44px rgba(15, 23, 18, 0.15);
 }
 "#;
+
+#[cfg(test)]
+mod tests {
+    const APP_CSS: &str = include_str!("../data/themes/discover.css");
+
+    #[test]
+    fn virtual_song_list_background_follows_the_theme_surface() {
+        let song_list_rule = APP_CSS
+            .split_once(".app-song-list-view,")
+            .expect("song list surface rule should exist")
+            .1
+            .split_once('}')
+            .expect("song list surface rule should be complete")
+            .0;
+
+        assert!(song_list_rule.contains("listview.app-song-virtual-list,"));
+        assert!(song_list_rule.contains("listview.app-song-virtual-list > row"));
+        assert!(song_list_rule.contains("background: transparent;"));
+    }
+}

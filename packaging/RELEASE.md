@@ -5,11 +5,15 @@
 Publish these files on GitHub Releases:
 
 - `CloudMusicPlayer.flatpak`
-- `cloudmusicplayer_1.0.3-1_amd64.deb`
+- `cloudmusicplayer_1.0.4-1_amd64.deb`
 
 Git tag:
 
-- `v1.0.3`
+- `v1.0.4`
+
+## Changes
+
+- Fix the song list background when switching to light mode ([#2](https://github.com/b1ngggg/CloudMusicPlayer/issues/2)).
 
 ## Compatibility
 
@@ -35,13 +39,15 @@ flatpak run io.github.b1ngggg.CloudMusicPlayer
 deb:
 
 ```bash
-sudo apt install ./cloudmusicplayer_1.0.3-1_amd64.deb
+sudo apt install ./cloudmusicplayer_1.0.4-1_amd64.deb
 ```
 
 ## Release Notes Template
 
 ```text
-CloudMusicPlayer v1.0.3
+CloudMusicPlayer v1.0.4
+
+Fixed the song list background when switching to light mode (#2).
 
 Recommended install:
 flatpak install --user --bundle ./CloudMusicPlayer.flatpak
@@ -49,5 +55,5 @@ flatpak install --user --bundle ./CloudMusicPlayer.flatpak
 deb package:
 Only for Ubuntu 24.04+ / newer Debian amd64.
 Install with:
-sudo apt install ./cloudmusicplayer_1.0.3-1_amd64.deb
+sudo apt install ./cloudmusicplayer_1.0.4-1_amd64.deb
 ```

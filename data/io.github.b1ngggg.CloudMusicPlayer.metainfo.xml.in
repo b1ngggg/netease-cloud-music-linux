@@ -7,6 +7,11 @@
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-3.0-or-later</project_license>
     <releases>
+        <release version="1.0.4" date="2026-08-03" type="stable">
+            <description>
+                <p>Fix the song list background when switching to the light color scheme.</p>
+            </description>
+        </release>
         <release version="1.0.3" date="2026-05-28" type="stable" />
     </releases>
     <name>CloudMusicPlayer</name>
@@ -24,19 +29,19 @@
     </description>
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.3/screenshots/discover.png</image>
+            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.4/screenshots/discover.png</image>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.3/screenshots/lyrics.png</image>
+            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.4/screenshots/lyrics.png</image>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.3/screenshots/queue.png</image>
+            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.4/screenshots/queue.png</image>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.3/screenshots/comments.png</image>
+            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.4/screenshots/comments.png</image>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.3/screenshots/daily-recommendation.png</image>
+            <image>https://raw.githubusercontent.com/b1ngggg/CloudMusicPlayer/v1.0.4/screenshots/daily-recommendation.png</image>
         </screenshot>
     </screenshots>
     <content_rating type="oars-1.1" />

@@ -359,7 +359,7 @@ dependencies = [
 
 [[package]]
 name = "cloudmusicplayer"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "anyhow",
  "async-channel",
