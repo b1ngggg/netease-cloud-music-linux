@@ -1,6 +1,6 @@
 [package]
 name = "cloudmusicplayer"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2024"
 description = "A Rust GTK4/libadwaita desktop client based on NetEase Cloud Music Gtk"
 homepage = "https://github.com/b1ngggg/CloudMusicPlayer"

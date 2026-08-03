@@ -934,7 +934,9 @@ button.app-secondary-action:hover {
 
 .app-song-list-view,
 .app-list-scroll,
-.app-list-scroll viewport {
+.app-list-scroll viewport,
+listview.app-song-virtual-list,
+listview.app-song-virtual-list > row {
   background: transparent;
 }
 

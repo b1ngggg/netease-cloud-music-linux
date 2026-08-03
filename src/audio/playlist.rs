@@ -45,17 +45,9 @@ impl PlayList {
     }
 
     pub fn current_song(&self) -> Option<&SongInfo> {
-        if let LoopsState::Shuffle = self.loops {
-            if let Some(song) = self.shuffle.get(self.position) {
-                return Some(song);
-            } else {
-                return None;
-            }
-        }
-        if let Some(song) = self.list.get(self.position) {
-            Some(song)
-        } else {
-            None
+        match self.loops {
+            LoopsState::Shuffle => self.shuffle.get(self.position),
+            _ => self.list.get(self.position),
         }
     }
 
